@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>출처와 라이선스</title>
+<link rel="icon" href="icons/icon-32.png" sizes="32x32">
+<style>
+:root{--bg:#f8f8f6;--ink:#1b1d20;--muted:#5d636a;--line:#d8d9d4;--acc:#c3193f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1c1e21;--ink:#e6e7e9;--muted:#a1a6ad;--line:#2f3338;--acc:#ff7390;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1c1e21;--ink:#e6e7e9;--muted:#a1a6ad;--line:#2f3338;--acc:#ff7390;color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 "IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:28px 16px 48px}
+h1{font:700 24px/1.3 "Noto Serif KR","HY신명조",Batang,serif;margin:0 0 6px}
+h2{font-size:16px;margin:28px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+p.lead{color:var(--muted);margin:0 0 8px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;white-space:nowrap}
+a{color:var(--acc)}
+.wrap{overflow-x:auto}
+td:first-child{white-space:nowrap}
+</style>
+</head>
+<body>
+<main>
+<h1>출처와 라이선스</h1>
+<p class="lead">지리 자료 제작기 · 승현이 Claude(Anthropic)와 협업해 만들었습니다. <a href="./">도구로 돌아가기</a></p>
+<p>이 판에는 한국교육과정평가원 시험지의 그림이 들어 있지 않습니다. 지형 모식도는 직접 그린 그림입니다.</p>
+
+<h2>자료</h2>
+<p>아래 자료를 내려받아 이 도구에 맞게 고르고, 이름을 한국어로 바꾸고, 단위·형식을 바꾸고, 단순화하는 등 <b>가공해서</b> 실었습니다. 원자료와 값이 다르게 보이는 부분이 있으면 가공 과정의 차이일 수 있으니 원자료를 확인해 주세요. 출처 기관은 이 도구를 후원하거나 보증하지 않습니다. 이용 조건은 표에 적은 날에 확인했습니다.</p>
+<div class="wrap"><table>
+<tr><th>도구</th><th>자료</th><th>출처와 이용 조건</th></tr>
+<tr><td>세계 백지도</td><td>국가 경계, 하천·호수, 도시, 한글 지명</td><td>Made with Natural Earth. Free vector and raster map data @ <a href="https://www.naturalearthdata.com/" rel="noopener">naturalearthdata.com</a>. 퍼블릭 도메인(<a href="https://www.naturalearthdata.com/about/terms-of-use/" rel="noopener">이용 조건</a>, 2026-10-07 확인). 한글 지명은 Natural Earth의 한국어 이름(NAME_KO)을 바탕으로 일부 표기를 고쳤습니다.</td></tr>
+<tr><td>한국지리 백지도</td><td>시·도, 시·군·구 경계(2026년 4월·7월 기준)</td><td>본 데이터는 통계청 통계지리정보서비스(SGIS, <a href="https://sgis.kostat.go.kr" rel="noopener">https://sgis.kostat.go.kr</a>)에서 공공누리 제1유형으로 개방한 행정동 경계를 가공한 것이며(가공: vuski/admdongkor, <a href="https://github.com/vuski/admdongkor" rel="noopener">https://github.com/vuski/admdongkor</a>), CC BY 4.0으로 배포됩니다. 이 도구는 그것을 시·군·구, 시·도 단위로 합치고 단순화했습니다. <a href="https://creativecommons.org/licenses/by/4.0/legalcode.ko" rel="noopener">CC BY 4.0 전문</a> · <a href="https://github.com/vuski/admdongkor/blob/master/LICENSE-DATA" rel="noopener">자료 라이선스</a>(2026-10-07 확인). 원자료는 “있는 그대로” 제공되며 정확성을 보증하지 않습니다.</td></tr>
+<tr><td></td><td>북한 도 경계, 북한 도시, 산, 하천</td><td>Made with Natural Earth(퍼블릭 도메인).</td></tr>
+<tr><td></td><td>고속 국도</td><td>노선이 지나는 시·군 중심을 차례로 이은 모식적인 선(직접 만듦, 실제 노선과 어긋날 수 있음).</td></tr>
+<tr><td></td><td>영해: 직선 기선 기점 23곳</td><td>「영해 및 접속수역법 시행령」 별표 1(2002.12.18. 개정, 세계측지계). 좌표는 대한민국이 UN에 기탁한 목록 <a href="https://www.un.org/depts/los/LEGISLATIONANDTREATIES/PDFFILES/mzn_s/mzn130ef.pdf" rel="noopener">MZN 130</a>. 법령은 저작권법 제7조에 따라 보호받지 않는 저작물입니다.</td></tr>
+<tr><td></td><td>영해선(영해 한계선)</td><td>본 저작물은 국립해양조사원에서 작성하여 공공누리 제1유형으로 개방한 ‘해양수산부 국립해양조사원_영해한계선및직선기선’(2026-07-14)을 이용하였으며, 해당 저작물은 공공데이터포털(<a href="https://www.data.go.kr" rel="noopener">www.data.go.kr</a>)에서 무료로 내려받을 수 있습니다. 이 도구에 맞게 형식을 바꿨습니다.</td></tr>
+<tr><td></td><td>통상 기선 해안</td><td>위 행정 경계 자료의 해안선 가운데 동해안·제주도·울릉도(수업용 표시).</td></tr>
+<tr><td>기후 그래프</td><td>기온·강수량 평년값(1991~2020), 지점 146곳</td><td>출처: 気象庁(일본 기상청) ホームページ, ClimatView 월별 평년값(<a href="https://www.data.jma.go.jp/cpd/monitor/climatview/frame.php" rel="noopener">https://www.data.jma.go.jp/cpd/monitor/climatview/frame.php</a>)을 바탕으로 이 도구가 지점을 골라 형식을 바꿈. 일본 기상청 누리집 이용 약관(공공 데이터 이용 약관 1.0, CC BY 4.0과 호환)에 따름(<a href="https://www.jma.go.jp/jma/en/copyright.html" rel="noopener">이용 약관</a>, 2026-10-07 확인). 원래 값은 세계 각국 기상 기관이 보낸 월별 기후 통보(CLIMAT)입니다.</td></tr>
+<tr><td>에너지 그래프</td><td>실린 자료 없음</td><td>Energy Institute(Statistical Review of World Energy) 통계는 복제·재배포에 서면 허가가 필요해(<a href="https://energyinst.org/terms" rel="noopener">EI 이용 약관</a>, 2026-10-06 확인) 이 공개판에 싣지 않았습니다. 쓰는 사람이 직접 받은 표를 붙여 넣어 그래프를 만듭니다.</td></tr>
+<tr><td>종교 그래프</td><td>2010·2020년 나라별 종교 인구 추정(반올림한 값)</td><td>Hackett, Conrad, Marcin Stonawski, Yunping Tong, Stephanie Kramer and Anne Fengyan Shi. 2025. “Dataset of Global Religious Composition Estimates for 2010 and 2020.” Pew Research Center, Washington, D.C. <a href="https://www.pewresearch.org/dataset/dataset-of-global-religious-composition-estimates-for-2010-and-2020/" rel="noopener">https://www.pewresearch.org/dataset/dataset-of-global-religious-composition-estimates-for-2010-and-2020/</a><br>Pew Research Center bears no responsibility for the analyses or interpretations of the data presented here.<br>(Pew Research Center는 여기에 제시된 자료의 분석이나 해석에 책임을 지지 않습니다. <a href="https://www.pewresearch.org/about/terms-and-conditions/" rel="noopener">이용 약관</a>, 2026-10-06 확인)</td></tr>
+<tr><td>인구 그래프</td><td>인구·연령 구조·추계</td><td>United Nations, Department of Economic and Social Affairs, Population Division (2024). World Population Prospects 2024, Online Edition. © July 2024 by United Nations, made available under a Creative Commons license <a href="https://creativecommons.org/licenses/by/3.0/igo/" rel="noopener">CC BY 3.0 IGO</a>. 연령별 인구는 같은 자료를 담은 R 패키지 wpp2024(1.1-3)에서 읽었습니다.</td></tr>
+<tr><td></td><td>도시화</td><td>United Nations, Department of Economic and Social Affairs, Population Division (2025). World Urbanization Prospects: The 2025 Revision, Online Edition. · 같은 곳 (2018). World Urbanization Prospects: The 2018 Revision, Online Edition. © 2025·2018 by United Nations, made available under a Creative Commons license <a href="https://creativecommons.org/licenses/by/3.0/igo/" rel="noopener">CC BY 3.0 IGO</a>.</td></tr>
+<tr><td></td><td>국제 이주자</td><td>United Nations Department of Economic and Social Affairs, Population Division (2024). International Migrant Stock 2024. · 같은 곳 (2020). International Migrant Stock 2020. © 2024·2020 by United Nations, made available under a Creative Commons license <a href="https://creativecommons.org/licenses/by/3.0/igo/" rel="noopener">CC BY 3.0 IGO</a>.</td></tr>
+<tr><td></td><td></td><td>UN 자료의 이용 조건과 인용 문구는 내려받은 원자료 파일에 적힌 것을 옮겼습니다. 이 도구의 그림과 가공은 UN이 아니라 제작자가 한 것입니다. 지도의 경계·이름은 UN의 공식 입장을 뜻하지 않습니다.</td></tr>
+<tr><td>농업 그래프</td><td>작물·가축 생산, 품목별 교역, 식량 수급</td><td>FAO. 2025. FAOSTAT: Crops and livestock products. Accessed on 2 October 2026. <a href="https://www.fao.org/faostat/en/#data/QCL" rel="noopener">https://www.fao.org/faostat/en/#data/QCL</a>. Licence: CC-BY-4.0.<br>FAO. 2026. FAOSTAT: Trade – Crops and livestock products. Accessed on 2 October 2026. <a href="https://www.fao.org/faostat/en/#data/TCL" rel="noopener">https://www.fao.org/faostat/en/#data/TCL</a>. Licence: CC-BY-4.0.<br>FAO. 2025. FAOSTAT: Food Balances (2010-). Accessed on 2 October 2026. <a href="https://www.fao.org/faostat/en/#data/FBS" rel="noopener">https://www.fao.org/faostat/en/#data/FBS</a>. Licence: CC-BY-4.0.<br>(<a href="https://www.fao.org/contact-us/terms/db-terms-of-use/en" rel="noopener">FAO 통계 데이터베이스 이용 조건</a>, 2026-10-06 확인. <a href="https://creativecommons.org/licenses/by/4.0/legalcode.ko" rel="noopener">CC BY 4.0 전문</a>. 연도는 내려받은 파일의 갱신일 기준.)</td></tr>
+</table></div>
+<p>이 도구로 만든 그래프·지도를 시험지나 수업 자료에 쓸 때도 위 출처를 함께 적어 주세요.</p>
+
+<h2>프로그램 부품</h2>
+<div class="wrap"><table>
+<tr><th>부품</th><th>판</th><th>라이선스</th></tr>
+<tr><td>D3</td><td>7.9.0</td><td>ISC · <a href="lib/LICENSE-d3.txt">전문</a> · 번들에 함께 든 모듈(d3-delaunay, Delaunator, robust-predicates, internmap, d3-geo 안의 GeographicLib 등) 고지: <a href="lib/THIRD-PARTY-d3.txt">THIRD-PARTY-d3.txt</a></td></tr>
+<tr><td>d3-geo-projection</td><td>4.0.0</td><td>ISC · <a href="lib/LICENSE-d3-geo-projection.txt">전문</a></td></tr>
+<tr><td>TopoJSON Client</td><td>3.1.0</td><td>ISC · <a href="lib/LICENSE-topojson-client.txt">전문</a></td></tr>
+<tr><td>PDF.js(PDF 불러오기)</td><td>3.11.174</td><td>Apache License 2.0 · <a href="lib/pdfjs/LICENSE.txt">전문</a></td></tr>
+<tr><td>Adobe CMap(PDF.js가 쓰는 한글 글자 표, lib/pdfjs/cmaps/)</td><td>pdfjs-dist 3.11.174에 든 것</td><td>Copyright 1990-2009 Adobe Systems Incorporated. BSD 3조항 형식 · <a href="lib/pdfjs/cmaps/LICENSE.txt">전문</a></td></tr>
+<tr><td>글꼴: IBM Plex Sans KR, Noto Sans KR, Noto Serif KR</td><td>Google Fonts에서 불러옴</td><td>SIL Open Font License 1.1</td></tr>
+<tr><td>방문 통계: GoatCounter count.js</td><td>v5</td><td>ISC</td></tr>
+</table></div>
+<p>저장소 맨 위에 따로 적힌 라이선스가 없는 파일(이 도구 자체의 코드와 직접 그린 모식도·아이콘)의 이용 조건은 제작자가 아직 정하지 않았습니다.</p>
+
+<h2>밖으로 나가는 요청</h2>
+<p>만든 그림, 입력한 문장, 작업 파일, 불러온 PDF는 모두 쓰는 사람의 기기 안에서만 처리되고 어디로도 보내지 않습니다. 이 사이트가 다른 곳에 보내는 요청은 다음 두 가지뿐입니다.</p>
+<p><b>방문 통계</b> — 이 사이트를 몇 명이 쓰는지, 어느 탭을 많이 여는지 알아보려고 <a href="https://www.goatcounter.com/" rel="noopener">GoatCounter</a>로 방문 수를 셉니다. 보내는 것: 연 페이지 주소와 처음 연 탭 이름, 이전 페이지 주소, 화면 크기, 그리고 브라우저가 모든 사이트에 보내는 기본 정보(IP 주소, 브라우저 정보). GoatCounter는 이것으로 브라우저, 운영 체제, 나라·지역, 언어, 화면 너비를 집계하며, IP 주소·전체 User-Agent·추적 ID를 저장하지 않고, 쿠키 같은 것을 브라우저에 남기지 않으며, 자료는 핀란드·독일의 서버(Hetzner)에 둔다고 밝히고 있습니다(<a href="https://www.goatcounter.com/help/privacy" rel="noopener">GoatCounter 개인 정보 안내</a>, 2026-10-07 확인). 인터넷 없이 열었을 때는 세지 않습니다.</p>
+<p><b>웹 글꼴</b> — 글꼴을 Google Fonts(fonts.googleapis.com, fonts.gstatic.com)에서 받아 옵니다. 이때 글꼴을 보내 주려고 Google 서버가 IP 주소 등을 받습니다. Google은 이것을 사용자 프로필이나 광고에 쓰지 않는다고 밝히고 있습니다(<a href="https://fonts.googleblog.com/2022/11/your-privacy-and-google-fonts.html" rel="noopener">Google Fonts 안내</a>). 한 번 받은 글꼴은 기기에 저장해 두고 다시 씁니다.</p>
+</main>
+</body>
+</html>
