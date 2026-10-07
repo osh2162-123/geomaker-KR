@@ -1941,6 +1941,10 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
           <label class="check"><input type="checkbox" id="lnAc">극권</label>
           <label class="check"><input type="checkbox" id="lyMajor">주요 하천 전부</label>
         </div>
+        <div class="row"><label for="zoneSel">기후 지역</label><select id="zoneSel" class="grow"><option value="none">없음</option><option value="one">건조 기후(하나로)</option><option value="two">사막 기후 · 스텝 기후</option><option value="four">네 갈래(BWh·BWk·BSh·BSk)</option></select></div>
+        <div id="zoneTones" class="zone-tones"></div>
+        <div class="row" id="zoneLegRow" hidden><label for="zoneLeg">범례</label><select id="zoneLeg"><option value="bl">왼쪽 아래</option><option value="br">오른쪽 아래</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option><option value="none">없음</option></select></div>
+        <p class="note" id="zoneNote" hidden>쾨펜 기후 구분(Beck 외 2023, 1991~2020년 평년) 지도를 단순화한 것이라 시험지 지도와 가장자리가 조금 다를 수 있어요.</p>
         <div class="row"><label for="grat">경위선망</label><select id="grat"><option value="0">없음</option><option value="10">10° 간격</option><option value="15">15° 간격</option><option value="20">20° 간격</option><option value="30">30° 간격</option></select></div>
       </section>
       <section class="grp"><h3>가장자리 눈금</h3>
@@ -7205,7 +7209,7 @@ function applyPreset(d,p){
 /* ───────── 문서 ───────── */
 function freshDoc(presetId){
   const d={v:1,preset:presetId,view:{},frame:{w:46,h:45},
-    layers:{borders:true,lakes:true,grat:0,lines:{eq:false,tr:false,ac:false},rivers:[],major:false,detail:'auto'},
+    layers:{borders:true,lakes:true,grat:0,lines:{eq:false,tr:false,ac:false},rivers:[],major:false,detail:'auto',zone:{kind:'none',split:'one',tone:{},legend:'bl'}},
     ticks:[],
     style:{font:'hysm',latin:'same',fontPt:9,dot:1.2,ring:1.5,line:1,sea:229,shade:178,seq:'latin',place:'l',shadeAuto:true},
     items:[]};
@@ -7215,6 +7219,8 @@ function freshDoc(presetId){
 function normalizeDoc(d){
   d=clean(d)||{}; const f=freshDoc(d.preset&&presetById(d.preset)?d.preset:'europe');
   const out={...f,...d,layers:{...f.layers,...(d.layers||{}),lines:{...f.layers.lines,...((d.layers||{}).lines||{})}},style:{...f.style,...(d.style||{})},frame:{...f.frame,...(d.frame||{})},view:{...f.view,...(d.view||{})}};
+  { const z=Object.assign({},f.layers.zone,(d.layers||{}).zone||{}); z.kind=z.kind==='arid'?'arid':'none'; if(!ZONE_SPLITS[z.split]) z.split='one'; if(!ZONE_LEGEND.includes(z.legend)) z.legend='bl';
+    const t={}; for(const [k,v] of Object.entries(z.tone&&typeof z.tone==='object'?z.tone:{})) if(ZONE_TONES.includes(v)) t[k]=v; z.tone=t; out.layers.zone=z; }
   if(!PROJS[out.view.proj]) out.view=f.view;
   out.items=(d.items||[]).filter(i=>i&&i.t&&isFinite(i.lon)&&isFinite(i.lat)).map(i=>({dx:0,dy:0,leader:'auto',halo:false,extra:[],...i,id:i.id||uid()}));
   out.ticks=Array.isArray(d.ticks)?d.ticks:f.ticks;
@@ -7423,6 +7429,65 @@ function countryAt(doc,lon,lat){ const g=G(doc); if(!g) return null; for(const f
 
 /* ───────── 그리기 (캔버스·SVG 공통, 단위 mm) ───────── */
 function parallel(lat){ const c=[]; for(let x=-180;x<=180;x+=2) c.push([x,lat]); return {type:'LineString',coordinates:c}; }
+/* ───────── 기후 지역: 쾨펜 건조 기후(B) ─────────
+   자료: Beck 외(2023) 1 km 쾨펜-가이거 지도의 1991~2020년 0.1° 판에서 BWh·BWk·BSh·BSk만 다각형으로 바꿔 단순화(data/arid.json, TopoJSON).
+   한 위상(topology) 안에 네 갈래가 이웃 경계를 공유하므로, 묶어 칠할 때는 topojson.merge로 합쳐 안쪽 경계선이 안 보이게 한다 */
+const ZONE_SPLITS={
+  one:[['B','건조 기후',['BWh','BWk','BSh','BSk']]],
+  two:[['BW','사막 기후',['BWh','BWk']],['BS','스텝 기후',['BSh','BSk']]],
+  four:[['BWh','열대 사막(BWh)',['BWh']],['BWk','온대·냉대 사막(BWk)',['BWk']],['BSh','열대 스텝(BSh)',['BSh']],['BSk','온대·냉대 스텝(BSk)',['BSk']]]};
+const ZONE_TONES=['light','mid','dark','hatch','hatch2'];
+const ZONE_TONE={B:'hatch',BW:'dark',BS:'light',BWh:'dark',BWk:'mid',BSh:'hatch',BSk:'hatch2'};
+const ZONE_LEGEND=['none','bl','br','tl','tr'];
+const ZONE_LABEL={B:'건조 기후',BW:'사막 기후',BS:'스텝 기후',BWh:'BWh',BWk:'BWk',BSh:'BSh',BSk:'BSk'};
+let zoneTopo=null, zoneLoading=null; const zoneCache={};
+function loadZones(){
+  if(zoneTopo) return Promise.resolve(zoneTopo); if(zoneLoading) return zoneLoading;
+  zoneLoading=rawData('arid').then(t=>{ zoneTopo=t; listeners.forEach(fn=>{ try{fn('arid');}catch(e){} }); return t; }).catch(e=>{ zoneLoading=null; throw e; });
+  return zoneLoading;
+}
+function zoneGroups(doc){
+  const z=doc.layers.zone; if(!z||z.kind!=='arid') return [];
+  return (ZONE_SPLITS[z.split]||ZONE_SPLITS.one).map(([key,ko,cls])=>({key,ko,cls,tone:(z.tone&&z.tone[key])||ZONE_TONE[key]}));
+}
+function zoneShape(key,cls){
+  if(!zoneTopo) return null; if(zoneCache[key]) return zoneCache[key];
+  const o=zoneTopo.objects[Object.keys(zoneTopo.objects)[0]];
+  return zoneCache[key]=topojson.merge(zoneTopo,o.geometries.filter(g=>g.properties&&cls.includes(g.properties.k)));
+}
+function hatchRect(ctx,x0,y0,w,h,dir,L){ /* 사각형 안을 사선으로 채운다(지도 빗금과 같은 간격) */
+  ctx.save(); ctx.beginPath(); ctx.rect(x0,y0,w,h); ctx.clip(); ctx.beginPath(); const st=0.6;
+  for(let x=x0-h;x<x0+w+h;x+=st){ if(dir>0){ ctx.moveTo(x,y0+h); ctx.lineTo(x+h,y0); } else { ctx.moveTo(x,y0); ctx.lineTo(x+h,y0+h); } }
+  ctx.lineWidth=0.07*L; ctx.strokeStyle='#000000'; ctx.lineCap='butt'; ctx.stroke(); ctx.restore(); }
+/* 범례: 틀 안 모서리에 흰 상자 + 칸 + 이름(시험지 범례처럼) */
+function drawZoneLegend(doc,ctx,fw,fh){
+  const z=doc.layers.zone, zg=zoneGroups(doc); if(!zg.length||!z.legend||z.legend==='none') return null;
+  const L=doc.style.line, fs=doc.style.fontPt*MMPT*0.75, sw=3.0, sh=1.8, gap=0.9, pad=0.9, rowH=Math.max(sh,fs*1.05)+0.7;
+  ctx.font=`${fs}px ${fontStack(doc,false)}`; const labs=zg.map(g=>ZONE_LABEL[g.key]||g.ko);
+  const tw=Math.max(...labs.map(t=>ctx.measureText(t).width));
+  const W=pad*2+sw+gap+tw, H=pad*2+rowH*zg.length-0.7, m=1.2;
+  const x0=z.legend[1]==='l'?m:fw-m-W, y0=z.legend[0]==='t'?m:fh-m-H;
+  ctx.save(); ctx.fillStyle='#ffffff'; ctx.fillRect(x0,y0,W,H); ctx.lineWidth=0.1*L; ctx.strokeStyle='#000000'; ctx.strokeRect(x0,y0,W,H);
+  zg.forEach((g,i)=>{ const ry=y0+pad+i*rowH, sy=ry+(rowH-0.7-sh)/2, sx=x0+pad;
+    if(g.tone==='hatch'||g.tone==='hatch2') hatchRect(ctx,sx,sy,sw,sh,g.tone==='hatch'?1:-1,L);
+    else { ctx.fillStyle=toneColor(doc,g.tone); ctx.fillRect(sx,sy,sw,sh); }
+    ctx.lineWidth=0.08*L; ctx.strokeStyle='#000000'; ctx.strokeRect(sx,sy,sw,sh);
+    ctx.fillStyle='#000000'; ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.font=`${fs}px ${fontStack(doc,false)}`;
+    ctx.fillText(labs[i],sx+sw+gap,sy+sh/2+fs*0.36); });
+  ctx.restore(); return {x:x0,y:y0,w:W,h:H};
+}
+function drawZones(doc,ctx,path,g,fw,fh){
+  const zg=zoneGroups(doc); if(!zg.length) return;
+  if(!zoneTopo){ loadZones().catch(()=>{}); return; }
+  const L=doc.style.line;
+  ctx.save(); ctx.beginPath(); path(g.land); ctx.clip();   // 해안선 밖으로 번지지 않게 육지 안에서만
+  for(const z of zg){ const sh=zoneShape(z.key,z.cls); if(!sh) continue;
+    if(z.tone==='hatch'||z.tone==='hatch2'){ /* 빗금: 영역으로 자른 뒤 사선을 긋는다(SVG로 내보내도 같은 모양) */
+      ctx.save(); ctx.beginPath(); path(sh); ctx.clip(); hatchRect(ctx,0,0,fw,fh,z.tone==='hatch'?1:-1,L); ctx.restore(); }
+    else { ctx.beginPath(); path(sh); ctx.fillStyle=toneColor(doc,z.tone); ctx.fill(); }
+  }
+  ctx.restore();
+}
 function drawBase(doc,ctx,P,fw,fh,withFrame){
   const g=G(doc), path=d3.geoPath(P,ctx), L=doc.style.line, ly=doc.layers, sea=gray(doc.style.sea);
   const sph=PROJS[doc.view.proj].sphere;
@@ -7432,6 +7497,7 @@ function drawBase(doc,ctx,P,fw,fh,withFrame){
   if(g){
     ctx.beginPath(); path(g.land); ctx.fillStyle='#ffffff'; ctx.fill();
     for(const it of doc.items) if(it.t==='shade'){ const f=g.byId.get(it.cid); if(!f) continue; ctx.beginPath(); path(f); ctx.fillStyle=toneColor(doc,it.tone); ctx.fill(); }
+    drawZones(doc,ctx,path,g,fw,fh);   // 기후 지역은 나라 음영 위에(둘 다 보이게)
     const minA=0.3/(P.scale()*P.scale());
     const lakes=ly.lakes?g.lakes.filter(f=>f.area>minA):[];
     if(lakes.length){ ctx.beginPath(); lakes.forEach(f=>path(f)); ctx.fillStyle=sea; ctx.fill(); }
@@ -7472,6 +7538,7 @@ function drawOverlay(doc,ctx,P,fw,fh){
     ctx.fillStyle='#000000'; ctx.fillText(g.it.lbl,g.cx,g.base);
   }
   ctx.restore();
+  if(zoneTopo) drawZoneLegend(doc,ctx,fw,fh);
   drawTicks(doc,ctx,P,fw,fh);
   return geoms;
 }
@@ -7550,6 +7617,7 @@ SvgCtx.prototype={
 /* ───────── 내보내기 ───────── */
 async function readyForExport(doc){
   await loadLod(wantLod(doc));
+  if(zoneGroups(doc).length) await loadZones().catch(()=>{});
   try{ await ensureGlyphs(doc); if(document.fonts) await document.fonts.ready; }catch(e){}
 }
 async function renderPng(doc,opts){
@@ -7877,6 +7945,7 @@ async function specToDoc(spec,opts){
   const rv=new Set(); for(const r of (Array.isArray(spec.rivers)?spec.rivers:[])){ const k=resolveRiver(r); if(k) rv.add(k); else report.warnings.push(`‘${r}’ 하천은 목록에 없어요`); }
   doc.layers.rivers=[...rv];
   const ln=spec.lines||{}; doc.layers.lines={eq:!!ln.equator,tr:!!ln.tropics,ac:!!ln.polar};
+  { const z=spec.zone; doc.layers.zone=z&&z.kind==='arid'?{kind:'arid',split:ZONE_SPLITS[z.split]?z.split:'one',tone:Object.fromEntries(Object.entries(z.tone&&typeof z.tone==='object'?z.tone:{}).filter(([k,v])=>ZONE_TONES.includes(v))),legend:ZONE_LEGEND.includes(z.legend)?z.legend:'bl'}:{kind:'none',split:'one',tone:{},legend:'bl'}; }
   chooseView(doc,spec.region);
   if(typeof spec.borders==='boolean') doc.layers.borders=spec.borders;
   await ensureGeo(doc).catch(()=>{});
@@ -7943,7 +8012,8 @@ function finishView(doc){
 /* 문서 → Claude에게 보여줄 현재 지도 요약 */
 function docToSpec(doc){
   const s={region:doc.preset==='custom'?null:doc.preset,labelSeq:doc.style.seq,points:[],countries:[],areas:[],rivers:doc.layers.rivers.slice(),
-    lines:{equator:!!doc.layers.lines.eq,tropics:!!doc.layers.lines.tr,polar:!!doc.layers.lines.ac},borders:doc.layers.borders};
+    lines:{equator:!!doc.layers.lines.eq,tropics:!!doc.layers.lines.tr,polar:!!doc.layers.lines.ac},borders:doc.layers.borders,
+    zone:doc.layers.zone&&doc.layers.zone.kind==='arid'?{kind:'arid',split:doc.layers.zone.split,tone:doc.layers.zone.tone,legend:doc.layers.zone.legend}:null};
   for(const it of doc.items){
     if(it.t==='pt') s.points.push({ko:it.name||'',lat:it.lat,lon:it.lon,label:it.lbl||null,marker:it.mk});
     else if(it.t==='shade') s.countries.push({iso3:it.cid,ko:it.name||'',label:it.lbl||null,tone:it.tone,style:it.style||(it.ring?'circle':it.multi?'multi':'shade')});
@@ -7958,7 +8028,7 @@ const REGION_WORDS=[['사하라이남아프리카','ssaf'],['사하라이남','s
   ['라틴아메리카','latam'],['중남부아메리카','latam'],['중남미','latam'],['남아메리카','latam'],['남미','latam'],['환태평양','world-pac'],['태평양중심','world-pac'],['세계전도','world-atl'],
   ['세계지도','world-atl'],['북극중심','arctic'],['북극','arctic'],['유럽','europe'],['아프리카','ssaf']];
 const COUNTRY_REGION={'미국':'usa'};
-const STOP=new Set(['지도','백지도','지도에','지도를','지도로','지도에서','위에','위치','위치에','찍어','찍어줘','찍어주세요','찍기','찍고','표시','표시해','표시해줘','표시해주세요','해줘','해','줘','주세요','만들어','만들어줘','만들어주세요','그려','그려줘','그려주세요',
+const STOP=new Set(['빗금','빗금으로','구분','구분해','구분해서','구분해줘','기후','지역','분포','칠해','칠해줘','지도','백지도','지도에','지도를','지도로','지도에서','위에','위치','위치에','찍어','찍어줘','찍어주세요','찍기','찍고','표시','표시해','표시해줘','표시해주세요','해줘','해','줘','주세요','만들어','만들어줘','만들어주세요','그려','그려줘','그려주세요',
   '점','점을','점으로','점만','도시','도시를','도시들','도시는','국가','국가를','국가들','나라','나라를','음영','음영으로','음영을','음영처리','음영처리해줘','색칠','색칠해','색칠해줘','칠해','칠해줘','회색','회색으로',
   '순서','순서로','순서대로','차례로','차례대로','각각','라벨','라벨을','라벨로','라벨은','넣어','넣어줘','빈','원','원으로','동그라미','동그라미로','로','으로','와','과','및','그리고','하고','를','을','에','에서',
   '중심','중심으로','포함','포함해','포함해서','주요','넣고','해서','있는','있게','그리고','또','추가','추가해줘','하천','하천도','강도','같이','함께','표기','표기해줘','이름','기호','기호로','붙여','붙여줘','대로','순','세계','의','한','지역','곳','곳을','곳에','개','속','속이','이랑','랑','대표','전체','범위','틀',
@@ -7984,7 +8054,7 @@ function matchThing(t,ctx){
   return null;
 }
 function parseRules(q){
-  const spec={region:null,labelSeq:null,points:[],countries:[],areas:[],rivers:[],lines:{equator:false,tropics:false,polar:false},borders:null};
+  const spec={region:null,labelSeq:null,points:[],countries:[],areas:[],rivers:[],lines:{equator:false,tropics:false,polar:false},borders:null,zone:null};
   const unknown=[];
   let s=String(q||'').replace(/[“”"'‘’「」『』]/g,' ');
   if(/\([가나다라마바사]\)|[가나다라]\)?\s*[~\-–]\s*\(?[가나다라]\)/.test(s)) spec.labelSeq='gana';
@@ -7998,6 +8068,15 @@ function parseRules(q){
   if(/회귀선/.test(s)) spec.lines.tropics=true;
   if(/극권/.test(s)) spec.lines.polar=true;
   s=s.replace(/(적도|북회귀선|남회귀선|회귀선|북극권|남극권|극권)(을|를|도|과|와|이|가|선)?/g,' ');
+  // 기후 지역: '건조 기후' → 하나로, '사막 기후·스텝 기후' → 둘로, 'BWh'·'열대 사막' 같은 세분 → 네 갈래
+  if(/건조\s*기후|건조\s*지역|사막\s*기후|스텝\s*기후|BW[hk]|BS[hk]|사막.{0,14}스텝|스텝.{0,14}사막/.test(s)){
+    const four=/BW[hk]|BS[hk]|네\s*갈래|세분|열대\s*(사막|스텝)|(온대|냉대|한대)\s*(사막|스텝)/.test(s), two=/사막\s*기후|스텝\s*기후|사막.{0,14}스텝|스텝.{0,14}사막/.test(s);
+    spec.zone={kind:'arid',split:four?'four':two?'two':'one',tone:{},legend:/범례\s*(없이|빼|없게|지워)/.test(s)?'none':/범례[^,.]{0,6}오른쪽\s*위/.test(s)?'tr':/범례[^,.]{0,6}왼쪽\s*위/.test(s)?'tl':/범례[^,.]{0,6}오른쪽/.test(s)?'br':'bl'};
+    const TW=[[/(진한|짙은|어두운|진하게|짙게)\s*(회색|음영)?/,'dark'],[/(옅은|연한|밝은|연하게|옅게)\s*(회색|음영)?/,'light'],[/(중간|기본)\s*(회색|음영)?|회색/,'mid'],[/빗금/,'hatch']];
+    const toneAfter=(word,key)=>{ const m=new RegExp(word+'[^,.]{0,14}').exec(s); if(!m) return; const t=m[0].replace(new RegExp('^'+word),''); for(const [re,v] of TW) if(re.test(t)){ spec.zone.tone[key]=v; return; } };
+    if(spec.zone.split==='one'){ toneAfter('건조\\s*기후','B'); }
+    if(spec.zone.split==='two'){ toneAfter('사막(\\s*기후)?(은|는|을|를)?','BW'); toneAfter('스텝(\\s*기후)?(은|는|을|를)?','BS'); }
+    s=s.replace(/((열대|온대|냉대|한대)\s*)?(건조|사막|스텝)\s*(기후)?\s*(지역|분포)?(을|를|도|과|와|이|가|은|는|으로|로|만)?|BW[hk]|BS[hk]|네\s*갈래(로)?|세분(해서|하여)?|(진한|짙은|어두운|옅은|연한|밝은|중간|기본)\s*(회색|음영)(으로|로)?|진하게|연하게|옅게|짙게|빗금(으로|로)?|범례\s*(없이|빼고|오른쪽\s*위|왼쪽\s*위|오른쪽|왼쪽)?(에|로|으로)?|회색(으로|로)?/g,' '); }
   // 좌표 쌍
   const coordRe=/(북위|남위)\s*(\d+(?:\.\d+)?)\s*(?:°|도)?\s*,?\s*(동경|서경)\s*(\d+(?:\.\d+)?)\s*(?:°|도)?|(-?\d{1,2}(?:\.\d+)?)\s*°?\s*([NS])\s*,?\s*(-?\d{1,3}(?:\.\d+)?)\s*°?\s*([EW])|\(\s*(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*\)/g;
   const coordPts=[];
@@ -8067,7 +8146,7 @@ function parseRules(q){
     else if(x.kind==='country') spec.countries.push({...x.c,label:x.label||null,style:cstyle});
   }
   if(!spec.labelSeq){ const any=things.find(x=>x.label); spec.labelSeq=any?seqOfLabel(any.label):'latin'; }
-  const count=spec.points.length+spec.countries.length+spec.rivers.length;
+  const count=spec.points.length+spec.countries.length+spec.rivers.length+(spec.zone?1:0);
   return {spec,unknown,count,understood:unknown.length===0&&count>0};
 }
 
@@ -8092,6 +8171,7 @@ function buildPrompt(q,current){
 - "오답 선지", "헷갈리는 도시 n개 더" 같은 요청이면 같은 지역의 그럴듯한 장소를 더한다.
 - 현재 지도가 주어지고 요청이 그 지도를 고치라는 뜻이면(바꿔, 빼, 추가, 옮겨 등) 현재 지도를 고친 전체를 다시 준다. 새 지도를 원하는 요청이면 현재 지도를 무시한다.
 - lines: equator(적도), tropics(남·북회귀선), polar(남·북극권) 표시 여부. borders: 국경선 표시(true/false), 정하지 않았으면 null.
+- zone: 쾨펜 건조 기후 지역을 칠할 때 {"kind":"arid","split":"one"|"two"|"four"}. one=건조 기후 하나로, two=사막 기후·스텝 기후, four=BWh·BWk·BSh·BSk. 요청이 없으면 null.
 - answer: 교사에게 보여 줄 한두 문장 한국어 설명. 각 라벨이 무엇인지 적는다.
 
 지역 목록: ${regions}
@@ -8106,7 +8186,7 @@ function buildPrompt(q,current){
 """${String(q).slice(0,4000)}"""`;
 }
 
-return {clean,MMPT,M,clamp,r3,uid,esc,norm,RAD,RIVERS,RIVER_OF,resolveRiver,KO_FIX,FONTS,userFont,fontDef,fontStack,fontInstalled,fontAvailable,needsWebFallback,labelText,ensureGlyphs,
+return {clean,ZONE_LEGEND,ZONE_LABEL,ZONE_SPLITS,ZONE_TONES,ZONE_TONE,zoneGroups,loadZones,MMPT,M,clamp,r3,uid,esc,norm,RAD,RIVERS,RIVER_OF,resolveRiver,KO_FIX,FONTS,userFont,fontDef,fontStack,fontInstalled,fontAvailable,needsWebFallback,labelText,ensureGlyphs,
   SEQS,nextLabel,seqOfLabel,PROJS,kxOf,PRESETS,presetById,makeProj,fitView,applyPreset,freshDoc,normalizeDoc,
   geo,LODS,onData,loadLod,anyGeo,degAcross,wantLod,G,currentLodName,ensureGeo,
   loadPlaces,searchPlaces,exactPlaces,resolvePlace,findCountry,searchCountries,
@@ -8167,7 +8247,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "1380230d73", "stations": "55773df6f5", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
+const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "1380230d73", "arid": "e4ac2ba9cf", "stations": "55773df6f5", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
@@ -8395,7 +8475,7 @@ function renderList(){
 /* ───────── 해석 → 지도 ───────── */
 async function show(spec,m){
   const {doc:d,report}=await WG.specToDoc(spec,{style:{font:pref.font,fontPt:pref.fontPt}});
-  if(!d.items.length&&!d.layers.rivers.length){ setStatus('err','지도에 올릴 장소를 찾지 못했어요. 도시·국가 이름을 직접 적어 보세요.'); return false; }
+  if(!d.items.length&&!d.layers.rivers.length&&d.layers.zone.kind==='none'){ setStatus('err','지도에 올릴 장소를 찾지 못했어요. 도시·국가 이름을 직접 적어 보세요.'); return false; }
   doc=d; meta={...m,warnings:report.warnings};
   syncSettings(); render(); renderList(); persist();
   await WG.ensureGlyphs(doc); requestRender();
@@ -8406,7 +8486,7 @@ function validSpec(o){
   const arr=v=>Array.isArray(v)?v.filter(x=>x&&typeof x==='object'):[];
   return {region:typeof o.region==='string'?o.region:null,labelSeq:typeof o.labelSeq==='string'?o.labelSeq:null,
     points:arr(o.points),countries:arr(o.countries),areas:arr(o.areas),rivers:Array.isArray(o.rivers)?o.rivers.filter(x=>typeof x==='string'):[],
-    lines:o.lines&&typeof o.lines==='object'?o.lines:{},borders:typeof o.borders==='boolean'?o.borders:null,answer:typeof o.answer==='string'?o.answer:''};
+    lines:o.lines&&typeof o.lines==='object'?o.lines:{},borders:typeof o.borders==='boolean'?o.borders:null,zone:o.zone&&typeof o.zone==='object'&&o.zone.kind==='arid'?{kind:'arid',split:String(o.zone.split||'one')}:null,answer:typeof o.answer==='string'?o.answer:''};
 }
 async function run(q,opts){
   const o=opts||{};
@@ -8867,6 +8947,14 @@ bindCheck('#lnTr',()=>doc.layers.lines.tr,v=>doc.layers.lines.tr=v);
 bindCheck('#lnAc',()=>doc.layers.lines.ac,v=>doc.layers.lines.ac=v);
 bindCheck('#lyMajor',()=>doc.layers.major,v=>doc.layers.major=v);
 $('#grat').onchange=e=>{ doc.layers.grat=+e.target.value; commit(); };
+/* 기후 지역(건조 기후) */
+const ZT=[['light','연하게'],['mid','기본'],['dark','진하게'],['hatch','빗금 ／'],['hatch2','빗금 ＼']];
+function syncZone(){ const z=doc.layers.zone; $('#zoneSel').value=z.kind==='arid'?z.split:'none'; $('#zoneNote').hidden=z.kind!=='arid'; $('#zoneLegRow').hidden=z.kind!=='arid'; $('#zoneLeg').value=z.legend||'bl';
+  const box=$('#zoneTones'); box.innerHTML=WG.zoneGroups(doc).map(g=>`<div class="row"><span class="lab">${esc(g.ko)}</span><select data-z="${esc(g.key)}">${ZT.map(([v,n])=>`<option value="${v}"${v===g.tone?' selected':''}>${n}</option>`).join('')}</select></div>`).join('');
+  box.querySelectorAll('select').forEach(el=>el.onchange=()=>{ doc.layers.zone.tone[el.dataset.z]=el.value; needBase=true; commit(); }); }
+$('#zoneLeg').onchange=e=>{ doc.layers.zone.legend=e.target.value; needBase=true; commit(); };
+$('#zoneSel').onchange=e=>{ const v=e.target.value, z0=doc.layers.zone; doc.layers.zone={kind:v==='none'?'none':'arid',split:v==='none'?z0.split:v,tone:z0.tone||{},legend:z0.legend||'bl'};
+  if(v!=='none') WG.loadZones().catch(()=>toast('기후 지역 자료를 불러오지 못했어요.')); syncZone(); needBase=true; commit(); };
 function syncTickSide(){ const k=$('#tkKind').value; $('#tkSide').innerHTML=k==='lat'?'<option value="left">왼쪽</option><option value="right">오른쪽</option>':'<option value="bottom">아래</option><option value="top">위</option>'; }
 $('#tkKind').onchange=syncTickSide; syncTickSide();
 $('#tkAdd').onclick=()=>{ const v=+$('#tkVal').value; const k=$('#tkKind').value; if(!isFinite(v)||(k==='lat'&&Math.abs(v)>90)||(k==='lon'&&Math.abs(v)>180)){ toast('눈금 값을 확인해 주세요.'); return; } doc.ticks.push({k,v,side:$('#tkSide').value}); commit({base:false}); };
@@ -8891,7 +8979,7 @@ function syncViewInputs(){ $('#rot').value=Math.round(doc.view.rot*10)/10; $('#f
 function syncMap(){
   $$('#presets .chip').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===doc.preset)));
   syncViewInputs(); segSet('#detail',doc.layers.detail);
-  $('#lyBorders').checked=doc.layers.borders; $('#lyLakes').checked=doc.layers.lakes; $('#lnEq').checked=doc.layers.lines.eq; $('#lnTr').checked=doc.layers.lines.tr; $('#lnAc').checked=doc.layers.lines.ac; $('#lyMajor').checked=doc.layers.major;
+  syncZone(); $('#lyBorders').checked=doc.layers.borders; $('#lyLakes').checked=doc.layers.lakes; $('#lnEq').checked=doc.layers.lines.eq; $('#lnTr').checked=doc.layers.lines.tr; $('#lnAc').checked=doc.layers.lines.ac; $('#lyMajor').checked=doc.layers.major;
   $('#grat').value=String(doc.layers.grat); syncTicks(); buildRiverList();
 }
 
