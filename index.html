@@ -337,6 +337,10 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-mapedit .panel{max-height:none}
 .t-mapedit .pane{overflow:visible}
 .t-mapedit .brand small{display:none}}
+.t-mapedit .sub-h{font-size:12px;font-weight:600;color:var(--muted);margin:8px 0 2px}
+.t-mapedit .zone-tones .row>.lab{width:auto;flex:1;min-width:0;color:inherit;font-size:13px}
+.t-mapedit .zone-tones .row select{flex:none;width:84px}
+.t-mapedit .zone-belts .row select{min-width:0}
 .t-kmap{--bg:#e8e9e6; --pane:#f8f8f6; --pane-2:#efefeb; --desk:#c7ccd2;
   --ink:#1b1d20; --muted:#5d636a; --line:#d8d9d4; --line-2:#b7babd;
   --omr:#c3193f; --omr-soft:#f7e0e6; --on-omr:#ffffff;
@@ -1941,7 +1945,8 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
           <label class="check"><input type="checkbox" id="lnAc">극권</label>
           <label class="check"><input type="checkbox" id="lyMajor">주요 하천 전부</label>
         </div>
-        <div class="row"><label for="zoneSel">기후 지역</label><select id="zoneSel" class="grow"><option value="none">없음</option><option value="one">건조 기후(하나로)</option><option value="two">사막 기후 · 스텝 기후</option><option value="four">네 갈래(BWh·BWk·BSh·BSk)</option></select></div>
+        <p class="sub-h">기후 지역(쾨펜)</p>
+        <div id="zoneBelts" class="zone-belts"></div>
         <div id="zoneTones" class="zone-tones"></div>
         <div class="checks">
           <label class="check"><input type="checkbox" id="plOn">판의 경계</label>
@@ -1957,8 +1962,8 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
           <details class="rl-pick"><summary>산맥·순상지 고르기</summary><div id="rlList" class="checks"></div></details>
           <p class="note">교과서 분류에 따른 시험 지도 수준의 모식 경계예요(산맥: Natural Earth, 발트·아프리카·아라비아는 직접 그린 모식 경계).</p>
         </div>
-        <div class="row" id="zoneLegRow" hidden><label for="zoneLeg">범례</label><select id="zoneLeg"><option value="bl">왼쪽 아래</option><option value="br">오른쪽 아래</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option><option value="none">없음</option></select></div>
-        <p class="note" id="zoneNote" hidden>쾨펜 기후 구분(Beck 외 2023, 1991~2020년 평년) 지도를 단순화한 것이라 시험지 지도와 가장자리가 조금 다를 수 있어요.</p>
+        <div class="row" id="zoneLegRow" hidden><label for="zoneLeg">범례</label><select id="zoneLeg"><option value="bl">왼쪽 아래</option><option value="br">오른쪽 아래</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option><option value="outR">지도 밖 오른쪽</option><option value="outB">지도 밖 아래</option><option value="none">없음</option></select></div>
+        <p class="note" id="zoneNote" hidden>쾨펜 기후 구분(Beck 외 2023, 1991~2020년 평년) 지도를 단순화한 것이라 시험지 지도와 가장자리가 조금 다를 수 있어요. 무늬가 7가지라 여러 기후를 함께 켜면 겹치는 무늬가 생길 수 있으니 이름 옆 칸에서 바꿔 주세요. 아주 좁은 지역(Csc·Cwc 등)은 단순화 과정에서 빠졌어요.</p>
         <div class="row"><label for="grat">경위선망</label><select id="grat"><option value="0">없음</option><option value="10">10° 간격</option><option value="15">15° 간격</option><option value="20">20° 간격</option><option value="30">30° 간격</option></select></div>
       </section>
       <section class="grp"><h3>가장자리 눈금</h3>
@@ -7223,7 +7228,7 @@ function applyPreset(d,p){
 /* ───────── 문서 ───────── */
 function freshDoc(presetId){
   const d={v:1,preset:presetId,view:{},frame:{w:46,h:45},
-    layers:{borders:true,lakes:true,grat:0,lines:{eq:false,tr:false,ac:false},rivers:[],major:false,detail:'auto',zone:{kind:'none',split:'one',tone:{}},plates:{on:false,typed:true,names:true},relief:{on:false,show:{shield:true,old:true,new:true},only:[],tone:{},names:false},legend:'bl'},
+    layers:{borders:true,lakes:true,grat:0,lines:{eq:false,tr:false,ac:false},rivers:[],major:false,detail:'auto',zone:{belts:{A:'off',B:'off',C:'off',D:'off',E:'off'},tone:{},only:[]},plates:{on:false,typed:true,names:true},relief:{on:false,show:{shield:true,old:true,new:true},only:[],tone:{},names:false},legend:'bl'},
     ticks:[],
     style:{font:'hysm',latin:'same',fontPt:9,dot:1.2,ring:1.5,line:1,sea:229,shade:178,seq:'latin',place:'l',shadeAuto:true},
     items:[]};
@@ -7233,8 +7238,7 @@ function freshDoc(presetId){
 function normalizeDoc(d){
   d=clean(d)||{}; const f=freshDoc(d.preset&&presetById(d.preset)?d.preset:'europe');
   const out={...f,...d,layers:{...f.layers,...(d.layers||{}),lines:{...f.layers.lines,...((d.layers||{}).lines||{})}},style:{...f.style,...(d.style||{})},frame:{...f.frame,...(d.frame||{})},view:{...f.view,...(d.view||{})}};
-  { const z=Object.assign({},f.layers.zone,(d.layers||{}).zone||{}); z.kind=z.kind==='arid'?'arid':'none'; if(!ZONE_SPLITS[z.split]) z.split='one'; delete z.legend;
-    const t={}; for(const [k,v] of Object.entries(z.tone&&typeof z.tone==='object'?z.tone:{})) if(ZONE_TONES.includes(v)) t[k]=v; z.tone=t; out.layers.zone=z;
+  { out.layers.zone=normZone((d.layers||{}).zone);
     const dl=d.layers||{}; out.layers.legend=ZONE_LEGEND.includes(dl.legend)?dl.legend:ZONE_LEGEND.includes((dl.zone||{}).legend)?dl.zone.legend:'bl';   // 옛 판은 zone.legend에 두었음
     const pl=Object.assign({},f.layers.plates,dl.plates||{}); out.layers.plates={on:pl.on===true,typed:pl.typed!==false,names:pl.names!==false};
     out.layers.relief=normRelief(dl.relief); }
@@ -7446,31 +7450,65 @@ function countryAt(doc,lon,lat){ const g=G(doc); if(!g) return null; for(const f
 
 /* ───────── 그리기 (캔버스·SVG 공통, 단위 mm) ───────── */
 function parallel(lat){ const c=[]; for(let x=-180;x<=180;x+=2) c.push([x,lat]); return {type:'LineString',coordinates:c}; }
-/* ───────── 기후 지역: 쾨펜 건조 기후(B) ─────────
-   자료: Beck 외(2023) 1 km 쾨펜-가이거 지도의 1991~2020년 0.1° 판에서 BWh·BWk·BSh·BSk만 다각형으로 바꿔 단순화(data/arid.json, TopoJSON).
-   한 위상(topology) 안에 네 갈래가 이웃 경계를 공유하므로, 묶어 칠할 때는 topojson.merge로 합쳐 안쪽 경계선이 안 보이게 한다 */
-const ZONE_SPLITS={
-  one:[['B','건조 기후',['BWh','BWk','BSh','BSk']]],
-  two:[['BW','사막 기후',['BWh','BWk']],['BS','스텝 기후',['BSh','BSk']]],
-  four:[['BWh','열대 사막(BWh)',['BWh']],['BWk','온대·냉대 사막(BWk)',['BWk']],['BSh','열대 스텝(BSh)',['BSh']],['BSk','온대·냉대 스텝(BSk)',['BSk']]]};
-const ZONE_TONES=['light','mid','dark','hatch','hatch2'];
-const ZONE_TONE={B:'hatch',BW:'dark',BS:'light',BWh:'dark',BWk:'mid',BSh:'hatch',BSk:'hatch2'};
-const ZONE_LEGEND=['none','bl','br','tl','tr'];
-const ZONE_LABEL={B:'건조 기후',BW:'사막 기후',BS:'스텝 기후',BWh:'BWh',BWk:'BWk',BSh:'BSh',BSk:'BSk'};
+/* ───────── 기후 지역: 쾨펜-가이거 기후 구분(열대 A·건조 B·온대 C·냉대 D·한대 E) ─────────
+   자료: Beck 외(2023) 1 km 쾨펜-가이거 지도의 1991~2020년 0.1° 판 30갈래를 한 번에 다각형으로 바꿔 위상을 지키며 단순화(data/koppen.json, 속성 k=기호).
+   이웃 갈래가 경계를 공유하므로 묶어 칠할 때는 topojson.merge로 합쳐 안쪽 경계선이 안 보이게 한다.
+   기후대마다 묶음 단위: one(하나로) · mid(교과서 기후) · detail(쾨펜 기호). zone.only가 있으면 그 갈래만 */
+const ZONE_BELTS=[['A','열대 기후'],['B','건조 기후'],['C','온대 기후'],['D','냉대 기후'],['E','한대 기후']];
+const ZB={
+  A:{one:[['A','열대 기후',['Af','Am','Aw']]],
+     mid:[['Af','열대 우림 기후',['Af']],['Am','열대 몬순 기후',['Am']],['Aw','사바나 기후',['Aw']]],
+     detail:[['Af','Af',['Af']],['Am','Am',['Am']],['Aw','Aw',['Aw']]]},
+  B:{one:[['B','건조 기후',['BWh','BWk','BSh','BSk']]],
+     mid:[['BW','사막 기후',['BWh','BWk']],['BS','스텝 기후',['BSh','BSk']]],
+     detail:[['BWh','BWh',['BWh']],['BWk','BWk',['BWk']],['BSh','BSh',['BSh']],['BSk','BSk',['BSk']]]},
+  C:{one:[['C','온대 기후',['Csa','Csb','Csc','Cwa','Cwb','Cwc','Cfa','Cfb','Cfc']]],
+     mid:[['Cs','지중해성 기후',['Csa','Csb','Csc']],['Cw','온대 겨울 건조 기후',['Cwa','Cwb','Cwc']],['Cfa','온난 습윤 기후',['Cfa']],['Cfbc','서안 해양성 기후',['Cfb','Cfc']]],
+     detail:['Csa','Csb','Csc','Cwa','Cwb','Cwc','Cfa','Cfb','Cfc'].map(k=>[k,k,[k]])},
+  D:{one:[['D','냉대 기후',['Dsa','Dsb','Dsc','Dsd','Dwa','Dwb','Dwc','Dwd','Dfa','Dfb','Dfc','Dfd']]],
+     mid:[['Df','냉대 습윤 기후',['Dfa','Dfb','Dfc','Dfd']],['Dw','냉대 겨울 건조 기후',['Dwa','Dwb','Dwc','Dwd']],['Ds','냉대 여름 건조 기후',['Dsa','Dsb','Dsc','Dsd']]],
+     detail:['Dsa','Dsb','Dsc','Dsd','Dwa','Dwb','Dwc','Dwd','Dfa','Dfb','Dfc','Dfd'].map(k=>[k,k,[k]])},
+  E:{one:[['E','한대 기후',['ET','EF']]],
+     mid:[['ET','툰드라 기후',['ET']],['EF','빙설 기후',['EF']]],
+     detail:[['ET','ET',['ET']],['EF','EF',['EF']]]}};
+const ZONE_LEVELS=['off','one','mid','detail'];
+const ZONE_TONES=['light','mid','dark','hatch','hatch2','cross','dots'];
+const ZONE_TONE={A:'dark',B:'hatch',C:'light',D:'hatch2',E:'mid',
+  Af:'dark',Am:'mid',Aw:'hatch',BW:'dark',BS:'light',BWh:'dark',BWk:'mid',BSh:'hatch',BSk:'hatch2',
+  Cs:'dots',Cw:'hatch2',Cfa:'mid',Cfbc:'light',Df:'light',Dw:'hatch',Ds:'cross',ET:'mid',EF:'dots'};
+const TONE_CYCLE=['light','mid','dark','hatch','hatch2','cross','dots'];
+const ZONE_LEGEND=['none','bl','br','tl','tr','outR','outB'];
+const ZONE_LABEL={};   /* 옛 판 호환용(범례 이름은 ZB의 이름을 쓴다) */
+/* 옛 판(건조 기후만 있던 때): {kind:'arid', split:'one'|'two'|'four'} → {belts:{B:'one'|'mid'|'detail'}} */
+const OLD_SPLIT={one:'one',two:'mid',four:'detail'};
+function normZone(z){
+  z=z&&typeof z==='object'?z:{}; const b={};
+  const src=z.belts&&typeof z.belts==='object'?z.belts:{};
+  for(const [k] of ZONE_BELTS) b[k]=ZONE_LEVELS.includes(src[k])?src[k]:'off';
+  if(z.kind==='arid'&&b.B==='off') b.B=OLD_SPLIT[z.split]||'one';
+  const t={}; for(const [k,v] of Object.entries(z.tone&&typeof z.tone==='object'?z.tone:{})) if(ZONE_TONES.includes(v)) t[k]=v;
+  const only=Array.isArray(z.only)?z.only.filter(x=>typeof x==='string').slice(0,40):[];
+  return {belts:b,tone:t,only};
+}
+function zoneOn(doc){ const z=doc.layers.zone; return !!z&&ZONE_BELTS.some(([k])=>z.belts[k]&&z.belts[k]!=='off'); }
 let zoneTopo=null, zoneLoading=null; const zoneCache={};
 function loadZones(){
   if(zoneTopo) return Promise.resolve(zoneTopo); if(zoneLoading) return zoneLoading;
-  zoneLoading=rawData('arid').then(t=>{ zoneTopo=t; listeners.forEach(fn=>{ try{fn('arid');}catch(e){} }); return t; }).catch(e=>{ zoneLoading=null; throw e; });
+  zoneLoading=rawData('koppen').then(t=>{ zoneTopo=t; listeners.forEach(fn=>{ try{fn('koppen');}catch(e){} }); return t; }).catch(e=>{ zoneLoading=null; throw e; });
   return zoneLoading;
 }
-function zoneGroups(doc){
-  const z=doc.layers.zone; if(!z||z.kind!=='arid') return [];
-  return (ZONE_SPLITS[z.split]||ZONE_SPLITS.one).map(([key,ko,cls])=>({key,ko,cls,tone:(z.tone&&z.tone[key])||ZONE_TONE[key]}));
+/* allGroups: only를 무시하고(편집기에서 켜고 끄는 목록용) */
+function zoneGroups(doc,allGroups){
+  const z=doc.layers.zone; if(!z||!z.belts) return []; const out=[];
+  for(const [b] of ZONE_BELTS){ const lv=z.belts[b]; if(!lv||lv==='off') continue;
+    ZB[b][lv].forEach(([key,ko,cls],i)=>{ if(!allGroups&&z.only&&z.only.length&&!z.only.includes(key)) return;
+      out.push({belt:b,key,ko,cls,tone:(z.tone&&z.tone[key])||ZONE_TONE[key]||TONE_CYCLE[i%TONE_CYCLE.length]}); }); }
+  return out;
 }
 function zoneShape(key,cls){
-  if(!zoneTopo) return null; if(zoneCache[key]) return zoneCache[key];
+  if(!zoneTopo) return null; const ck=key+'|'+cls.join(','); if(zoneCache[ck]) return zoneCache[ck];
   const o=zoneTopo.objects[Object.keys(zoneTopo.objects)[0]];
-  return zoneCache[key]=topojson.merge(zoneTopo,o.geometries.filter(g=>g.properties&&cls.includes(g.properties.k)));
+  return zoneCache[ck]=topojson.merge(zoneTopo,o.geometries.filter(g=>g.properties&&cls.includes(g.properties.k)));
 }
 /* ───────── 판의 경계 ─────────
    자료: PB2002(Bird 2003, An updated digital model of plate boundaries), fraxen/tectonicplates GeoJSON(ODC-By 1.0).
@@ -7541,8 +7579,7 @@ function drawRelief(doc,ctx,path,g,fw,fh){
   ctx.save(); ctx.beginPath(); path(g.land); ctx.clip();
   for(const [c] of RELIEF_CAT){ const fs=shown.filter(f=>f.properties.c===c); if(!fs.length) continue; const tone=reliefTone(doc,c);
     const fc={type:'FeatureCollection',features:fs};
-    if(tone==='hatch'||tone==='hatch2'){ ctx.save(); ctx.beginPath(); path(fc); ctx.clip(); hatchRect(ctx,0,0,fw,fh,tone==='hatch'?1:-1,L); ctx.restore(); }
-    else { ctx.beginPath(); path(fc); ctx.fillStyle=toneColor(doc,tone); ctx.fill(); } }
+    fillShape(ctx,doc,path,fc,tone,fw,fh); }
   ctx.restore();
 }
 function drawReliefNames(doc,ctx,P,fw,fh,boxes){ boxes=boxes||[];
@@ -7558,42 +7595,102 @@ function hatchRect(ctx,x0,y0,w,h,dir,L){ /* 사각형 안을 사선으로 채운
   ctx.save(); ctx.beginPath(); ctx.rect(x0,y0,w,h); ctx.clip(); ctx.beginPath(); const st=0.6;
   for(let x=x0-h;x<x0+w+h;x+=st){ if(dir>0){ ctx.moveTo(x,y0+h); ctx.lineTo(x+h,y0); } else { ctx.moveTo(x,y0); ctx.lineTo(x+h,y0+h); } }
   ctx.lineWidth=0.07*L; ctx.strokeStyle='#000000'; ctx.lineCap='butt'; ctx.stroke(); ctx.restore(); }
+function dotsRect(ctx,x0,y0,w,h,L){ /* 점무늬: 엇갈린 격자의 작은 점 */
+  ctx.save(); ctx.beginPath(); ctx.rect(x0,y0,w,h); ctx.clip(); ctx.beginPath(); const st=0.75, r=0.11*Math.max(0.8,L);
+  let row=0; for(let y=y0+st/2;y<y0+h+st;y+=st*0.87,row++) for(let x=x0+(row%2?st/2:0);x<x0+w+st;x+=st){ ctx.moveTo(x+r,y); ctx.arc(x,y,r,0,Math.PI*2); }
+  ctx.fillStyle='#000000'; ctx.fill(); ctx.restore(); }
+/* 칠 모양 하나로 사각형 칸 채우기(범례 칸) 또는 지금 잘라 둔 영역 채우기 */
+function patternRect(ctx,doc,tone,x0,y0,w,h){ const L=doc.style.line;
+  if(tone==='hatch'||tone==='hatch2') hatchRect(ctx,x0,y0,w,h,tone==='hatch'?1:-1,L);
+  else if(tone==='cross'){ hatchRect(ctx,x0,y0,w,h,1,L); hatchRect(ctx,x0,y0,w,h,-1,L); }
+  else if(tone==='dots') dotsRect(ctx,x0,y0,w,h,L);
+  else { ctx.fillStyle=toneColor(doc,tone); ctx.fillRect(x0,y0,w,h); } }
+function fillShape(ctx,doc,path,shape,tone,fw,fh){
+  if(['hatch','hatch2','cross','dots'].includes(tone)){ ctx.save(); ctx.beginPath(); path(shape); ctx.clip(); patternRect(ctx,doc,tone,0,0,fw,fh); ctx.restore(); }
+  else { ctx.beginPath(); path(shape); ctx.fillStyle=toneColor(doc,tone); ctx.fill(); } }
 /* 범례: 틀 안 모서리에 흰 상자 + 칸(또는 선 견본) + 이름(시험지 범례처럼). 기후 지역과 판의 경계를 한 상자에 */
+/* 지금 틀 안에 보이는지: 꼭짓점 표본 중 하나라도 틀 안이면 예, 아니면 틀 안 9점이 도형 안에 드는지(아주 넓은 지역을 확대한 경우) */
+const sampleCache=new WeakMap();
+function samplePts(shape){
+  let s=sampleCache.get(shape); if(s) return s; const all=[];
+  const walk=c=>{ if(typeof c[0]==='number') all.push(c); else c.forEach(walk); };
+  if(shape.type==='FeatureCollection') shape.features.forEach(f=>f.geometry&&walk(f.geometry.coordinates));
+  else { const g=shape.geometry||shape; if(g.coordinates) walk(g.coordinates); }
+  const step=Math.max(1,Math.floor(all.length/4000)); s=all.filter((_,i)=>i%step===0); sampleCache.set(shape,s); return s;
+}
+function visibleIn(shape,P,fw,fh){
+  if(!shape) return false;
+  for(const c of samplePts(shape)){ const q=P(c); if(q&&q[0]>=0&&q[0]<=fw&&q[1]>=0&&q[1]<=fh) return true; }
+  for(const fx of [0.1,0.5,0.9]) for(const fy of [0.1,0.5,0.9]){ const g=P.invert&&P.invert([fw*fx,fh*fy]); if(g&&isFinite(g[0])&&d3.geoContains(shape,g)) return true; }
+  return false;
+}
+/* 기후 지역은 도형이 커서, 한 번 0.5° 격자에 칠해 두고(occ) 틀 안 표본점(32×20)의 경위도로 확인 */
+const occCache=new WeakMap();
+function occGrid(shape){
+  let o=occCache.get(shape); if(o) return o;
+  const W=720,H=360, c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
+  const pr=d3.geoEquirectangular().scale(W/(2*Math.PI)).translate([W/2,H/2]).precision(0.5);
+  x.beginPath(); d3.geoPath(pr,x)(shape); x.fillStyle='#000'; x.fill(); x.lineWidth=1.5; x.strokeStyle='#000'; x.stroke();
+  const a=x.getImageData(0,0,W,H).data; o=new Uint8Array(W*H); for(let i=0;i<W*H;i++) o[i]=a[i*4+3]>0?1:0;
+  occCache.set(shape,o); return o;
+}
+function zoneVisible(shape,P,fw,fh){
+  if(!shape) return false; const o=occGrid(shape);
+  for(let i=0;i<32;i++) for(let j=0;j<20;j++){ const g=P.invert([fw*(i+0.5)/32,fh*(j+0.5)/20]); if(!g||!isFinite(g[0])||!isFinite(g[1])) continue;
+    let lon=((g[0]+180)%360+360)%360, lat=g[1]; const cx=Math.min(719,Math.floor(lon*2)), cy=Math.min(359,Math.max(0,Math.floor((90-lat)*2)));
+    if(o[cy*720+cx]) return true; }
+  return false;
+}
+let legMemo={k:'',v:null};
 function legendEntries(doc){
-  const e=zoneGroups(doc).map(g=>({kind:'swatch',tone:g.tone,label:ZONE_LABEL[g.key]||g.ko,src:'zone'}));
-  { const sh=reliefShown(doc); for(const [c,ko] of RELIEF_CAT) if(sh.some(f=>f.properties.c===c)) e.push({kind:'swatch',tone:reliefTone(doc,c),label:ko,src:'relief'}); }
+  const k=JSON.stringify([doc.view,doc.frame,doc.layers.zone,doc.layers.relief,doc.layers.plates,!!zoneTopo,!!reliefTopo,!!plateTopo]);
+  if(legMemo.k===k) return legMemo.v; const v=legendEntries0(doc); legMemo={k,v}; return v;
+}
+function legendEntries0(doc){
+  const fw=doc.frame.w, fh=doc.frame.h, P=makeProj(doc.view,fw,fh);
+  const e=zoneGroups(doc).filter(g=>!zoneTopo||zoneVisible(zoneShape(g.key,g.cls),P,fw,fh)).map(g=>({kind:'swatch',tone:g.tone,label:g.ko,src:'zone'}));
+  { const sh=reliefShown(doc).filter(f=>visibleIn(f,P,fw,fh)); for(const [c,ko] of RELIEF_CAT) if(sh.some(f=>f.properties.c===c)) e.push({kind:'swatch',tone:reliefTone(doc,c),label:ko,src:'relief'}); }
   const pl=doc.layers.plates; if(pl&&pl.on) (pl.typed?['c','d','t']:[null]).forEach(k=>e.push({kind:'line',k:k||'c',typed:pl.typed,label:k?PLATE_STYLE[k]:'판의 경계'}));
   return e;
 }
-function drawLegend(doc,ctx,fw,fh){
+const LEG_GAP=2;   // 지도 밖 범례와 틀 사이(mm)
+function legendLayout(doc){
   const pos=doc.layers.legend; if(!pos||pos==='none') return null;
   const ents=legendEntries(doc).filter(x=>x.kind==='line'?!!plateTopo:x.src==='relief'?!!reliefTopo:!!zoneTopo); if(!ents.length) return null;
-  const L=doc.style.line, fs=doc.style.fontPt*MMPT*0.75, sw=3.0, sh=1.8, gap=0.9, pad=0.9, rowH=Math.max(sh,fs*1.05)+0.7;
-  ctx.font=`${fs}px ${fontStack(doc,false)}`;
-  const tw=Math.max(...ents.map(t=>ctx.measureText(t.label).width));
-  const W=pad*2+sw+gap+tw, H=pad*2+rowH*ents.length-0.7, m=1.2;
-  const x0=pos[1]==='l'?m:fw-m-W, y0=pos[0]==='t'?m:fh-m-H;
-  ctx.save(); ctx.fillStyle='#ffffff'; ctx.fillRect(x0,y0,W,H); ctx.lineWidth=0.1*L; ctx.strokeStyle='#000000'; ctx.strokeRect(x0,y0,W,H);
+  const fs=doc.style.fontPt*MMPT*0.75, sw=3.0, sh=1.8, gap=0.9, pad=0.9, rowH=Math.max(sh,fs*1.05)+0.7;
+  probe.font=`${fs}px ${fontStack(doc,false)}`;
+  const tw=Math.max(...ents.map(t=>probe.measureText(t.label).width));
+  return {pos,ents,fs,sw,sh,gap,pad,rowH,W:pad*2+sw+gap+tw,H:pad*2+rowH*ents.length-0.7};
+}
+/* 범례를 지도 밖에 두면 그만큼 종이가 넓어진다(오른쪽 또는 아래) */
+function sheetExtra(doc){
+  const pos=doc.layers.legend; if(pos!=='outR'&&pos!=='outB') return {ex:0,ey:0};
+  const lay=legendLayout(doc); if(!lay) return {ex:0,ey:0};
+  return pos==='outR'?{ex:LEG_GAP+lay.W,ey:Math.max(0,lay.H-doc.frame.h)}:{ex:Math.max(0,lay.W-doc.frame.w),ey:LEG_GAP+lay.H};
+}
+function drawLegend(doc,ctx,fw,fh){
+  const lay=legendLayout(doc); if(!lay) return null;
+  const {pos,ents,fs,sw,sh,gap,pad,rowH,W,H}=lay, L=doc.style.line, m=1.2;
+  let x0,y0;
+  if(pos==='outR'){ x0=fw+LEG_GAP; y0=Math.max(0,fh-H); }        // 틀 오른쪽 밖, 아래쪽 맞춤
+  else if(pos==='outB'){ x0=Math.max(0,fw-W); y0=fh+LEG_GAP; }   // 틀 아래 밖, 오른쪽 맞춤
+  else { x0=pos[1]==='l'?m:fw-m-W; y0=pos[0]==='t'?m:fh-m-H; }
+  ctx.save(); ctx.font=`${fs}px ${fontStack(doc,false)}`;
+  ctx.fillStyle='#ffffff'; ctx.fillRect(x0,y0,W,H); ctx.lineWidth=0.1*L; ctx.strokeStyle='#000000'; ctx.strokeRect(x0,y0,W,H);
   ents.forEach((g,i)=>{ const ry=y0+pad+i*rowH, sy=ry+(rowH-0.7-sh)/2, sx=x0+pad;
     if(g.kind==='swatch'){
-      if(g.tone==='hatch'||g.tone==='hatch2') hatchRect(ctx,sx,sy,sw,sh,g.tone==='hatch'?1:-1,L);
-      else { ctx.fillStyle=toneColor(doc,g.tone); ctx.fillRect(sx,sy,sw,sh); }
+      patternRect(ctx,doc,g.tone,sx,sy,sw,sh);
       ctx.lineWidth=0.08*L; ctx.strokeStyle='#000000'; ctx.setLineDash([]); ctx.strokeRect(sx,sy,sw,sh); }
     else { ctx.beginPath(); ctx.moveTo(sx,sy+sh/2); ctx.lineTo(sx+sw,sy+sh/2); strokePlate(ctx,g.k,g.typed,L); }
     ctx.fillStyle='#000000'; ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.font=`${fs}px ${fontStack(doc,false)}`;
     ctx.fillText(g.label,sx+sw+gap,sy+sh/2+fs*0.36); });
-  ctx.restore(); return {x:x0,y:y0,w:W,h:H};
+  ctx.restore(); return (pos==='outR'||pos==='outB')?null:{x:x0,y:y0,w:W,h:H};
 }
 function drawZones(doc,ctx,path,g,fw,fh){
   const zg=zoneGroups(doc); if(!zg.length) return;
   if(!zoneTopo){ loadZones().catch(()=>{}); return; }
-  const L=doc.style.line;
   ctx.save(); ctx.beginPath(); path(g.land); ctx.clip();   // 해안선 밖으로 번지지 않게 육지 안에서만
-  for(const z of zg){ const sh=zoneShape(z.key,z.cls); if(!sh) continue;
-    if(z.tone==='hatch'||z.tone==='hatch2'){ /* 빗금: 영역으로 자른 뒤 사선을 긋는다(SVG로 내보내도 같은 모양) */
-      ctx.save(); ctx.beginPath(); path(sh); ctx.clip(); hatchRect(ctx,0,0,fw,fh,z.tone==='hatch'?1:-1,L); ctx.restore(); }
-    else { ctx.beginPath(); path(sh); ctx.fillStyle=toneColor(doc,z.tone); ctx.fill(); }
-  }
+  for(const z of zg){ const sh=zoneShape(z.key,z.cls); if(sh) fillShape(ctx,doc,path,sh,z.tone,fw,fh); }
   ctx.restore();
 }
 function drawBase(doc,ctx,P,fw,fh,withFrame){
@@ -7687,12 +7784,12 @@ function paintSheet(doc,cv,opts){
   const o=opts||{}; const dpr=o.dpr||window.devicePixelRatio||1;
   const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return null;
   if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
-  const fw=doc.frame.w, fh=doc.frame.h, pad=o.pad||24;
-  const k=clamp(Math.min((W-2*pad)/(fw+2*M),(H-2*pad)/(fh+2*M)),1,40);
-  const ox=(W-fw*k)/2, oy=(H-fh*k)/2;
+  const fw=doc.frame.w, fh=doc.frame.h, pad=o.pad||24, {ex,ey}=sheetExtra(doc);
+  const k=clamp(Math.min((W-2*pad)/(fw+ex+2*M),(H-2*pad)/(fh+ey+2*M)),1,40);
+  const ox=(W-(fw+ex)*k)/2, oy=(H-(fh+ey)*k)/2;
   const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,W,H);
   c.fillStyle=o.desk||'#c7ccd2'; c.fillRect(0,0,W,H);
-  c.save(); c.shadowColor='rgba(0,0,0,.22)'; c.shadowBlur=14; c.shadowOffsetY=3; c.fillStyle='#ffffff'; c.fillRect(ox-M*k,oy-M*k,(fw+2*M)*k,(fh+2*M)*k); c.restore();
+  c.save(); c.shadowColor='rgba(0,0,0,.22)'; c.shadowBlur=14; c.shadowOffsetY=3; c.fillStyle='#ffffff'; c.fillRect(ox-M*k,oy-M*k,(fw+ex+2*M)*k,(fh+ey+2*M)*k); c.restore();
   c.setTransform(dpr*k,0,0,dpr*k,dpr*ox,dpr*oy);
   const P=makeProj(doc.view,fw,fh); drawBase(doc,c,P,fw,fh,true); const geoms=drawOverlay(doc,c,P,fw,fh);
   return {k,ox,oy,P,geoms};
@@ -7738,8 +7835,8 @@ async function readyForExport(doc){
 async function renderPng(doc,opts){
   const o=opts||{}; const dpi=o.dpi||600;
   await readyForExport(doc);
-  const k=dpi/25.4, fw=doc.frame.w, fh=doc.frame.h; const c=document.createElement('canvas');
-  c.width=Math.round((fw+2*M)*k); c.height=Math.round((fh+2*M)*k); const x=c.getContext('2d');
+  const k=dpi/25.4, fw=doc.frame.w, fh=doc.frame.h, {ex,ey}=sheetExtra(doc); const c=document.createElement('canvas');
+  c.width=Math.round((fw+ex+2*M)*k); c.height=Math.round((fh+ey+2*M)*k); const x=c.getContext('2d');
   if(o.bg!=='clear'){ x.fillStyle='#ffffff'; x.fillRect(0,0,c.width,c.height); }
   x.setTransform(k,0,0,k,M*k,M*k); const P=makeProj(doc.view,fw,fh);
   drawBase(doc,x,P,fw,fh,true); drawOverlay(doc,x,P,fw,fh);
@@ -7753,8 +7850,8 @@ async function withDpi(blob,d){
   const out=new Uint8Array(buf.length+21); out.set(buf.subarray(0,33)); out.set(ch,33); out.set(buf.subarray(33),54); return new Blob([out],{type:'image/png'});
 }
 async function svgString(doc){
-  await readyForExport(doc); const fw=doc.frame.w, fh=doc.frame.h; const s=new SvgCtx(doc); s.fillStyle='#ffffff'; s.fillRect(-M,-M,fw+2*M,fh+2*M);
-  const P=makeProj(doc.view,fw,fh); drawBase(doc,s,P,fw,fh,true); drawOverlay(doc,s,P,fw,fh); return s.toString(fw+2*M,fh+2*M);
+  await readyForExport(doc); const fw=doc.frame.w, fh=doc.frame.h, {ex,ey}=sheetExtra(doc); const s=new SvgCtx(doc); s.fillStyle='#ffffff'; s.fillRect(-M,-M,fw+ex+2*M,fh+ey+2*M);
+  const P=makeProj(doc.view,fw,fh); drawBase(doc,s,P,fw,fh,true); drawOverlay(doc,s,P,fw,fh); return s.toString(fw+ex+2*M,fh+ey+2*M);
 }
 const dlCap=(window.claude&&typeof window.claude.use==='function')?window.claude.use('downloads').catch(()=>null):Promise.resolve(null);
 /* 저장: 'saved' | 'declined' | 'busy' | 'failed' */
@@ -8060,7 +8157,7 @@ async function specToDoc(spec,opts){
   const rv=new Set(); for(const r of (Array.isArray(spec.rivers)?spec.rivers:[])){ const k=resolveRiver(r); if(k) rv.add(k); else report.warnings.push(`‘${r}’ 하천은 목록에 없어요`); }
   doc.layers.rivers=[...rv];
   const ln=spec.lines||{}; doc.layers.lines={eq:!!ln.equator,tr:!!ln.tropics,ac:!!ln.polar};
-  { const z=spec.zone; doc.layers.zone=z&&z.kind==='arid'?{kind:'arid',split:ZONE_SPLITS[z.split]?z.split:'one',tone:Object.fromEntries(Object.entries(z.tone&&typeof z.tone==='object'?z.tone:{}).filter(([k,v])=>ZONE_TONES.includes(v)))}:{kind:'none',split:'one',tone:{}};
+  { const z=spec.zone; doc.layers.zone=normZone(z);
     const lg=spec.legend||(z&&z.legend); doc.layers.legend=ZONE_LEGEND.includes(lg)?lg:'bl';
     const pl=spec.plates; doc.layers.plates=pl&&pl.on?{on:true,typed:pl.typed!==false,names:pl.names!==false}:{on:false,typed:true,names:true};
     doc.layers.relief=normRelief(spec.relief); }
@@ -8134,7 +8231,7 @@ function finishView(doc){
 function docToSpec(doc){
   const s={region:doc.preset==='custom'?null:doc.preset,labelSeq:doc.style.seq,points:[],countries:[],areas:[],rivers:doc.layers.rivers.slice(),
     lines:{equator:!!doc.layers.lines.eq,tropics:!!doc.layers.lines.tr,polar:!!doc.layers.lines.ac},borders:doc.layers.borders,
-    zone:doc.layers.zone&&doc.layers.zone.kind==='arid'?{kind:'arid',split:doc.layers.zone.split,tone:doc.layers.zone.tone}:null,
+    zone:zoneOn(doc)?doc.layers.zone:null,
     plates:doc.layers.plates&&doc.layers.plates.on?{on:true,typed:doc.layers.plates.typed,names:doc.layers.plates.names}:null,
     relief:doc.layers.relief&&doc.layers.relief.on?doc.layers.relief:null,legend:doc.layers.legend};
   for(const it of doc.items){
@@ -8192,7 +8289,7 @@ function parseRules(q){
   if(/극권/.test(s)) spec.lines.polar=true;
   s=s.replace(/(적도|북회귀선|남회귀선|회귀선|북극권|남극권|극권)(을|를|도|과|와|이|가|선)?/g,' ');
   // 범례 자리(기후 지역·판의 경계 공통)
-  if(/범례/.test(s)) spec.legend=/범례\s*(없이|빼|없게|지워)/.test(s)?'none':/범례[^,.]{0,6}오른쪽\s*위/.test(s)?'tr':/범례[^,.]{0,6}왼쪽\s*위/.test(s)?'tl':/범례[^,.]{0,6}오른쪽/.test(s)?'br':'bl';
+  if(/범례/.test(s)) spec.legend=/범례\s*(없이|빼|없게|지워)/.test(s)?'none':/범례[^,.]{0,8}(밖|바깥)[^,.]{0,6}아래/.test(s)?'outB':/범례[^,.]{0,8}(밖|바깥)/.test(s)?'outR':/범례[^,.]{0,6}오른쪽\s*위/.test(s)?'tr':/범례[^,.]{0,6}왼쪽\s*위/.test(s)?'tl':/범례[^,.]{0,6}오른쪽/.test(s)?'br':'bl';
   // 판의 경계: '판의 경계'·'판 경계'·'판 구조'. '유형 구분 없이'면 한 가지 선, '판 이름 없이'면 이름을 뺀다
   if(/판\s*의?\s*경계|판\s*구조|수렴\s*경계|발산\s*경계|보존\s*경계/.test(s)){
     spec.plates={on:true,typed:!/(유형|종류)\s*(구분\s*)?(없이|빼)|한\s*가지\s*선/.test(s),names:!/판\s*이름\s*(없이|빼|지워)|이름\s*없이/.test(s)};
@@ -8211,15 +8308,41 @@ function parseRules(q){
       s=s.replace(/(안정\s*육괴|안정\s*지괴|순상지|고기\s*습곡\s*(산지|산맥)?|신기\s*습곡\s*(산지|산맥)?|(알프스-히말라야|환태평양)\s*조산대|조산대|습곡\s*산지|(산맥|산지)\s*이름|이름\s*(넣어|표시|달아))(을|를|과|와|도|은|는|만|으로|로|이|가)?/g,' ');
       for(const [,re] of RN) s=s.replace(new RegExp('('+re+')\\s*(산맥|산지|고원|순상지)?(을|를|과|와|도|은|는|만|,)?','g'),' ');
     } }
-  // 기후 지역: '건조 기후' → 하나로, '사막 기후·스텝 기후' → 둘로, 'BWh'·'열대 사막' 같은 세분 → 네 갈래
-  if(/건조\s*기후|건조\s*지역|사막\s*기후|스텝\s*기후|BW[hk]|BS[hk]|사막.{0,14}스텝|스텝.{0,14}사막/.test(s)){
-    const four=/BW[hk]|BS[hk]|네\s*갈래|세분|열대\s*(사막|스텝)|(온대|냉대|한대)\s*(사막|스텝)/.test(s), two=/사막\s*기후|스텝\s*기후|사막.{0,14}스텝|스텝.{0,14}사막/.test(s);
-    spec.zone={kind:'arid',split:four?'four':two?'two':'one',tone:{}};
-    const TW=[[/(진한|짙은|어두운|진하게|짙게)\s*(회색|음영)?/,'dark'],[/(옅은|연한|밝은|연하게|옅게)\s*(회색|음영)?/,'light'],[/(중간|기본)\s*(회색|음영)?|회색/,'mid'],[/빗금/,'hatch']];
-    const toneAfter=(word,key)=>{ const m=new RegExp(word+'[^,.]{0,14}').exec(s); if(!m) return; const t=m[0].replace(new RegExp('^'+word),''); for(const [re,v] of TW) if(re.test(t)){ spec.zone.tone[key]=v; return; } };
-    if(spec.zone.split==='one'){ toneAfter('건조\\s*기후','B'); }
-    if(spec.zone.split==='two'){ toneAfter('사막(\\s*기후)?(은|는|을|를)?','BW'); toneAfter('스텝(\\s*기후)?(은|는|을|를)?','BS'); }
-    s=s.replace(/((열대|온대|냉대|한대)\s*)?(건조|사막|스텝)\s*(기후)?\s*(지역|분포)?(을|를|도|과|와|이|가|은|는|으로|로|만)?|BW[hk]|BS[hk]|네\s*갈래(로)?|세분(해서|하여)?|(진한|짙은|어두운|옅은|연한|밝은|중간|기본)\s*(회색|음영)(으로|로)?|진하게|연하게|옅게|짙게|빗금(으로|로)?|범례\s*(없이|빼고|오른쪽\s*위|왼쪽\s*위|오른쪽|왼쪽)?(에|로|으로)?|회색(으로|로)?/g,' '); }
+  // 기후 지역(쾨펜): 기후대 이름 → 하나로, 교과서 기후 이름 → 그 기후만(중간 단위), 쾨펜 기호(Cfb 등) → 그 기호만(세부)
+  { const Z={belts:{},tone:{},only:[]}; let named=false; const T=s;
+    const lv=(b,l)=>{ const o=Z.belts[b]; const r={off:0,one:1,mid:2,detail:3}; if(!o||r[l]>r[o]) Z.belts[b]=l; };
+    const pick=(b,l,key)=>{ lv(b,l); Z.only.push(key); named=true; };
+    // 기호(앞뒤가 영문이 아닐 때만)
+    const CODE=/(?<![A-Za-z])(Af|Am|Aw|BW[hk]|BS[hk]|C[swf][abc]|D[swf][abcd]|ET|EF)(?![A-Za-z])/g; let m;
+    while((m=CODE.exec(T))){ const k=m[1]; pick(k[0],'detail',k); }
+    // 교과서 기후 이름
+    const MID=[['A','Af',/열대\s*우림/],['A','Am',/열대\s*몬순|열대\s*계절풍/],['A','Aw',/사바나/],['B','BW',/사막\s*기후|사막.{0,14}스텝|스텝.{0,14}사막/],['B','BS',/스텝/],
+      ['C','Cs',/지중해성/],['C','Cw',/온대\s*(겨울|동계)\s*건조/],['C','Cfa',/온난\s*습윤/],['C','Cfbc',/서안\s*해양성/],
+      ['D','Df',/냉대\s*습윤/],['D','Dw',/냉대\s*(겨울|동계)\s*건조/],['D','Ds',/냉대\s*(여름|하계)\s*건조/],['E','ET',/툰드라/],['E','EF',/빙설/]];
+    for(const [b,k,re] of MID) if(re.test(T)) pick(b,'mid',k);
+    // 건조 기후 옛 문장: '열대 사막'·'네 갈래' → 네 갈래
+    if(/열대\s*(사막|스텝)|(온대|냉대|한대)\s*(사막|스텝)|네\s*갈래|세분/.test(T)&&/건조|사막|스텝/.test(T)){ lv('B','detail'); Z.only=Z.only.filter(k=>k!=='BW'&&k!=='BS'); if(Z.only.length) ['BWh','BWk','BSh','BSk'].forEach(k=>Z.only.push(k)); }
+    // 기후대 이름(하나로)
+    const BELT=[['A',/열대\s*기후(?!\s*지역의)/],['B',/건조\s*(기후|지역)/],['C',/온대\s*기후/],['D',/냉대\s*기후|아한대\s*기후/],['E',/한대\s*기후(?<!아한대\s*기후)/]];
+    for(const [b,re] of BELT) if(re.test(T)&&!Z.belts[b]){ lv(b,'one'); if(named) Z.only.push(b); }
+    if(/(쾨펜|기후)\s*(구분|대)\s*(전체|모두)?|세계\s*기후\s*(구분|지역)/.test(T)) for(const [b] of ZONE_BELTS) if(!Z.belts[b]) lv(b,'one');
+    // 사막과 스텝만 말하면 건조 기후 둘로(옛 문장 '사막은 진한 회색, 스텝은 옅은 회색')
+    if(/사막.{0,14}스텝|스텝.{0,14}사막/.test(T)&&Z.belts.B==='mid'){ Z.only=Z.only.filter(k=>k!=='BW'&&k!=='BS'); if(!Z.only.length) named=false; }
+    if(Object.keys(Z.belts).length){
+      // 하나로 칠한 기후대는 only에 넣어 둔다(다른 기후를 골라 only가 생겼을 때 사라지지 않게)
+      if(Z.only.length) for(const [b,l] of Object.entries(Z.belts)) if(l==='one'&&!Z.only.includes(b)) Z.only.push(b);
+      Z.only=[...new Set(Z.only)];
+      // 칠 모양: 이름 바로 뒤 14자 안의 '진한 회색'·'옅은 회색'·'빗금'·'점무늬'
+      const TW=[[/(진한|짙은|어두운|진하게|짙게)\s*(회색|음영)?/,'dark'],[/(옅은|연한|밝은|연하게|옅게)\s*(회색|음영)?/,'light'],[/점\s*무늬|점으로/,'dots'],[/격자|엇갈린\s*빗금/,'cross'],[/빗금/,'hatch'],[/(중간|기본)\s*(회색|음영)?|회색/,'mid']];
+      const toneAfter=(word,key)=>{ const mm=new RegExp(word+'[^,.]{0,14}').exec(T); if(!mm) return; const t=mm[0].replace(new RegExp('^'+word),''); for(const [re,v] of TW) if(re.test(t)){ Z.tone[key]=v; return; } };
+      const WORD={A:'열대\\s*기후',B:'건조\\s*(기후|지역)',C:'온대\\s*기후',D:'냉대\\s*기후',E:'한대\\s*기후',Af:'열대\\s*우림(\\s*기후)?',Am:'열대\\s*몬순(\\s*기후)?',Aw:'사바나(\\s*기후)?',
+        BW:'사막(\\s*기후)?(은|는|을|를)?',BS:'스텝(\\s*기후)?(은|는|을|를)?',Cs:'지중해성(\\s*기후)?',Cfa:'온난\\s*습윤(\\s*기후)?',Cfbc:'서안\\s*해양성(\\s*기후)?',ET:'툰드라(\\s*기후)?',EF:'빙설(\\s*기후)?'};
+      for(const [k,w] of Object.entries(WORD)) toneAfter(w,k);
+      spec.zone=Z;
+      s=s.replace(/((열대|온대|냉대|한대|아한대|건조)\s*)?(건조|사막|스텝|우림|몬순|계절풍|사바나|지중해성|온난\s*습윤|서안\s*해양성|툰드라|빙설|(겨울|동계|여름|하계)\s*건조|습윤)?\s*기후(\s*(지역|분포|구분|대))?(\s*(전체|모두))?(을|를|도|과|와|이|가|은|는|으로|로|만|및)?|(?<![A-Za-z])(Af|Am|Aw|BW[hk]|BS[hk]|C[swf][abc]|D[swf][abcd]|ET|EF)(?![A-Za-z])|건조\s*지역|(사막|스텝|사바나|툰드라|빙설|지중해성)(은|는|을|를|과|와)?|쾨펜|네\s*갈래(로)?|세분(해서|하여)?|(진한|짙은|어두운|옅은|연한|밝은|중간|기본)\s*(회색|음영)(으로|로)?|진하게|연하게|옅게|짙게|점\s*무늬(로)?|격자|빗금(으로|로)?|회색(으로|로)?/g,' ');
+    } }
+  // 범례 문장 정리
+  s=s.replace(/범례\s*(지도\s*)?(없이|빼고|밖\s*(오른쪽|아래)?|바깥\s*(오른쪽|아래)?|오른쪽\s*위|왼쪽\s*위|오른쪽\s*아래|왼쪽\s*아래|오른쪽|왼쪽)?(에|로|으로)?/g,' ');
   // 좌표 쌍
   const coordRe=/(북위|남위)\s*(\d+(?:\.\d+)?)\s*(?:°|도)?\s*,?\s*(동경|서경)\s*(\d+(?:\.\d+)?)\s*(?:°|도)?|(-?\d{1,2}(?:\.\d+)?)\s*°?\s*([NS])\s*,?\s*(-?\d{1,3}(?:\.\d+)?)\s*°?\s*([EW])|\(\s*(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*\)/g;
   const coordPts=[];
@@ -8316,8 +8439,8 @@ function buildPrompt(q,current){
 - lines: equator(적도), tropics(남·북회귀선), polar(남·북극권) 표시 여부. borders: 국경선 표시(true/false), 정하지 않았으면 null.
 - relief: 습곡 산지·안정 육괴를 칠할 때 {"on":true,"show":{"shield":bool,"old":bool,"new":bool},"only":[산맥 id 목록, 비우면 전부],"names":bool}. id: appalachian, ural, scandinavian, greatdividing, drakensberg(고기) / rocky, sierramadre, andes, alps, pyrenees, carpathian, dinaric, atlas, caucasus, zagros, hindukush, himalaya, southernalps(신기) / canadian, guiana, brazilian, siberian, deccan, australian, baltic, african, arabian(안정 육괴). 요청이 없으면 null.
 - plates: 판의 경계를 그릴 때 {"on":true,"typed":true(수렴·발산·보존 선 모양 구분)|false,"names":true(큰 판 이름)|false}. 요청이 없으면 null.
-- legend: 범례 자리 bl(왼쪽 아래)|br|tl|tr|none. 기후 지역·판의 경계가 있을 때만 쓰인다. 정하지 않았으면 null.
-- zone: 쾨펜 건조 기후 지역을 칠할 때 {"kind":"arid","split":"one"|"two"|"four"}. one=건조 기후 하나로, two=사막 기후·스텝 기후, four=BWh·BWk·BSh·BSk. 요청이 없으면 null.
+- legend: 범례 자리 bl(왼쪽 아래)|br|tl|tr|outR(지도 밖 오른쪽)|outB(지도 밖 아래)|none. 기후 지역·판의 경계가 있을 때만 쓰인다. 정하지 않았으면 null.
+- zone: 쾨펜 기후 지역을 칠할 때 {"belts":{"A":"off|one|mid|detail","B":…,"C":…,"D":…,"E":…},"only":[갈래 키, 비우면 전부],"tone":{갈래 키:"light|mid|dark|hatch|hatch2|cross|dots"}}. A 열대·B 건조·C 온대·D 냉대·E 한대. one=기후대 하나로(키 A~E), mid=교과서 기후(키 Af 열대 우림, Am 열대 몬순, Aw 사바나, BW 사막, BS 스텝, Cs 지중해성, Cw 온대 겨울 건조, Cfa 온난 습윤, Cfbc 서안 해양성, Df 냉대 습윤, Dw 냉대 겨울 건조, Ds 냉대 여름 건조, ET 툰드라, EF 빙설), detail=쾨펜 기호(키는 기호 그대로, 예: Cfb). 특정 기후만 요청하면 그 키만 only에. 요청이 없으면 null.
 - answer: 교사에게 보여 줄 한두 문장 한국어 설명. 각 라벨이 무엇인지 적는다.
 
 지역 목록: ${regions}
@@ -8332,7 +8455,7 @@ function buildPrompt(q,current){
 """${String(q).slice(0,4000)}"""`;
 }
 
-return {clean,loadRelief,reliefList,RELIEF_CAT,RELIEF_TONE,loadPlates,PLATE_STYLE,ZONE_LEGEND,ZONE_LABEL,ZONE_SPLITS,ZONE_TONES,ZONE_TONE,zoneGroups,loadZones,MMPT,M,clamp,r3,uid,esc,norm,RAD,RIVERS,RIVER_OF,resolveRiver,KO_FIX,FONTS,userFont,fontDef,fontStack,fontInstalled,fontAvailable,needsWebFallback,labelText,ensureGlyphs,
+return {clean,sheetExtra,legendLayout,ZONE_BELTS,ZB,ZONE_LEVELS,zoneOn,normZone,loadRelief,reliefList,RELIEF_CAT,RELIEF_TONE,loadPlates,PLATE_STYLE,ZONE_LEGEND,ZONE_LABEL,ZONE_TONES,ZONE_TONE,zoneGroups,loadZones,MMPT,M,clamp,r3,uid,esc,norm,RAD,RIVERS,RIVER_OF,resolveRiver,KO_FIX,FONTS,userFont,fontDef,fontStack,fontInstalled,fontAvailable,needsWebFallback,labelText,ensureGlyphs,
   SEQS,nextLabel,seqOfLabel,PROJS,kxOf,PRESETS,presetById,makeProj,fitView,applyPreset,freshDoc,normalizeDoc,
   geo,LODS,onData,loadLod,anyGeo,degAcross,wantLod,G,currentLodName,ensureGeo,
   loadPlaces,searchPlaces,exactPlaces,resolvePlace,findCountry,searchCountries,
@@ -8393,7 +8516,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "1380230d73", "arid": "e4ac2ba9cf", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "55773df6f5", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
+const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "1380230d73", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "55773df6f5", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
@@ -8576,7 +8699,7 @@ function render(){
   if(!doc) return;
   WG.paintSheet(doc,cv,{desk:deskColor(),pad:28});
   const k=dpi/25.4, M=WG.M;
-  $('#sizeInfo').textContent=`틀 ${doc.frame.w} × ${doc.frame.h} mm · ${dpi} dpi로 ${Math.round((doc.frame.w+2*M)*k).toLocaleString()} × ${Math.round((doc.frame.h+2*M)*k).toLocaleString()} px`;
+  $('#sizeInfo').textContent=`틀 ${doc.frame.w} × ${doc.frame.h} mm · ${dpi} dpi로 ${Math.round((doc.frame.w+WG.sheetExtra(doc).ex+2*M)*k).toLocaleString()} × ${Math.round((doc.frame.h+WG.sheetExtra(doc).ey+2*M)*k).toLocaleString()} px`;
 }
 let rq=0; function requestRender(){ if(!rq) rq=requestAnimationFrame(()=>{ rq=0; render(); }); }
 
@@ -8621,7 +8744,7 @@ function renderList(){
 /* ───────── 해석 → 지도 ───────── */
 async function show(spec,m){
   const {doc:d,report}=await WG.specToDoc(spec,{style:{font:pref.font,fontPt:pref.fontPt}});
-  if(!d.items.length&&!d.layers.rivers.length&&d.layers.zone.kind==='none'&&!d.layers.plates.on&&!d.layers.relief.on){ setStatus('err','지도에 올릴 장소를 찾지 못했어요. 도시·국가 이름을 직접 적어 보세요.'); return false; }
+  if(!d.items.length&&!d.layers.rivers.length&&!WG.zoneOn(d)&&!d.layers.plates.on&&!d.layers.relief.on){ setStatus('err','지도에 올릴 장소를 찾지 못했어요. 도시·국가 이름을 직접 적어 보세요.'); return false; }
   doc=d; meta={...m,warnings:report.warnings};
   syncSettings(); render(); renderList(); persist();
   await WG.ensureGlyphs(doc); requestRender();
@@ -8632,7 +8755,7 @@ function validSpec(o){
   const arr=v=>Array.isArray(v)?v.filter(x=>x&&typeof x==='object'):[];
   return {region:typeof o.region==='string'?o.region:null,labelSeq:typeof o.labelSeq==='string'?o.labelSeq:null,
     points:arr(o.points),countries:arr(o.countries),areas:arr(o.areas),rivers:Array.isArray(o.rivers)?o.rivers.filter(x=>typeof x==='string'):[],
-    lines:o.lines&&typeof o.lines==='object'?o.lines:{},borders:typeof o.borders==='boolean'?o.borders:null,zone:o.zone&&typeof o.zone==='object'&&o.zone.kind==='arid'?{kind:'arid',split:String(o.zone.split||'one'),tone:o.zone.tone&&typeof o.zone.tone==='object'?o.zone.tone:{}}:null,plates:o.plates&&typeof o.plates==='object'&&o.plates.on?{on:true,typed:o.plates.typed!==false,names:o.plates.names!==false}:null,relief:o.relief&&typeof o.relief==='object'&&o.relief.on?o.relief:null,legend:typeof o.legend==='string'?o.legend:null,answer:typeof o.answer==='string'?o.answer:''};
+    lines:o.lines&&typeof o.lines==='object'?o.lines:{},borders:typeof o.borders==='boolean'?o.borders:null,zone:o.zone&&typeof o.zone==='object'?WG.normZone(o.zone):null,plates:o.plates&&typeof o.plates==='object'&&o.plates.on?{on:true,typed:o.plates.typed!==false,names:o.plates.names!==false}:null,relief:o.relief&&typeof o.relief==='object'&&o.relief.on?o.relief:null,legend:typeof o.legend==='string'?o.legend:null,answer:typeof o.answer==='string'?o.answer:''};
 }
 async function run(q,opts){
   const o=opts||{};
@@ -8810,14 +8933,14 @@ function saveDraft(){ clearTimeout(draftTimer); draftTimer=setTimeout(()=>{ try{
 const cv=$('#cv'), desk=$('#desk');
 const base=document.createElement('canvas');
 let kd=10, ox=0, oy=0, dpr=1, needBase=true, raf=0, baseInfo=null, lastBaseMs=0, interacting=false, idleT=0;
-let lastGeoms=[], hoverCid=null, draft=null, themeC={};
+let lastGeoms=[], hoverCid=null, draft=null, themeC={}, sx={ex:0,ey:0};
 function readTheme(){ const cs=getComputedStyle(ROOT.documentElement||ROOT); themeC={desk:cs.getPropertyValue('--desk').trim()||'#c7ccd2',omr:cs.getPropertyValue('--omr').trim()||'#c3193f'}; }
 function layout(){
   const W=desk.clientWidth, H=desk.clientHeight; dpr=window.devicePixelRatio||1;
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
-  const fw=doc.frame.w, fh=doc.frame.h, padX=28, padTop=44, padBot=40;
-  kd=clamp(Math.min((W-2*padX)/(fw+2*M),(H-padTop-padBot)/(fh+2*M)),2,60);
-  ox=(W-fw*kd)/2; oy=padTop+((H-padTop-padBot)-fh*kd)/2;
+  const fw=doc.frame.w, fh=doc.frame.h, padX=28, padTop=44, padBot=40; sx=WG.sheetExtra(doc);
+  kd=clamp(Math.min((W-2*padX)/(fw+sx.ex+2*M),(H-padTop-padBot)/(fh+sx.ey+2*M)),2,60);
+  ox=(W-(fw+sx.ex)*kd)/2; oy=padTop+((H-padTop-padBot)-(fh+sx.ey)*kd)/2;
   needBase=true; requestRender();
 }
 function rebuild(){ proj=makeProj(doc.view,doc.frame.w,doc.frame.h); updateStatus(); }
@@ -8840,10 +8963,11 @@ function renderBase(){
 }
 function composite(){
   const c=cv.getContext('2d'), fw=doc.frame.w, fh=doc.frame.h;
+  { const e=WG.sheetExtra(doc); if(Math.abs(e.ex-sx.ex)>0.01||Math.abs(e.ey-sx.ey)>0.01){ layout(); return; } }   // 범례를 지도 밖에 두면 종이 크기가 바뀜
   c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,cv.width,cv.height);
   c.fillStyle=themeC.desk; c.fillRect(0,0,cv.width/dpr,cv.height/dpr);
   c.save(); c.shadowColor='rgba(0,0,0,.22)'; c.shadowBlur=14; c.shadowOffsetY=3;
-  c.fillStyle='#ffffff'; c.fillRect(ox-M*kd,oy-M*kd,(fw+2*M)*kd,(fh+2*M)*kd); c.restore();
+  c.fillStyle='#ffffff'; c.fillRect(ox-M*kd,oy-M*kd,(fw+sx.ex+2*M)*kd,(fh+sx.ey+2*M)*kd); c.restore();
   c.save(); c.beginPath(); c.rect(ox,oy,fw*kd,fh*kd); c.clip();
   c.fillStyle=gray(doc.style.sea); c.fillRect(ox,oy,fw*kd,fh*kd);
   if(baseInfo&&baseInfo.projT===doc.view.proj&&baseInfo.g0){
@@ -9093,11 +9217,21 @@ bindCheck('#lnTr',()=>doc.layers.lines.tr,v=>doc.layers.lines.tr=v);
 bindCheck('#lnAc',()=>doc.layers.lines.ac,v=>doc.layers.lines.ac=v);
 bindCheck('#lyMajor',()=>doc.layers.major,v=>doc.layers.major=v);
 $('#grat').onchange=e=>{ doc.layers.grat=+e.target.value; commit(); };
-/* 기후 지역(건조 기후) */
-const ZT=[['light','연하게'],['mid','기본'],['dark','진하게'],['hatch','빗금 ／'],['hatch2','빗금 ＼']];
-function syncZone(){ const z=doc.layers.zone; $('#zoneSel').value=z.kind==='arid'?z.split:'none'; $('#zoneNote').hidden=z.kind!=='arid'; const pl=doc.layers.plates, rl=doc.layers.relief; $('#zoneLegRow').hidden=z.kind!=='arid'&&!pl.on&&!rl.on; syncRelief(); $('#zoneLeg').value=doc.layers.legend||'bl'; $('#plOn').checked=pl.on; $('#plTyped').checked=pl.typed; $('#plNames').checked=pl.names; $('#plTyped').disabled=$('#plNames').disabled=!pl.on;
-  const box=$('#zoneTones'); box.innerHTML=WG.zoneGroups(doc).map(g=>`<div class="row"><span class="lab">${esc(g.ko)}</span><select data-z="${esc(g.key)}">${ZT.map(([v,n])=>`<option value="${v}"${v===g.tone?' selected':''}>${n}</option>`).join('')}</select></div>`).join('');
-  box.querySelectorAll('select').forEach(el=>el.onchange=()=>{ doc.layers.zone.tone[el.dataset.z]=el.value; needBase=true; commit(); }); }
+/* 기후 지역(쾨펜: 열대·건조·온대·냉대·한대, 기후대마다 하나로/기후별/기호별) */
+const ZT=[['light','연하게'],['mid','기본'],['dark','진하게'],['hatch','빗금 ／'],['hatch2','빗금 ＼'],['cross','격자'],['dots','점무늬']];
+const ZLV=b=>[['off','표시 안 함'],['one',WG.ZB[b].one[0][1]+'(하나로)'],['mid',WG.ZB[b].mid.map(x=>x[1].replace(/ 기후$/,'')).join('·')],['detail','기호별('+WG.ZB[b].detail.map(x=>x[0]).join('·')+')']];
+function syncZone(){ const z=doc.layers.zone, on=WG.zoneOn(doc), pl=doc.layers.plates, rl=doc.layers.relief;
+  $('#zoneBelts').innerHTML=WG.ZONE_BELTS.map(([b,ko])=>`<div class="row"><label for="zb${b}">${ko}</label><select id="zb${b}" data-zb="${b}" class="grow">${ZLV(b).map(([v,n])=>`<option value="${v}"${v===(z.belts[b]||'off')?' selected':''}>${esc(n)}</option>`).join('')}</select></div>`).join('');
+  $('#zoneBelts').querySelectorAll('select').forEach(el=>el.onchange=()=>{ const zz=doc.layers.zone; zz.belts[el.dataset.zb]=el.value;
+    const keys=WG.zoneGroups(doc,true).map(g=>g.key); zz.only=(zz.only||[]).filter(k=>keys.includes(k));
+    if(WG.zoneOn(doc)) WG.loadZones().then(()=>{ needBase=true; requestRender(); }).catch(()=>toast('기후 지역 자료를 불러오지 못했어요.')); syncZone(); needBase=true; commit(); });
+  $('#zoneNote').hidden=!on; $('#zoneLegRow').hidden=!on&&!pl.on&&!rl.on; syncRelief(); $('#zoneLeg').value=doc.layers.legend||'bl'; $('#plOn').checked=pl.on; $('#plTyped').checked=pl.typed; $('#plNames').checked=pl.names; $('#plTyped').disabled=$('#plNames').disabled=!pl.on;
+  const all=WG.zoneGroups(doc,true), only=z.only||[], box=$('#zoneTones');
+  box.innerHTML=all.map(g=>`<div class="row"><label class="check lab"><input type="checkbox" data-zk="${esc(g.key)}"${!only.length||only.includes(g.key)?' checked':''}>${esc(g.ko)}</label><select data-z="${esc(g.key)}">${ZT.map(([v,n])=>`<option value="${v}"${v===g.tone?' selected':''}>${n}</option>`).join('')}</select></div>`).join('');
+  box.querySelectorAll('select').forEach(el=>el.onchange=()=>{ doc.layers.zone.tone[el.dataset.z]=el.value; needBase=true; commit(); });
+  box.querySelectorAll('input').forEach(el=>el.onchange=()=>{ const ks=[...box.querySelectorAll('input')].filter(x=>x.checked).map(x=>x.dataset.zk);
+    if(!ks.length){ el.checked=true; toast('하나는 남겨 두세요. 모두 끄려면 위에서 \'표시 안 함\'을 고르세요.'); return; }
+    doc.layers.zone.only=ks.length===all.length?[]:ks; needBase=true; commit(); }); }
 function syncRelief(){ const r=doc.layers.relief; $('#rlOn').checked=r.on; $('#rlNames').checked=r.names; $('#rlNames').disabled=!r.on; $('#rlBox').hidden=!r.on; if(!r.on) return;
   $('#rlCats').innerHTML=WG.RELIEF_CAT.map(([c,ko])=>`<div class="row"><label class="check"><input type="checkbox" data-rc="${c}"${r.show[c]?' checked':''}>${ko}</label><select data-rt="${c}">${ZT.map(([v,n])=>`<option value="${v}"${v===((r.tone||{})[c]||WG.RELIEF_TONE[c])?' selected':''}>${n}</option>`).join('')}</select></div>`).join('');
   $('#rlCats').querySelectorAll('input').forEach(el=>el.onchange=()=>{ r.show[el.dataset.rc]=el.checked; needBase=true; commit(); syncZone(); });
@@ -9110,8 +9244,6 @@ $('#zoneLeg').onchange=e=>{ doc.layers.legend=e.target.value; needBase=true; com
 $('#plOn').onchange=e=>{ doc.layers.plates.on=e.target.checked; if(e.target.checked) WG.loadPlates().catch(()=>toast('판의 경계 자료를 불러오지 못했어요.')); syncZone(); needBase=true; commit(); };
 $('#plTyped').onchange=e=>{ doc.layers.plates.typed=e.target.checked; needBase=true; commit(); };
 $('#plNames').onchange=e=>{ doc.layers.plates.names=e.target.checked; needBase=true; commit(); };
-$('#zoneSel').onchange=e=>{ const v=e.target.value, z0=doc.layers.zone; doc.layers.zone={kind:v==='none'?'none':'arid',split:v==='none'?z0.split:v,tone:z0.tone||{}};
-  if(v!=='none') WG.loadZones().catch(()=>toast('기후 지역 자료를 불러오지 못했어요.')); syncZone(); needBase=true; commit(); };
 function syncTickSide(){ const k=$('#tkKind').value; $('#tkSide').innerHTML=k==='lat'?'<option value="left">왼쪽</option><option value="right">오른쪽</option>':'<option value="bottom">아래</option><option value="top">위</option>'; }
 $('#tkKind').onchange=syncTickSide; syncTickSide();
 $('#tkAdd').onclick=()=>{ const v=+$('#tkVal').value; const k=$('#tkKind').value; if(!isFinite(v)||(k==='lat'&&Math.abs(v)>90)||(k==='lon'&&Math.abs(v)>180)){ toast('눈금 값을 확인해 주세요.'); return; } doc.ticks.push({k,v,side:$('#tkSide').value}); commit({base:false}); };
@@ -9260,8 +9392,8 @@ function whereIs(g){ const p=proj(g); if(!p||p[0]<0||p[1]<0||p[0]>doc.frame.w||p
 let dpi=600, bgMode='white';
 segBind('#dpiSeg',v=>{ dpi=+v; updateSizeOut(); });
 segBind('#bgSeg',v=>{ bgMode=v; });
-function updateSizeOut(){ const k=dpi/25.4, W=Math.round((doc.frame.w+2*M)*k), H=Math.round((doc.frame.h+2*M)*k);
-  $('#sizeOut').innerHTML=`틀 <b>${doc.frame.w} × ${doc.frame.h} mm</b> → <b>${W.toLocaleString()} × ${H.toLocaleString()} px</b> (${dpi} dpi, 여백 ${M} mm 포함)`; }
+function updateSizeOut(){ const k=dpi/25.4, e=WG.sheetExtra(doc), W=Math.round((doc.frame.w+e.ex+2*M)*k), H=Math.round((doc.frame.h+e.ey+2*M)*k);
+  $('#sizeOut').innerHTML=`틀 <b>${doc.frame.w} × ${doc.frame.h} mm</b> → <b>${W.toLocaleString()} × ${H.toLocaleString()} px</b> (${dpi} dpi, 여백 ${M} mm${e.ex||e.ey?' · 지도 밖 범례':''} 포함)`; }
 function syncOut(){ segSet('#dpiSeg',String(dpi)); segSet('#bgSeg',bgMode); updateSizeOut(); }
 async function saveFile(name,data,mime){
   const r=await WG.saveFile(name,data,mime);
