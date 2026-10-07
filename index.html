@@ -2560,6 +2560,19 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const MINUS='−';
+/* 밖에서 들어온 작업 자료(작업 파일·브라우저 저장·다른 탭에서 넘겨받은 것)를 쓰기 전에 정리한다(보안).
+   글자 속 < > " ` 는 모양이 비슷한 전각 문자(＜ ＞ ＂ ｀)로 바꿔 HTML·SVG 구조로 읽히지 않게 하고,
+   data: 주소는 base64 그림만, javascript: 주소는 지운다. 숫자·참거짓은 그대로, 그 밖의 것은 버린다 */
+const CLEAN_MAP={'<':'＜','>':'＞','"':'＂','`':'｀'};
+const DATA_IMG=/^data:image\/(?:png|jpeg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=\s]*$/;
+function clean(v,depth){ depth=depth||0; if(depth>60) return null;
+  if(typeof v==='string'){ if(/^\s*data:/i.test(v)) return DATA_IMG.test(v)?v:''; if(/^\s*(?:javascript|vbscript):/i.test(v)) return '';
+    return v.replace(/[<>"`]/g,c=>CLEAN_MAP[c]).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,''); }
+  if(typeof v==='number') return Number.isFinite(v)?v:0;
+  if(typeof v==='boolean'||v===null) return v;
+  if(Array.isArray(v)) return v.map(x=>clean(x,depth+1));
+  if(typeof v==='object'){ const o={}; for(const k of Object.keys(v)){ if(k==='__proto__'||k==='constructor'||k==='prototype') continue; o[clean(k,depth+1)]=clean(v[k],depth+1); } return o; }
+  return null; }
 const fin=v=>typeof v==='number'&&isFinite(v);
 const sum=a=>a.reduce((s,x)=>s+x,0);
 const avg=a=>a.length?sum(a)/a.length:NaN;
@@ -2687,7 +2700,7 @@ function freshDoc(kind){
   };
 }
 function normalizeDoc(d){
-  const f=freshDoc(d&&d.kind);
+  d=clean(d); const f=freshDoc(d&&d.kind);
   if(!d||typeof d!=='object') return f;
   const out=Object.assign({},f,d);
   for(const k of ['climo','line','cat','sc','tb','rd','notes','style']) out[k]=Object.assign({},f[k],d[k]||{});
@@ -3802,7 +3815,7 @@ async function saveFile(name,data,mime){
 async function copyPng(doc,opts){ const item=new ClipboardItem({'image/png':renderPng(doc,opts)}); await navigator.clipboard.write([item]); }
 function sizeOf(doc){ const R=compose(doc); return R?{w:R.W+2*M,h:R.H+2*M}:null; }
 
-return {MMPT,M,clamp,uid,esc,fin,fmt,fmtVal,MINUS,KN,FONTS,userFonts,fontDef,fontAvailable,needsWeb,registerUserFont,
+return {clean,MMPT,M,clamp,uid,esc,fin,fmt,fmtVal,MINUS,KN,FONTS,userFonts,fontDef,fontAvailable,needsWeb,registerUserFont,
   METRICS,METRIC_GROUPS,metricOf,metricLabel,unitText,SEQS,FILLS,MARKS,LINE_STY,KINDS,LINE_V,fmtNum,freshDoc,normalizeDoc,normStation,plotted,refStation,relabel,nextLabel,addStation,
   clearMetrics:()=>mCache.clear(),valueOf,monthlyOf,parseClimate,lastAxes:()=>Object.assign({},LAST),hintOf,setStationDict,stationList,searchStations,stationData,parseRequest,specToDoc,buildPrompt,autoAxis,axisOf,climoAxes,compose,autoNotes,noteLines,paintSheet,paintOps,renderPng,svgString,saveFile,copyPng,sizeOf,readyForExport,ensureFonts,lineStyle,
   register,Ops,PATS,patOf,fillColor,fontOf,metrics,W,gray,legendOps,ticksOf,niceStep,decOf,yAxis,drawMark,overlap,splitTitle,wave,sum,avg,
@@ -3866,6 +3879,7 @@ function freshDoc(kind){
   };
 }
 function normalizeDoc(d){
+  d=GG.clean(d);   /* 밖에서 들어온 값 정리(보안): gengine.js clean() */
   const f=freshDoc(d&&d.kind); if(!d||typeof d!=='object') return f;
   const out=Object.assign({},f,d);
   for(const k of ['data','stack','donut','tree','group','small','tb','meta','style']) out[k]=Object.assign({},f[k],d[k]||{});
@@ -4710,6 +4724,7 @@ function freshDoc(kind){
   return d;
 }
 function normalizeDoc(d){
+  d=GG.clean(d);   /* 밖에서 들어온 값 정리(보안): gengine.js clean() */
   const f=freshDoc(d&&d.kind); if(!d||typeof d!=='object') return f;
   const out=EG.normalizeDoc(Object.assign({},d,{kind:'stack'}));
   out.app='religion'; out.kind=KINDS.includes(d.kind)?d.kind:'stack';
@@ -5168,6 +5183,7 @@ function freshDoc(kind){
   return d;
 }
 function normalizeDoc(d){
+  d=GG.clean(d);   /* 밖에서 들어온 값 정리(보안): gengine.js clean() */
   const f=freshDoc(d&&d.kind); if(!d||typeof d!=='object') return f;
   const out=EG.normalizeDoc(Object.assign({},d,{kind:'stack'}));
   out.app='population'; out.kind=KINDS.includes(d.kind)?d.kind:'sc';
@@ -5726,6 +5742,7 @@ function freshDoc(kind){
   return d;
 }
 function normalizeDoc(d){
+  d=GG.clean(d);   /* 밖에서 들어온 값 정리(보안): gengine.js clean() */
   const f=freshDoc(d&&d.kind); if(!d||typeof d!=='object') return f;
   const out=EG.normalizeDoc(Object.assign({},d,{kind:'stack'}));
   out.app='agriculture'; out.kind=KINDS.includes(d.kind)?d.kind:'stack';
@@ -6103,10 +6120,11 @@ function freshDoc(app){
     style:{serif:'hysm',gothic:'hyjg',latin:'times',size:10,lw:0.15},seq:{set:'latin',next:0},gen:null,meta:{notes:''}};
 }
 function normalizeDoc(d){
+  d=GG.clean(d);   /* 밖에서 들어온 값 정리(보안): gengine.js clean() */
   if(!d||typeof d!=='object'||!['landform','kmap'].includes(d.app)) return freshDoc(); const f=freshDoc(d.app);
   const out=Object.assign({},f,d); out.page=Object.assign({},f.page,d.page||{}); out.style=Object.assign({},f.style,d.style||{});
   out.seq=Object.assign({},f.seq,d.seq||{}); out.meta=Object.assign({},f.meta,d.meta||{});
-  out.items=Array.isArray(d.items)?d.items.filter(it=>it&&ITEM[it.t]).map(it=>Object.assign({id:uid()},ITEM[it.t](),it)):[];
+  out.items=Array.isArray(d.items)?d.items.filter(it=>it&&ITEM[it.t]).map(it=>{ const o=Object.assign({id:uid()},ITEM[it.t](),it); if(typeof o.id!=='string'||!/^[A-Za-z0-9_-]{1,40}$/.test(o.id)) o.id=uid(); return o; }):[];
   return out;
 }
 /* 항목 기본값 */
@@ -6287,7 +6305,7 @@ function svgString(doc,opts){
   if(B&&href){ if(B.kind==='svg'&&opts.inline){ s+=B.svg.replace(/^<svg /,`<svg x="${f3(B.x)}" y="${f3(B.y)}" width="${f3(B.w)}" height="${f3(B.h)}" `).replace(/ width="[\d.]+mm" height="[\d.]+mm"/,''); }
     else if(B.kind==='lib'&&opts.inline){ const dg=diagram(B.id); s+=dg.svg.replace(/^<svg /,`<svg x="${f3(B.x)}" y="${f3(B.y)}" width="${f3(B.w)}" height="${f3(B.h)}" `).replace(/ width="[\d.]+mm" height="[\d.]+mm"/,''); }
     else s+=`<image href="${href}" xlink:href="${href}" x="${f3(B.x)}" y="${f3(B.y)}" width="${f3(B.w)}" height="${f3(B.h)}" preserveAspectRatio="none"/>`; }
-  for(const it of doc.items) s+=`<g data-id="${it.id}">${itemSVG(doc,it)}</g>`;
+  for(const it of doc.items) s+=`<g data-id="${esc(it.id)}">${itemSVG(doc,it)}</g>`;
   return s+'</svg>';
 }
 
@@ -6996,6 +7014,19 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const r3=n=>Math.round(n*1000)/1000;
 const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* 밖에서 들어온 작업 자료(작업 파일·브라우저 저장·다른 탭에서 넘겨받은 것)를 쓰기 전에 정리한다(보안).
+   글자 속 < > " ` 는 모양이 비슷한 전각 문자(＜ ＞ ＂ ｀)로 바꿔 HTML·SVG 구조로 읽히지 않게 하고,
+   data: 주소는 base64 그림만, javascript: 주소는 지운다. 숫자·참거짓은 그대로, 그 밖의 것은 버린다 */
+const CLEAN_MAP={'<':'＜','>':'＞','"':'＂','`':'｀'};
+const DATA_IMG=/^data:image\/(?:png|jpeg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=\s]*$/;
+function clean(v,depth){ depth=depth||0; if(depth>60) return null;
+  if(typeof v==='string'){ if(/^\s*data:/i.test(v)) return DATA_IMG.test(v)?v:''; if(/^\s*(?:javascript|vbscript):/i.test(v)) return '';
+    return v.replace(/[<>"`]/g,c=>CLEAN_MAP[c]).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,''); }
+  if(typeof v==='number') return Number.isFinite(v)?v:0;
+  if(typeof v==='boolean'||v===null) return v;
+  if(Array.isArray(v)) return v.map(x=>clean(x,depth+1));
+  if(typeof v==='object'){ const o={}; for(const k of Object.keys(v)){ if(k==='__proto__'||k==='constructor'||k==='prototype') continue; o[clean(k,depth+1)]=clean(v[k],depth+1); } return o; }
+  return null; }
 const norm=s=>String(s==null?'':s).replace(/[\s·.\-]+/g,'').toLowerCase();
 const RAD=Math.PI/180;
 
@@ -7182,7 +7213,7 @@ function freshDoc(presetId){
   return d;
 }
 function normalizeDoc(d){
-  const f=freshDoc(d.preset&&presetById(d.preset)?d.preset:'europe');
+  d=clean(d)||{}; const f=freshDoc(d.preset&&presetById(d.preset)?d.preset:'europe');
   const out={...f,...d,layers:{...f.layers,...(d.layers||{}),lines:{...f.layers.lines,...((d.layers||{}).lines||{})}},style:{...f.style,...(d.style||{})},frame:{...f.frame,...(d.frame||{})},view:{...f.view,...(d.view||{})}};
   if(!PROJS[out.view.proj]) out.view=f.view;
   out.items=(d.items||[]).filter(i=>i&&i.t&&isFinite(i.lon)&&isFinite(i.lat)).map(i=>({dx:0,dy:0,leader:'auto',halo:false,extra:[],...i,id:i.id||uid()}));
@@ -8075,7 +8106,7 @@ function buildPrompt(q,current){
 """${String(q).slice(0,4000)}"""`;
 }
 
-return {MMPT,M,clamp,r3,uid,esc,norm,RAD,RIVERS,RIVER_OF,resolveRiver,KO_FIX,FONTS,userFont,fontDef,fontStack,fontInstalled,fontAvailable,needsWebFallback,labelText,ensureGlyphs,
+return {clean,MMPT,M,clamp,r3,uid,esc,norm,RAD,RIVERS,RIVER_OF,resolveRiver,KO_FIX,FONTS,userFont,fontDef,fontStack,fontInstalled,fontAvailable,needsWebFallback,labelText,ensureGlyphs,
   SEQS,nextLabel,seqOfLabel,PROJS,kxOf,PRESETS,presetById,makeProj,fitView,applyPreset,freshDoc,normalizeDoc,
   geo,LODS,onData,loadLod,anyGeo,degAcross,wantLod,G,currentLodName,ensureGeo,
   loadPlaces,searchPlaces,exactPlaces,resolvePlace,findCountry,searchCountries,
@@ -8433,7 +8464,7 @@ async function askClaude(q,current,force){
 
 /* ───────── 저장 ───────── */
 function persist(){ try{ localStorage.setItem(STORE,JSON.stringify({q:meta.q,doc,meta,pref})); }catch(e){} }
-function restore(){ try{ const s=localStorage.getItem(STORE); if(!s) return false; const o=JSON.parse(s); if(!o||!o.doc) return false;
+function restore(){ try{ const s=localStorage.getItem(STORE); if(!s) return false; const o=WG.clean(JSON.parse(s)); if(!o||!o.doc) return false;
   doc=WG.normalizeDoc(o.doc); meta={...(o.meta||{}),via:'saved'}; if(o.pref) Object.assign(pref,o.pref); $('#qk-q').value=o.q||''; return true; }catch(e){ return false; } }
 const stamp=()=>{ const d=new Date(), p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`; };
 async function save(kind){
@@ -8914,7 +8945,7 @@ function syncSel(){
   const it=sel&&findItem(sel.id);
   $('#selDot').hidden=!it;
   const list=$('#itemList');
-  list.innerHTML=doc.items.length?doc.items.map(i=>`<button class="li" data-id="${i.id}" aria-current="${!!(it&&it.id===i.id)}"><span class="k">${esc(i.lbl||'—')}</span><span class="t">${esc(itemDesc(i))}</span></button>`).join(''):'<div class="li"><span class="t">아직 항목이 없어요</span></div>';
+  list.innerHTML=doc.items.length?doc.items.map(i=>`<button class="li" data-id="${esc(i.id)}" aria-current="${!!(it&&it.id===i.id)}"><span class="k">${esc(i.lbl||'—')}</span><span class="t">${esc(itemDesc(i))}</span></button>`).join(''):'<div class="li"><span class="t">아직 항목이 없어요</span></div>';
   $$('#itemList .li[data-id]').forEach(b=>b.onclick=()=>setSel({id:b.dataset.id,part:'label'}));
   const box=$('#selBox');
   if(!it){ box.innerHTML=`<p class="empty-sel">지도에서 점·라벨·음영을 누르면 여기서 고칠 수 있어요.</p>
@@ -9072,13 +9103,13 @@ const stage=$('#stage'), wrap=$('#stageWrap');
 
 /* ───────── 상태 ───────── */
 function freshDoc(){ const d=LG.freshDoc('kmap'); d.map=KM.freshMap(); d.kgen=null; d.style.size=10; return d; }
-function norm(d){ const x=LG.normalizeDoc(d); if(x.app!=='kmap'){ return freshDoc(); } x.map=KM.normalizeMap(d.map); x.kgen=d.kgen||null;
+function norm(d){ d=GG.clean(d); const x=LG.normalizeDoc(d); if(x.app!=='kmap'){ return freshDoc(); } x.map=KM.normalizeMap(d.map); x.kgen=d.kgen||null;
   /* 시험지 양식으로 바꾸기 전(2026-10-04 이전) 작업: 기본 너비·글자·독도 상자를 새 기본값으로 */
   if(!(d.map&&d.map.sv)){ if(x.map.width===70) x.map.width=45; x.map.dokdo=true; if(x.style.size===9) x.style.size=10; x.map.sv=2; }
   return x; }
 function loadLocal(){ try{ const s=localStorage.getItem(KEY); if(!s) return null; const d=JSON.parse(s); return d&&d.app==='kmap'?norm(d):null; }catch(e){ return null; } }
 let doc=loadLocal()||freshDoc();
-let ui=(()=>{ try{ return JSON.parse(localStorage.getItem(UIKEY)||'null'); }catch(e){ return null; } })()||{};
+let ui=(()=>{ try{ return GG.clean(JSON.parse(localStorage.getItem(UIKEY)||'null')); }catch(e){ return null; } })()||{};
 ui=Object.assign({tool:'select',dpi:600,paint:'mid',mode:'auto'},ui);
 let selId=null, raf=0, saveT=0, L=null;
 function saveLocal(){ clearTimeout(saveT); saveT=setTimeout(()=>{
@@ -9148,7 +9179,7 @@ function draw(){
   for(const [k,v] of Object.entries({x:pb.x,y:pb.y,width:pb.w,height:pb.h})) g.bg.setAttribute(k,v);
   g.bg.setAttribute('style','filter:drop-shadow(0 1px 3px rgba(0,0,0,.25))');
   if(!B){ g.img.style.display='none'; } else { if(B.svg!==hrefSvg){ hrefSvg=B.svg; g.img.setAttribute('href',LG.baseHref(doc)); } g.img.style.display=''; for(const [k,v] of Object.entries({x:B.x,y:B.y,width:B.w,height:B.h})) g.img.setAttribute(k,v); }
-  g.items.innerHTML=doc.items.map(it=>`<g data-id="${it.id}">${LG.itemSVG(doc,it)}</g>`).join('');
+  g.items.innerHTML=doc.items.map(it=>`<g data-id="${GG.esc(it.id)}">${LG.itemSVG(doc,it)}</g>`).join('');
   drawSel();
   $('#deskEmpty').hidden=HAS;
   const dpi=ui.dpi, sz=`${pb.w.toFixed(1)} × ${pb.h.toFixed(1)} mm · ${dpi} dpi에서 ${Math.round(pb.w/25.4*dpi)} × ${Math.round(pb.h/25.4*dpi)} px`;
@@ -9534,7 +9565,7 @@ const stage=$('#stage'), wrap=$('#stageWrap');
 function loadLocal(){ try{ const s=localStorage.getItem(KEY); if(!s) return null; const d=JSON.parse(s); return d&&d.app==='landform'?LG.normalizeDoc(d):null; }catch(e){ return null; } }
 let doc=loadLocal()||LG.freshDoc();
 if(!doc.base&&HAS&&!doc.items.length) LG.setLibBase(doc,LG.diagrams()[0].id,120);
-let ui=(()=>{ try{ return JSON.parse(localStorage.getItem(UIKEY)||'null'); }catch(e){ return null; } })()||{};
+let ui=(()=>{ try{ return GG.clean(JSON.parse(localStorage.getItem(UIKEY)||'null')); }catch(e){ return null; } })()||{};
 ui=Object.assign({tool:'select',mark:'ell',dpi:600,feat:{},kgroup:'all'},ui);
 let selId=null, raf=0, saveT=0, warnedBig=false;
 function saveLocal(){ clearTimeout(saveT); saveT=setTimeout(()=>{
@@ -9573,7 +9604,7 @@ function draw(){
   const key=B?(B.kind==='lib'?'lib:'+B.id:'img:'+(B.src||'').length+':'+(B.src||'').slice(-40)):'';
   if(key!==hrefKey){ hrefKey=key; const href=LG.baseHref(doc); if(href){ g.img.setAttribute('href',href); g.img.style.display=''; } else { g.img.removeAttribute('href'); g.img.style.display='none'; } }
   if(B) for(const [k,v] of Object.entries({x:B.x,y:B.y,width:B.w,height:B.h})) g.img.setAttribute(k,v);
-  g.items.innerHTML=doc.items.map(it=>`<g data-id="${it.id}">${LG.itemSVG(doc,it)}</g>`).join('');
+  g.items.innerHTML=doc.items.map(it=>`<g data-id="${GG.esc(it.id)}">${LG.itemSVG(doc,it)}</g>`).join('');
   drawSel();
   $('#deskEmpty').hidden=!!(B||doc.items.length);
   const dpi=ui.dpi; $('#sizeInfo').textContent=`${pb.w.toFixed(1)} × ${pb.h.toFixed(1)} mm · ${Math.round(pb.w/25.4*dpi)} × ${Math.round(pb.h/25.4*dpi)} px`;
@@ -9871,7 +9902,9 @@ function cmapOpts(){ const el=document.getElementById('pdfjs-cmaps');
 async function openPdf(file){
   if(!file) return; let lib; toast('PDF를 여는 중…');
   try{ lib=await needPdf(); }catch(e){ toast('PDF 도구를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.'); return; }
-  let pdf; try{ pdf=await lib.getDocument(Object.assign({data:new Uint8Array(await file.arrayBuffer())},cmapOpts())).promise; }catch(e){ toast('PDF를 열지 못했어요.'); return; }
+  /* isEvalSupported:false — PDF 글꼴을 그릴 때 eval(new Function)로 코드를 만들지 않게 한다.
+     PDF.js 4.2.67 전 판(여기는 3.11.174)에서 조작된 PDF가 스크립트를 실행할 수 있던 문제(CVE-2024-4367)를 막는 공식 완화책 */
+  let pdf; try{ pdf=await lib.getDocument(Object.assign({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false},cmapOpts())).promise; }catch(e){ toast('PDF를 열지 못했어요.'); return; }
   crop={kind:'pdf',pdf,name:file.name,page:1,rect:null}; const ps=$('#cropPage'); ps.textContent=''; for(let i=1;i<=pdf.numPages;i++) ps.append(h('option',{value:i},`${i}쪽`));
   ps.value='1'; $('#cropPageLab').hidden=false; $('.crop-title').textContent=`그림 잘라 오기 · ${file.name}`; openDlg(); await showPdfPage(1);
 }
@@ -10413,7 +10446,7 @@ function exampleDoc(){
 function loadLocal(){ try{ const s=localStorage.getItem(KEY); if(!s) return null; const d=JSON.parse(s); return d&&d.app==='energy'?EG.normalizeDoc(d):null; }catch(e){ return null; } }
 function saveLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(doc)); localStorage.setItem(UIKEY,JSON.stringify(ui)); }catch(e){} }
 let doc=loadLocal()||exampleDoc();
-let ui=(()=>{ try{ return JSON.parse(localStorage.getItem(UIKEY)||'null'); }catch(e){ return null; } })()||{};
+let ui=(()=>{ try{ return GG.clean(JSON.parse(localStorage.getItem(UIKEY)||'null')); }catch(e){ return null; } })()||{};
 ui=Object.assign({pb:'mix',mix:{ds:'tes',year:'2024',rows:['브라질','미국','중국'],cols:['oil','coal','hydro','gas'],other:true},
   top:{items:['coal','oil','gas'],year:2022,n:5,regions:[],other:true},cmp:{items:['lithium','copper','cobalt'],year:2022,rows:['칠레','오스트레일리아','중국']},paste:{text:'',unit:'%'}},ui);
 let dpi=600, raf=0, axisRefresh=[];
@@ -10883,7 +10916,7 @@ function exampleDoc(){
 function loadLocal(){ try{ const s=localStorage.getItem(KEY); if(!s) return null; const d=JSON.parse(s); return d&&d.app==='religion'?RG.normalizeDoc(d):null; }catch(e){ return null; } }
 function saveLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(doc)); localStorage.setItem(UIKEY,JSON.stringify(ui)); }catch(e){} }
 let doc=loadLocal()||exampleDoc();
-let ui=(()=>{ try{ return JSON.parse(localStorage.getItem(UIKEY)||'null'); }catch(e){ return null; } })()||{};
+let ui=(()=>{ try{ return GG.clean(JSON.parse(localStorage.getItem(UIKEY)||'null')); }catch(e){ return null; } })()||{};
 ui=Object.assign({pb:'comp',comp:{year:'2020',scheme:'cont',rows:['우즈베키스탄','인도','미얀마','필리핀'],keys:['chr','mus','hin','bud'],other:true,val:'pct'},
   dist:{year:'2020',scheme:'cont',keys:['chr','mus','hin','bud']},top:{keys:['mus','hin'],year:'2020',n:3,by:'num',other:true},paste:{text:'',unit:'%'}},ui);
 let dpi=600, raf=0, axisRefresh=[];
@@ -11367,7 +11400,7 @@ function exampleDoc(){
 function loadLocal(){ try{ const s=localStorage.getItem(KEY); if(!s) return null; const d=JSON.parse(s); return d&&d.app==='population'?PG.normalizeDoc(d):null; }catch(e){ return null; } }
 function saveLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(doc)); localStorage.setItem(UIKEY,JSON.stringify(ui)); }catch(e){} }
 let doc=loadLocal()||exampleDoc();
-let ui=(()=>{ try{ return JSON.parse(localStorage.getItem(UIKEY)||'null'); }catch(e){ return null; } })()||{};
+let ui=(()=>{ try{ return GG.clean(JSON.parse(localStorage.getItem(UIKEY)||'null')); }catch(e){ return null; } })()||{};
 ui=Object.assign({pb:'trend',
   trend:{rows:['멕시코','세네갈','인도','독일'],keys:['rnc'],units:[0],tps:'1960~1965, 2015~2020'},
   sc:{rows:['아시아','아프리카','유럽','앵글로아메리카'],kx:'rnc',ux:0,ky:'gr',uy:1,tps:'1950~1955, 2015~2020'},
@@ -11913,7 +11946,7 @@ function exampleDoc(){
 function loadLocal(){ try{ const s=localStorage.getItem(KEY); if(!s) return null; const d=JSON.parse(s); return d&&d.app==='agriculture'?AG.normalizeDoc(d):null; }catch(e){ return null; } }
 function saveLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(doc)); localStorage.setItem(UIKEY,JSON.stringify(ui)); }catch(e){} }
 let doc=loadLocal()||exampleDoc();
-let ui=(()=>{ try{ return JSON.parse(localStorage.getItem(UIKEY)||'null'); }catch(e){ return null; } })()||{};
+let ui=(()=>{ try{ return GG.clean(JSON.parse(localStorage.getItem(UIKEY)||'null')); }catch(e){ return null; } })()||{};
 ui=Object.assign({pb:'top',
   top:{items:['wheat','rice','maize'],el:'p',tp:'2023',agg:'mean',n:3,regions:[],other:true},
   reg:{items:['wheat','rice','maize'],el:'p',tp:'2023',agg:'mean',scheme:'6'},
