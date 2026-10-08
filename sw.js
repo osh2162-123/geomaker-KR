@@ -1,5 +1,5 @@
 /* 지리 자료 제작기 서비스 워커: 처음 열 때 모든 자료를 기기에 저장하고, 그다음부터는 저장한 것을 먼저 쓴다 */
-const V='gm-12864bfcb8';
+const V='gm-7eff10e018';
 const CORE=["./", "index.html", "manifest.webmanifest", "licenses.html", "guide.html", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-32.png", "icons/icon-512.png", "icons/maskable-512.png", "data/adata.js", "data/hi.js", "data/kmdata.js", "data/koppen.js", "data/ldata.js", "data/lo.js", "data/pdata.js", "data/places.js", "data/plates.js", "data/rdata.js", "data/relief.js", "data/stations.js", "data/xlo.js", "lib/LICENSE-d3-geo-projection.txt", "lib/LICENSE-d3.txt", "lib/LICENSE-topojson-client.txt", "lib/THIRD-PARTY-d3.txt", "lib/d3-geo-projection.min.js", "lib/d3.min.js", "lib/topojson-client.min.js", "lib/pdfjs/LICENSE.txt", "lib/pdfjs/pdf.min.js", "lib/pdfjs/pdf.worker.min.js"];
 /* 저장할 때는 브라우저가 잠깐 기억해 둔 옛 응답(예: 예전 판의 '파일 없음')을 쓰지 않고 서버에서 새로 받는다 */
 self.addEventListener('install',e=>{ e.waitUntil(caches.open(V).then(c=>c.addAll(CORE.map(u=>new Request(u,{cache:'reload'}))))); });

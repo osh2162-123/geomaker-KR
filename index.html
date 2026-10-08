@@ -7328,7 +7328,7 @@ function loadPlaces(){
   if(places) return Promise.resolve(places);
   if(!placesLoading) placesLoading=rawData('places').then(rows=>{
     places=rows.map(r=>{ const o={ko:r[0],en:r[1],country:r[2],lat:r[3],lon:r[4],rank:r[5]};
-      o.k=norm(o.ko); o.e=String(o.en).toLowerCase(); o.ek=norm(o.en); o.al=r[6]?r[6].split('|').map(norm):[]; return o; });
+      o.k=norm(o.ko); o.e=String(o.en).toLowerCase(); o.ek=norm(o.en); o.al=r[6]?r[6].split('|').map(norm):[]; o.area=r[8]&&typeof r[8]==='object'?r[8]:null; return o; });
     return places;
   }).catch(e=>{ placesLoading=null; throw e; });
   return placesLoading;
@@ -8177,7 +8177,7 @@ async function specToDoc(spec,opts){
   for(const a of ars){
     if(!a||!isFinite(+a.lat)||!isFinite(+a.lon)) continue;
     const rx=clamp(+a.rx||3,0.3,40), ry=clamp(+a.ry||2,0.3,30), lat=+a.lat;
-    pending.push({id:uid(),t:'ell',lon:r3(+a.lon),lat:r3(lat),rx:rx*RAD,ry:ry*RAD/Math.max(0.2,Math.cos(lat*RAD)),rot:0,lbl:cleanLabel(a.label),name:a.ko||'',dx:0,dy:0,leader:'off',halo:false,extra:[]});
+    pending.push({id:uid(),t:'ell',lon:r3(+a.lon),lat:r3(lat),rx:rx*RAD,ry:ry*RAD/Math.max(0.2,Math.cos(lat*RAD)),rot:clamp(+a.rot||0,-90,90),lbl:cleanLabel(a.label),name:a.ko||'',dx:0,dy:0,leader:'off',halo:false,extra:[]});
   }
   // 라벨 순서: 정해진 라벨의 종류를 따르고, 빈 라벨은 언급 순서대로 채움
   let seq=SEQS[spec.labelSeq]?spec.labelSeq:null;
@@ -8270,7 +8270,7 @@ function docToSpec(doc){
   for(const it of doc.items){
     if(it.t==='pt') s.points.push({ko:it.name||'',lat:it.lat,lon:it.lon,label:it.lbl||null,marker:it.mk});
     else if(it.t==='shade') s.countries.push({iso3:it.cid,ko:it.name||'',label:it.lbl||null,tone:it.tone,style:it.style||(it.ring?'circle':it.multi?'multi':'shade')});
-    else if(it.t==='ell') s.areas.push({ko:it.name||'',lat:it.lat,lon:it.lon,rx:r3(it.rx/RAD),ry:r3(it.ry/RAD*Math.cos(it.lat*RAD)),label:it.lbl||null});
+    else if(it.t==='ell') s.areas.push({ko:it.name||'',lat:it.lat,lon:it.lon,rx:r3(it.rx/RAD),ry:r3(it.ry/RAD*Math.cos(it.lat*RAD)),rot:it.rot||0,label:it.lbl||null});
   }
   return s;
 }
@@ -8425,6 +8425,7 @@ function parseRules(q){
       else seq.push({kind:'country',c:{iso3:f.id,ko:f.properties.ko}});
       continue;
     }
+    if(hit.kind==='place'&&hit.p.area&&!/점으로|점만/.test(q)){ const a=hit.p.area; seq.push({kind:'area',a:{ko:hit.p.ko,lat:a.lat,lon:a.lon,rx:a.rx,ry:a.ry,rot:a.rot||0}}); continue; }   // 섬 무리(쿠릴 열도 등)는 점선 타원
     if(hit.kind==='place') seq.push({kind:'point',pt:{ko:hit.p.ko,en:hit.p.en,lat:hit.p.lat,lon:hit.p.lon}});
   }
   // 라벨 짝짓기: "A 로테르담" (앞) / "로테르담 A" (뒤)
@@ -8450,9 +8451,10 @@ function parseRules(q){
       if(x.label){ const pt=riverLabelPt(x.key); if(pt) spec.points.push({ko:x.keys.length>1?'티그리스·유프라테스강':x.key,lat:pt[0],lon:pt[1],label:x.label,marker:ring?'ring':'dot'}); } continue; }
     if(x.kind==='point') spec.points.push({...x.pt,label:x.label||null,marker:ring?'ring':'dot'});
     else if(x.kind==='country') spec.countries.push({...x.c,label:x.label||null,style:cstyle});
+    else if(x.kind==='area') spec.areas.push({...x.a,label:x.label||null});
   }
   if(!spec.labelSeq){ const any=things.find(x=>x.label); spec.labelSeq=any?seqOfLabel(any.label):'latin'; }
-  const count=spec.points.length+spec.countries.length+spec.rivers.length+(spec.zone?1:0)+(spec.plates?1:0)+(spec.relief?1:0);
+  const count=spec.points.length+spec.countries.length+spec.areas.length+spec.rivers.length+(spec.zone?1:0)+(spec.plates?1:0)+(spec.relief?1:0);
   return {spec,unknown,count,understood:unknown.length===0&&count>0};
 }
 
@@ -8556,7 +8558,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "1eeb9f19b5", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "55773df6f5", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
+const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "f8529a9cdc", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "55773df6f5", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
