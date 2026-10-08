@@ -7111,6 +7111,14 @@ for(const [k,l] of Object.entries(RIVERS)){
 }
 RIVER_KEY[norm('장강')]='창장강(양쯔강)'; RIVER_KEY[norm('황하')]='황허강'; RIVER_KEY[norm('황허')]='황허강';
 function resolveRiver(name){ if(!name) return null; const n=norm(name); return RIVER_KEY[n]||RIVER_KEY[n.replace(/강$/,'')]||null; }
+/* 하천에 기호(A 등)를 붙일 때 점을 찍을 자리. 물 분쟁으로 자주 나오는 강은 분쟁이 일어나는 곳 가까이(위도, 경도) */
+const RIVER_LABEL_PT={'나일강':[15.6,32.53],'청나일강':[11.2,35.1],'요르단강':[32.3,35.57],'티그리스강':[35.5,43.25],'유프라테스강':[35.95,39.0],'갠지스강':[24.8,87.93]};
+function riverLabelPt(key){
+  if(RIVER_LABEL_PT[key]) return RIVER_LABEL_PT[key];
+  const g=anyGeo(); const fs=g&&g.rivers&&g.rivers.get(key); if(!fs||!fs.length) return null;   // 그 밖의 강: 가장 긴 조각의 가운데 꼭짓점
+  let best=null, n=0; for(const f of fs){ const gm=f.geometry; const ls=gm.type==='LineString'?[gm.coordinates]:gm.coordinates; for(const l of ls) if(l.length>n){ n=l.length; best=l; } }
+  if(!best) return null; const c=best[Math.floor(best.length/2)]; return [c[1],c[0]];
+}
 
 /* ───────── 국가 이름 ───────── */
 const KO_FIX={'터키':'튀르키예','조선민주주의인민공화국':'북한','중화인민공화국':'중국','중화민국':'타이완','태국':'타이'};
@@ -8273,7 +8281,7 @@ const REGION_WORDS=[['사하라이남아프리카','ssaf'],['사하라이남','s
   ['라틴아메리카','latam'],['중남부아메리카','latam'],['중남미','latam'],['남아메리카','latam'],['남미','latam'],['환태평양','world-pac'],['태평양중심','world-pac'],['세계전도','world-atl'],
   ['세계지도','world-atl'],['북극중심','arctic'],['북극','arctic'],['유럽','europe'],['아프리카','ssaf']];
 const COUNTRY_REGION={'미국':'usa'};
-const STOP=new Set(['빗금','빗금으로','구분','구분해','구분해서','구분해줘','기후','지역','분포','칠해','칠해줘','지도','백지도','지도에','지도를','지도로','지도에서','위에','위치','위치에','찍어','찍어줘','찍어주세요','찍기','찍고','표시','표시해','표시해줘','표시해주세요','해줘','해','줘','주세요','만들어','만들어줘','만들어주세요','그려','그려줘','그려주세요',
+const STOP=new Set(['분쟁','분쟁지역','분쟁의','갈등','지역들','빗금','빗금으로','구분','구분해','구분해서','구분해줘','기후','지역','분포','칠해','칠해줘','지도','백지도','지도에','지도를','지도로','지도에서','위에','위치','위치에','찍어','찍어줘','찍어주세요','찍기','찍고','표시','표시해','표시해줘','표시해주세요','해줘','해','줘','주세요','만들어','만들어줘','만들어주세요','그려','그려줘','그려주세요',
   '점','점을','점으로','점만','도시','도시를','도시들','도시는','국가','국가를','국가들','나라','나라를','음영','음영으로','음영을','음영처리','음영처리해줘','색칠','색칠해','색칠해줘','칠해','칠해줘','회색','회색으로',
   '순서','순서로','순서대로','차례로','차례대로','각각','라벨','라벨을','라벨로','라벨은','넣어','넣어줘','빈','원','원으로','동그라미','동그라미로','로','으로','와','과','및','그리고','하고','를','을','에','에서',
   '중심','중심으로','포함','포함해','포함해서','주요','넣고','해서','있는','있게','그리고','또','추가','추가해줘','하천','하천도','강도','같이','함께','표기','표기해줘','이름','기호','기호로','붙여','붙여줘','대로','순','세계','의','한','지역','곳','곳을','곳에','개','속','속이','이랑','랑','대표','전체','범위','틀',
@@ -8292,6 +8300,7 @@ function matchThing(t,ctx){
   // 반환: {kind:'river'|'country'|'place'|'stop', ...}
   for(const c of stripPart(t)){
     if(STOP.has(c)) return {kind:'stop'};
+    if(c==='티그리스유프라테스강'){ const a=resolveRiver('티그리스강'), b=resolveRiver('유프라테스강'); if(a&&b) return {kind:'river',key:b,keys:[a,b]}; }
     if(/(강|운하)$/.test(c)){ const k=resolveRiver(c); if(k) return {kind:'river',key:k}; }
     const f=findCountry(c); if(f&&c.length>=2){ return {kind:'country',f,word:c}; }
     if(c.length>=2){ const ps=exactPlaces(c); if(ps.length){ ps.sort((a,b)=>a.rank-b.rank); return {kind:'place',p:ps[0],word:c}; } }
@@ -8392,6 +8401,7 @@ function parseRules(q){
   s=s.replace(/([가-힣A-Za-z.])\s*[(\[]\s*([A-Za-z]|[가나다라마바사아자차카타파하]|[ㄱ-ㅎ]|[㉠-㉭])\s*[)\]]/g,(m0,a,L)=>a+' ='+(/[가-힣]/.test(L)?`(${L})`:L)+' ');
   s=s.replace(/(^|\s)(\([가나다라마바사아자차카타파하]\)|[A-Za-z]|[ㄱ-ㅎ]|[㉠-㉭])\s*[:=.)]\s*(?=[가-힣])/g,'$1$2 ');
   s=s.replace(/(^|\s)(\([가나다라마바사아자차카타파하]\))(?=[가-힣])/g,'$1$2 ');
+  s=s.replace(/티그리스\s*(?:강)?\s*(?:[·ㆍ・,]|와|과)?\s*유프라테스\s*강/g,'티그리스유프라테스강');   // 물 분쟁: 두 강을 하나로
   const toks=s.split(/[\s,，、;·\n\/]+/).filter(Boolean);
   const seq=[];
   for(let i=0;i<toks.length;i++){
@@ -8407,7 +8417,7 @@ function parseRules(q){
     if(!hit){ unknown.push(t); continue; }
     i+=used-1;
     if(hit.kind==='stop') continue;
-    if(hit.kind==='river'){ if(!spec.rivers.includes(hit.key)) spec.rivers.push(hit.key); continue; }
+    if(hit.kind==='river'){ seq.push({kind:'river',key:hit.key,keys:hit.keys||[hit.key]}); continue; }
     if(hit.kind==='country'){
       const f=hit.f; const area=d3.geoArea(f)*6371*6371;
       if(area<9000){ const ps=exactPlaces(f.properties.ko); const c=countryCentroid(f); const p=ps.length?ps.sort((a,b)=>a.rank-b.rank)[0]:null;
@@ -8420,7 +8430,10 @@ function parseRules(q){
   // 라벨 짝짓기: "A 로테르담" (앞) / "로테르담 A" (뒤)
   const firstLabel=seq.findIndex(x=>x.kind==='label');
   let mode='before';
-  if(firstLabel>0&&seq[firstLabel-1].kind!=='label') mode='after';
+  if(firstLabel>0&&seq[firstLabel-1].kind!=='label'){
+    // 앞에 하천만 있고 문장이 이름으로 끝나면('라인강, A 로테르담, B 함부르크') 라벨은 뒤 이름에 붙는다
+    const onlyRivers=seq.slice(0,firstLabel).every(x=>x.kind==='river'), lastIsLabel=seq.length&&seq[seq.length-1].kind==='label';
+    mode=onlyRivers&&!lastIsLabel?'before':'after'; }
   if(firstLabel>=0&&seq[firstLabel].after) mode='after';
   const things=[];
   for(let i=0;i<seq.length;i++){
@@ -8433,6 +8446,8 @@ function parseRules(q){
     things.push(x);
   }
   for(const x of things){
+    if(x.kind==='river'){ for(const k of x.keys) if(!spec.rivers.includes(k)) spec.rivers.push(k);
+      if(x.label){ const pt=riverLabelPt(x.key); if(pt) spec.points.push({ko:x.keys.length>1?'티그리스·유프라테스강':x.key,lat:pt[0],lon:pt[1],label:x.label,marker:ring?'ring':'dot'}); } continue; }
     if(x.kind==='point') spec.points.push({...x.pt,label:x.label||null,marker:ring?'ring':'dot'});
     else if(x.kind==='country') spec.countries.push({...x.c,label:x.label||null,style:cstyle});
   }
@@ -8541,7 +8556,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "1380230d73", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "55773df6f5", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
+const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "1eeb9f19b5", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "55773df6f5", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
