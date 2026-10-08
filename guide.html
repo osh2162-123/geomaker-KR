@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>사용 안내</title>
+<meta name="description" content="지리 자료 제작기로 만들 수 있는 것과 탭별 사용법">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32">
+<style>
+:root{--bg:#f8f8f6;--ink:#1b1d20;--muted:#5d636a;--line:#d8d9d4;--acc:#c3193f;--chip:#ecedea;--card:#ffffff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1c1e21;--ink:#e6e7e9;--muted:#a1a6ad;--line:#2f3338;--acc:#ff7390;--chip:#2a2d31;--card:#23262a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1c1e21;--ink:#e6e7e9;--muted:#a1a6ad;--line:#2f3338;--acc:#ff7390;--chip:#2a2d31;--card:#23262a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 "IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:28px 16px 64px}
+h1{font:700 26px/1.3 "Noto Serif KR","HY신명조",Batang,serif;margin:0 0 6px}
+h2{font:700 19px/1.4 "Noto Serif KR","HY신명조",Batang,serif;margin:44px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line);scroll-margin-top:12px}
+h3{font-size:15.5px;margin:22px 0 6px}
+p{margin:6px 0 10px}
+p.lead{color:var(--muted);margin:0 0 8px}
+a{color:var(--acc)}
+ul,ol{margin:6px 0 12px;padding-left:22px}
+li{margin:3px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0 14px}
+th,td{text-align:left;vertical-align:top;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;white-space:nowrap}
+td:first-child{white-space:nowrap}
+.wrap{overflow-x:auto}
+kbd{font:12.5px/1 ui-monospace,Consolas,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:2px 5px;background:var(--card)}
+.toc{columns:2 220px;column-gap:24px;margin:14px 0 4px;padding:12px 16px 12px 34px;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.toc li{break-inside:avoid}
+.ex{display:block;width:100%;text-align:left;margin:6px 0;padding:8px 11px;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:6px;background:var(--card);color:var(--ink);font-family:inherit;font-size:14.5px;line-height:1.55;cursor:copy}
+.ex:hover{border-color:var(--acc)}
+.ex::after{content:"복사";float:right;margin-left:10px;color:var(--muted);font-size:12px}
+.ex.ok::after{content:"복사했어요";color:var(--acc)}
+.flow{counter-reset:s;list-style:none;padding-left:0}
+.flow>li{counter-increment:s;position:relative;padding:8px 0 8px 40px;border-bottom:1px dashed var(--line)}
+.flow>li::before{content:counter(s);position:absolute;left:0;top:8px;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font:700 13px/26px system-ui;text-align:center}
+.note{color:var(--muted);font-size:14px}
+.tag{display:inline-block;font-size:12px;padding:0 7px;border-radius:10px;background:var(--chip);color:var(--muted);margin-left:6px;vertical-align:2px}
+.box{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);margin:10px 0}
+</style>
+</head>
+<body>
+<main>
+<h1>사용 안내</h1>
+<p class="lead">지리 자료 제작기 · 탭마다 무엇을 만들 수 있고 어떻게 만드는지 정리했습니다. <a href="./">도구로 돌아가기</a> · <a href="licenses.html">출처·라이선스</a></p>
+<p class="note">왼쪽에 색 줄이 있는 예시 문장은 누르면 복사돼요. 도구의 ‘문장으로 만들기’ 칸에 붙여 넣고 <kbd>Ctrl</kbd>+<kbd>Enter</kbd>를 누르면 바로 그려 볼 수 있어요.</p>
+
+<ol class="toc">
+<li><a href="#what">탭별로 만드는 것</a></li>
+<li><a href="#common">모든 탭 공통</a></li>
+<li><a href="#map">세계지리 백지도 (자동 생성 → 편집기)</a></li>
+<li><a href="#kmap">한국지리 백지도</a></li>
+<li><a href="#landform">지형 모식도</a></li>
+<li><a href="#climate">기후 그래프</a></li>
+<li><a href="#energy">에너지 그래프</a></li>
+<li><a href="#religion">종교 그래프</a></li>
+<li><a href="#population">인구 그래프</a></li>
+<li><a href="#agriculture">농업 그래프</a></li>
+<li><a href="#faq">막힐 때</a></li>
+<li><a href="#terms">이용 조건</a></li>
+</ol>
+
+<h2 id="what">탭별로 만드는 것</h2>
+<div class="wrap"><table>
+<tr><th>탭</th><th>만드는 것</th><th>미리 들어 있는 자료</th></tr>
+<tr><td>백지도 · 자동 생성</td><td>문장 한 줄로 세계 지도(지명 점·라벨·국가 음영·하천·기후 지역·판의 경계·산지)</td><td>Natural Earth 지도, 한글 지명, 쾨펜 기후(1991~2020), 판의 경계(PB2002), 습곡 산지·안정 육괴</td></tr>
+<tr><td>백지도 · 편집기</td><td>자동 생성기 지도를 손으로 다듬거나 처음부터 그리기</td><td>위와 같음</td></tr>
+<tr><td>백지도 · 한국지리</td><td>시·도/시·군·구 백지도, 색칠·기호, 고속 국도, 영해(기선·영해선)</td><td>행정 경계(2026년 4월·7월 기준), 고속 국도 11개(모식 선), 영해 기점</td></tr>
+<tr><td>모식도 · 지형</td><td>지형 모식도에 기호(A~D 등)·지시선·점선 원·화살표 달기, PDF·그림 위에 표시하기</td><td>직접 그린 모식도 8가지</td></tr>
+<tr><td>그래프 · 기후</td><td>기후 그래프, 월별 그래프, 지역별 막대·점, 산점도, 방사형, 표</td><td>세계 146개 지점 평년값(일본 기상청 ClimatView, 1991~2020)</td></tr>
+<tr><td>그래프 · 에너지</td><td>누적 막대, 원·도넛, 면적 비율, 묶은 막대, 상댓값 막대, 표</td><td>없음(표를 붙여 넣어 씀)</td></tr>
+<tr><td>그래프 · 종교</td><td>순위 표, 누적 막대, 원그래프, 삼각 그래프, 종교별 막대, 묶은 막대, 표</td><td>Pew Research Center 201개 국가·지역(2010·2020)</td></tr>
+<tr><td>그래프 · 인구</td><td>산점도, 꺾은선, 두 시기 비교, 묶은 막대, 표, 면적 비율, 누적 막대, 인구 피라미드</td><td>UN 세계 인구 전망 2024, 세계 도시화 전망 2025·2018, 국제 이주자 통계 2024·2020</td></tr>
+<tr><td>그래프 · 농업</td><td>누적 막대, 원그래프, 면적 비율, 묶은 막대, 상댓값 막대, 산점도, 표, 이름 표</td><td>FAOSTAT 54개 품목(생산·교역·식량 수급)</td></tr>
+</table></div>
+
+<h2 id="common">모든 탭 공통</h2>
+<h3>만드는 순서</h3>
+<ol class="flow">
+<li><b>문장으로 만들기.</b> 무엇을, 어느 지역(나라·지점)을, 어떤 기호로 그릴지 한 줄로 적고 만들기 단추(또는 <kbd>Ctrl</kbd>+<kbd>Enter</kbd>)를 눌러요. 각 탭의 ‘이렇게 써 보세요’에 바로 되는 예시가 있어요.</li>
+<li><b>결과 확인.</b> 알아듣지 못한 낱말이나 자료에 없는 지명은 문장 아래에 따로 알려 줘요. 마음에 안 들면 ‘되돌리기’로 문장 전 상태로 돌아갈 수 있어요.</li>
+<li><b>오른쪽 칸에서 다듬기.</b> 기호 순서, 무늬, 축 범위, 글자 크기, 범례 자리 등을 고쳐요. 그림 위의 항목은 끌어서 옮길 수 있어요.</li>
+<li><b>내보내기.</b> PNG(300·600 dpi), SVG, ‘이미지 복사’ 가운데 골라요. ‘이미지 복사’ 뒤 한글·워드에 바로 붙여 넣을 수 있어요.</li>
+</ol>
+
+<h3>저장</h3>
+<ul>
+<li>작업은 쓰는 동안 <b>이 기기의 이 브라우저</b>에 저절로 저장돼요. 다른 컴퓨터나 다른 브라우저에서는 보이지 않고, 브라우저 기록(사이트 데이터)을 지우면 함께 지워져요.</li>
+<li>오래 두거나 다른 기기에서 이어 하려면 탭마다 있는 <b>작업 저장</b>(.json 파일)을 써요. 다시 열 때는 그 탭의 ‘작업 불러오기’나 맨 위 <b>작업 파일 열기</b>를 쓰면 알맞은 탭으로 열려요.</li>
+<li>처음 한 번 연 뒤에는 인터넷 없이도 열려요. ‘새 버전이 나왔어요’ 막대가 뜨면 ‘새로 고침’을 눌러도 작업은 남아 있어요.</li>
+</ul>
+
+<h3>내보내기 팁</h3>
+<ul>
+<li>인쇄할 자료는 <b>600 dpi PNG</b>로 저장하면 선이 깨끗해요. PNG 파일에는 dpi 정보가 들어 있어요.</li>
+<li>‘이미지 복사’로 붙여 넣으면 dpi 정보가 빠져 크기가 달라질 수 있어요. 이때는 한글에서 크기를 맞추거나 PNG 파일을 넣어요.</li>
+<li>SVG는 글자와 선을 따로 고칠 수 있어 잉크스케이프·일러스트레이터에서 손볼 때 좋아요.</li>
+</ul>
+
+<h3>글꼴</h3>
+<ul>
+<li>HY신명조·HY견명조·HY중고딕·함초롬바탕·바탕 같은 글꼴은 <b>컴퓨터에 깔려 있을 때만</b> 쓰여요. 없으면 Noto Serif KR(웹 글꼴)로 대신 그리고 오른쪽 칸에 알려 줘요.</li>
+<li>세계지리 백지도와 그래프 탭에서는 글꼴 파일(.ttf·.otf·.woff·.woff2)을 직접 불러올 수 있어요. 윈도에서는 <code>C:\Windows\Fonts</code>에 있어요. 파일은 어디로도 올라가지 않아요.</li>
+</ul>
+
+<h3>기호와 발문 단서</h3>
+<ul>
+<li>문장에 <code>A~D</code>, <code>(가)~(라)</code>, <code>㉠~㉣</code>처럼 적으면 그 순서로 기호를 붙여요. ‘섞어’, ‘무작위’를 넣으면 순서를 섞어요.</li>
+<li>한국지리·지형·기후·에너지·종교 탭은 ‘(단, A~D는 각각 … 중 하나임.)’ 같은 <b>발문 단서와 정답</b>을 만들어 주고, ‘단서 문구 복사’로 옮길 수 있어요.</li>
+</ul>
+
+<h3>문장을 알아듣는 방식</h3>
+<p>이 웹 앱은 정해 둔 규칙으로 문장을 읽어요. 지명은 정확한 이름(예: ‘콩고민주공화국’, ‘아랍에미리트’)으로 적을수록 잘 알아들어요. ‘라인강 하구의 항구 도시’처럼 설명으로 찾는 문장은 Claude 안에서 열었을 때만 돼요(자동 생성기의 ‘Claude’ 표시 예시).</p>
+
+<h2 id="map">세계지리 백지도</h2>
+<p>세계 지도는 두 탭을 이어서 쓰는 것을 권해요. <b>자동 생성</b>에서 문장으로 대략적인 지도를 잡고, <b>편집기</b>에서 라벨 자리·틀 크기·표시 요소를 고치는 흐름이에요.</p>
+
+<h3>권하는 흐름</h3>
+<ol class="flow">
+<li><b>자동 생성 탭에 문장 입력.</b> 지역 + 지명 + 기호를 한 줄로 적어요. 지역을 적지 않으면 지명이 모두 들어가는 범위를 알아서 골라요.
+<button class="ex" type="button">유럽 지도에 로테르담, 함부르크, 뮌헨, 마르세유를 A~D로 찍어 줘</button></li>
+<li><b>‘이렇게 이해했어요’ 목록에서 고치기.</b> 라벨 글자를 바로 고치고(6자까지), 표시 모양을 눌러 점 → 빈 원 → 글자만으로 바꾸고, × 로 뺄 수 있어요. 나라 음영은 음영만 → 점선 원 → 섬마다 지시선으로 바꿔요.</li>
+<li><b>틀 크기·글자 크기 맞추기.</b> ‘글꼴 · 크기 · 해상도’에서 틀 가로(30~190 mm), 글자 크기(6~14 pt), 국경선 점선을 정해요. 시험지 지도는 보통 가로 45~70 mm예요.</li>
+<li><b>이대로 충분하면 바로 내보내기.</b> PNG·SVG·이미지 복사.</li>
+<li><b>더 손보려면 ‘편집기에서 열기’.</b> 맨 위 링크를 누르면 같은 지도가 편집기 탭에 열려요.</li>
+<li><b>편집기에서 다듬기.</b> 라벨을 끌어 겹치지 않게 옮기거나 ‘라벨 정리’를 눌러요. 필요하면 지시선, 점선 영역(타원), 가장자리 위도·경도 눈금, 경위선망, 기후 지역·판의 경계·산지를 켜요.</li>
+<li><b>내보내기 탭에서 저장.</b> 파일 이름, 600 dpi, 틀 바깥 배경(흰색·투명)을 고르고 PNG·SVG로 저장해요. 다음에 고칠 일이 있으면 ‘작업 저장’도 해 두어요.</li>
+</ol>
+<p class="note">자동 생성기에서 새 지도를 만들고 ‘편집기에서 열기’를 다시 누르면 편집기의 지도가 새 지도로 바뀌어요. 편집기에서 고친 지도를 남겨 두려면 먼저 ‘작업 저장’을 해 두세요.</p>
+
+<h3>자동 생성기 문장</h3>
+<div class="wrap"><table>
+<tr><th>넣을 것</th><th>이렇게 적어요</th></tr>
+<tr><td>지역</td><td>세계 지도, 유럽, 아프리카, 사하라 이남, 서남아시아(중동), 몬순아시아, 동남아시아, 동아시아, 오세아니아, 앵글로아메리카, 라틴아메리카, 환태평양, 미국, 북극 중심</td></tr>
+<tr><td>기호 붙이기</td><td>‘A 로테르담’, ‘로테르담 A’, ‘로테르담(A)’, ‘(가)이란’, ‘…를 A~D로’</td></tr>
+<tr><td>점 모양</td><td>‘빈 원’ ‘동그라미’ → ○, 아무 말 없으면 ●</td></tr>
+<tr><td>나라 음영</td><td>‘…를 A~D 음영으로’. ‘점선 원’, ‘지시선’, ‘음영만’으로 표시 방법을 바꿔요. 아주 작은 나라는 점으로 찍어요</td></tr>
+<tr><td>좌표</td><td>‘북위 37 동경 127’, ‘37.5N 127E’</td></tr>
+<tr><td>기후 지역</td><td>‘열대 기후’(하나로), ‘사막 기후와 스텝 기후’, ‘열대 우림 기후와 사바나 기후’, ‘Cfa Dwa Dwb’(기호별), ‘기후 구분 전체’. 무늬: ‘사막은 진한 회색, 스텝은 옅은 회색’, ‘툰드라 기후는 점무늬’</td></tr>
+<tr><td>판의 경계</td><td>‘판의 경계’. ‘판 이름 없이’, ‘유형 구분 없이’(수렴·발산·보존을 한 가지 선으로)</td></tr>
+<tr><td>산지</td><td>‘안정 육괴’, ‘고기 습곡 산지’, ‘신기 습곡 산지’, 산맥 이름(로키산맥, 애팔래치아산맥, 알프스산맥…), ‘산맥 이름’</td></tr>
+<tr><td>범례</td><td>‘범례 오른쪽 위’, ‘범례 지도 밖’(오른쪽 밖), ‘범례 밖 아래’, ‘범례 없이’</td></tr>
+<tr><td>선</td><td>적도, 회귀선, 극권, 하천 이름(나일강, 라인강 등)</td></tr>
+</table></div>
+<button class="ex" type="button">에티오피아, 케냐, 탄자니아, 콩고민주공화국을 A~D 음영으로</button>
+<button class="ex" type="button">이집트 (가), 이란 (나), 아랍에미리트 (다), 남수단 (라)</button>
+<button class="ex" type="button">아프리카 지도, 열대 우림 기후와 사바나 기후, 범례 지도 밖</button>
+<button class="ex" type="button">세계 지도, 사막은 진한 회색, 스텝은 옅은 회색</button>
+<button class="ex" type="button">세계 지도, 판의 경계, 범례 지도 밖 아래</button>
+<button class="ex" type="button">앵글로아메리카 지도, 로키산맥과 애팔래치아산맥, 산맥 이름</button>
+
+<h3>편집기 도구와 단축키</h3>
+<div class="wrap"><table>
+<tr><th>키</th><th>도구</th><th>하는 일</th></tr>
+<tr><td><kbd>V</kbd></td><td>선택·이동</td><td>항목을 끌어 옮겨요. 더블클릭하면 라벨 글자를 바로 고쳐요</td></tr>
+<tr><td><kbd>D</kbd> / <kbd>O</kbd></td><td>점 / 빈 원</td><td>누른 곳에 ● 또는 ○와 다음 기호를 놓아요</td></tr>
+<tr><td><kbd>T</kbd></td><td>글자</td><td>점 없이 글자만 놓아요</td></tr>
+<tr><td><kbd>S</kbd></td><td>국가 음영</td><td>나라를 누르면 칠하고, 다시 누르면 지워요</td></tr>
+<tr><td><kbd>L</kbd></td><td>지시선 추가</td><td>고른 라벨에서 지시선을 한 가닥 더 그어요(섬이 여럿인 나라)</td></tr>
+<tr><td><kbd>E</kbd></td><td>점선 영역</td><td>끌어서 점선 타원을 그려요</td></tr>
+</table></div>
+<ul>
+<li>마우스 휠로 확대·축소, 빈 곳을 끌어 화면 이동, 틀 오른쪽 아래 모서리를 끌어 틀 크기를 바꿔요.</li>
+<li>방향키로 라벨을 0.2 mm씩(<kbd>Shift</kbd>는 1 mm씩) 옮겨요. <kbd>Ctrl</kbd>+<kbd>Z</kbd> 되돌리기, <kbd>Ctrl</kbd>+<kbd>Y</kbd> 다시 하기.</li>
+<li>위쪽 검색창에 지명·국가·좌표(예: ‘37.5 127’)를 넣으면 바로 점이나 음영으로 넣을 수 있어요.</li>
+</ul>
+
+<h3>편집기 오른쪽 칸</h3>
+<ul>
+<li><b>지도</b>: 지역 13가지, 도법 5가지(밀러·등장방형·메르카토르·로빈슨·정거 방위), 중앙 경선, 틀 가로·세로, 해안선 자세한 정도, 국경선·호수·적도·회귀선·극권, 기후 지역, 판의 경계, 습곡 산지·안정 육괴, 범례 자리, 경위선망(10·15·20·30°), 가장자리 눈금, 하천.</li>
+<li><b>꾸미기</b>: 글꼴, 라벨 글자 크기, 점·빈 원 지름, 선 굵기, 바다·음영 명암, 새 라벨 순서(A·(가)·㉠·ㄱ·1·a)와 놓는 자리.</li>
+<li><b>항목</b>: 고른 항목의 라벨, 점 모양, 음영 진하기와 표시 방법, 라벨 자리(9방향), 지시선, 흰 테두리, 위도·경도 직접 입력.</li>
+<li><b>내보내기</b>: 파일 이름, 해상도, 틀 바깥 배경, PNG·SVG·이미지 복사, 작업 저장·불러오기.</li>
+</ul>
+
+<h3>기후 지역 · 판의 경계 · 산지</h3>
+<ul>
+<li><b>기후 지역</b>: 열대·건조·온대·냉대·한대마다 ‘하나로 / 기후별 / 기호별’을 골라요. 갈래마다 켜고 끄기와 무늬 7가지(연하게·기본·진하게·빗금 두 방향·격자·점무늬)를 고를 수 있어요. 무늬가 7가지라 여러 기후를 함께 켜면 같은 무늬가 겹칠 수 있으니 이름 옆 칸에서 바꿔 주세요.</li>
+<li><b>판의 경계</b>: 수렴(굵은 실선)·발산(두 줄)·보존(점선)을 구분하거나 한 가지 선으로 그리고, 판 이름을 넣고 뺄 수 있어요.</li>
+<li><b>습곡 산지·안정 육괴</b>: 세 갈래를 켜고 끄고 무늬를 바꿔요. ‘산맥·순상지 고르기’에서 하나씩 고를 수 있어요.</li>
+<li><b>범례</b>: 세 가지가 한 상자에 들어가요. 자리는 틀 안 네 모서리, 지도 밖 오른쪽, 지도 밖 아래, 없음 가운데서 골라요. 지도 밖에 두면 내보내는 그림이 그만큼 커져요. 범례에는 지금 틀 안에 보이는 갈래만 들어가요.</li>
+<li>경계는 시험 지도 수준으로 단순화한 것이라 교과서·기출 지도와 가장자리가 조금 다를 수 있어요.</li>
+</ul>
+
+<h2 id="kmap">한국지리 백지도</h2>
+<ul>
+<li><b>지도 범위</b>: 전국, 한반도, 북한, 수도권, 강원권, 충청권, 호남권, 영남권, 동남권, 대경권, 제주권, 또는 시·도 여러 개.</li>
+<li><b>경계와 보기</b>: 시·도 / 시·군·구, 광역시 구 합치기, 이름 넣기(답지용), 축척 막대, 위치도, 울릉도(상자로·제자리·빼기)와 독도, 하천(한강·낙동강·압록강·두만강), 고속 국도 11개(모식 선), 영해(기점·직선 기선·통상 기선·영해선), 경계 기준(2026년 4월 / 7월, 전남광주통합특별시).</li>
+<li><b>색칠</b>: 연한 회색, 회색, 진한 회색, 빗금, 점무늬.</li>
+<li><b>도구</b>: 고르기 <kbd>V</kbd>, 색칠 <kbd>P</kbd>, 점 <kbd>D</kbd>, 기호 <kbd>S</kbd>, 지시선 기호 <kbd>L</kbd>, 점선 원 <kbd>E</kbd>, 화살표 <kbd>A</kbd>, 선 <kbd>I</kbd>, 가림 상자 <kbd>R</kbd>, 글상자 <kbd>T</kbd>. <kbd>Ctrl</kbd>+<kbd>C</kbd>·<kbd>V</kbd>·<kbd>D</kbd>로 복사·붙여 넣기·복제.</li>
+<li>지명 사전에 없는 곳은 빠졌다고 알려 줘요. 그때는 ‘점’ 도구로 직접 찍어요. 이름이 겹치는 곳은 ‘강원 고성’처럼 시·도를 앞에 붙여요.</li>
+<li>문장 하나가 새 지도를 만들어요. 범위를 바꾸면 범위 밖 항목은 지워져요.</li>
+</ul>
+<button class="ex" type="button">강원 시군 지도, 홍천 A, 인제 B, 평창 C, 정선 D 색칠</button>
+<button class="ex" type="button">충청권 시군 경계, 천안·아산·당진 색칠, 청주는 (가), 대전은 (나)</button>
+<button class="ex" type="button">전국 지도, 경부 고속 국도 (가), 영동 고속 국도 (나), 서해안 고속 국도 (다)</button>
+<button class="ex" type="button">전국 지도에 기선은 점선으로, 가거도 (가), 상왕등도 (나), 여서도 (다), 거문도 (라)</button>
+
+<h2 id="landform">지형 모식도</h2>
+<ul>
+<li><b>기본 모식도 8가지</b>: 빙하 지형(산악 빙하·대륙 빙하·피오르 해안), 카르스트 지형, 건조 지형(사막), 해안 지형(곶과 만), 하천 지형(범람원·삼각주), 화산 지형. 직접 그린 그림이라 기출 그림과 모양은 달라요.</li>
+<li><b>문장으로 기호 달기</b>: ‘권곡은 A’, ‘권곡(A)’처럼 지형마다 기호를 정하거나 ‘…를 A~D로 순서 섞어’처럼 한꺼번에 붙여요. ‘지시선만’, ‘글자만’, ‘점선 원’으로 표시 방법을 정해요.</li>
+<li><b>지형 고르기</b>: 지형마다 체크하고 기호를 적은 뒤 ‘고른 지형에 기호 놓기’나 ‘순서 섞어 놓기’를 눌러요.</li>
+<li><b>도구</b>: 고르기 <kbd>V</kbd>, 지시선 <kbd>L</kbd>, 기호 <kbd>S</kbd>, 점선 원 <kbd>E</kbd>, 화살표 <kbd>A</kbd>, 선 <kbd>I</kbd>, 가림 상자 <kbd>R</kbd>(그림 속 글자를 흰 상자로 가림), 글상자 <kbd>T</kbd>.</li>
+<li><b>내 그림 위에 표시하기</b>: ‘이미지 파일’(PNG·JPG·SVG)이나 붙여 넣기(<kbd>Ctrl</kbd>+<kbd>V</kbd>)로 바탕을 바꿀 수 있어요. ‘PDF에서 잘라 오기’는 PDF의 쪽을 고르고 그림 둘레를 끌어 잘라 오며, 시험지 크기(mm) 그대로 가져와요. 그림은 이 컴퓨터 안에서만 쓰여요.</li>
+<li>기호 순서는 A·(가)·㉠·1·a 가운데 골라요.</li>
+</ul>
+<button class="ex" type="button">빙하 지형, 권곡은 A, 호른은 B, U자곡은 C, 종퇴석은 D</button>
+<button class="ex" type="button">카르스트 지형에 돌리네, 우발라, 석회동굴, 탑 카르스트를 A~D로 순서 섞어</button>
+<button class="ex" type="button">화산 지형 성층 화산, 순상 화산, 칼데라호, 용암 대지를 ㉠~㉣로 지시선만</button>
+
+<h2 id="climate">기후 그래프</h2>
+<ul>
+<li><b>그래프</b>: 기후 그래프(기온 꺾은선 + 강수 막대), 월별 그래프(기온·강수량·누적 강수량·누적 강수 비율·월 강수 비율), 지역별 막대·점, 산점도, 방사형, 표.</li>
+<li><b>지표</b>: 연평균 기온, 기온의 연교차, 최한월·최난월 평균 기온, 연 강수량, 계절별 강수량, 여름·겨울 강수 집중률, 최다우월·최소우월 강수량, 1~12월 기온과 강수량.</li>
+<li><b>값 나타내기</b>: 값 그대로 / 지점 평균과의 차이(‘네 지역 평균과의 차이’) / 기준 지점과의 차이(‘서울 기준’). 차이를 쓰면 ‘* 기온 차이 = …’ 주석을 자동으로 달아요.</li>
+<li><b>시기 숨기기</b>: ‘시기 숨김’을 넣으면 1월·7월 같은 시기를 (가)·(나) 시기로 바꾸고 발문 단서를 만들어요.</li>
+<li><b>산점도 모양</b>: 십자 축 / 십자 축 + 점선 격자 / 격자 상자. 문장에 ‘점선 격자’를 넣으면 기출처럼 점선 격자를 깐 십자 축으로 그려요.</li>
+<li><b>지점 추가</b>: 미리 담은 146곳에 없는 곳은 ClimatView 지점 표를 통째로 붙여 넣거나(‘ClimatView에서 표 가져오는 법’ 참고), 기온 12개·강수량 12개 두 줄을 붙여 넣어요. 월별 값은 직접 고칠 수도 있어요.</li>
+</ul>
+<button class="ex" type="button">모스크바, 리스본, 싱가포르, 다윈의 1월·7월 기후 그래프</button>
+<button class="ex" type="button">서울 기준 베이징, 도쿄, 상하이 월평균 기온 차이 꺾은선</button>
+<button class="ex" type="button">모스크바, 싱가포르, 다윈, 아스완 산점도, 가로축 1월 기온, 세로축 7월 강수량, 네 지역 평균과의 차이, 점선 격자, A~D</button>
+<button class="ex" type="button">베이징, 서울, 도쿄, 상하이의 기온의 연교차와 연 강수량을 막대와 점으로, 물결 생략</button>
+<button class="ex" type="button">리스본, 뭄바이, 시드니의 1월과 7월 강수량, 세 지역 평균과의 차이를 ㉠ 시기 숨김 표로</button>
+
+<h2 id="energy">에너지 그래프</h2>
+<p>이 웹 앱에는 에너지 통계가 들어 있지 않아요. Energy Institute 자료는 복제·재배포에 서면 허가가 필요해서 빼 두었어요. 대신 <b>표를 붙여 넣으면 시험지 양식으로 그려 주는</b> 도구로 쓸 수 있어요.</p>
+<ol class="flow">
+<li>‘자료 불러오기 → 붙여넣기’를 고르고, 엑셀·한글 표를 복사해 붙여 넣어요. 칸은 탭(엑셀에서 복사하면 저절로 탭)이나 쉼표로 나뉘어 있어야 하고, 띄어쓰기로는 나뉘지 않아요. 첫 줄은 항목 이름, 첫 칸은 나라 이름이에요. ‘기타’라는 열은 기타로 다뤄요.</li>
+<li>그래프 종류를 골라요: 누적 막대(가로·세로, 100% 비율), 원·도넛(구멍 0이면 원그래프), 면적 비율(계단형 100칸·직사각형), 묶은 막대, 상댓값 막대(가장 큰 값 = 100), 표(값·비율·순위).</li>
+<li>표 편집기에서 ‘A~’, ‘(가)~’로 기호를 붙이고 ‘순서 섞기’를 눌러요. 칸마다 무늬를 바꿀 수 있어요.</li>
+<li>‘제목·연도·출처’에 출처를 적어요.</li>
+</ol>
+<div class="box"><b>붙여 넣는 표 예</b>(쉼표로 나눈 경우)<pre style="margin:6px 0 0;font:14px/1.6 ui-monospace,Consolas,monospace">나라,석유,석탄,천연가스
+가국,40,35,25
+나국,20,60,20</pre></div>
+
+<h2 id="religion">종교 그래프</h2>
+<ul>
+<li><b>자료</b>: Pew Research Center(2025) 201개 국가·지역의 2010·2020년 종교 구성. 크리스트교, 이슬람교, 힌두교, 불교, 유대교, 기타 종교, 무종교.</li>
+<li><b>자료 불러오기</b>: 나라·지역 구성(비율 또는 신자 수), 대륙별 분포, 신자 상위국, 붙여넣기.</li>
+<li><b>순위 표</b>: 행이 국가 / 행이 순위 / 1위 × 2위 교차 표.</li>
+<li><b>삼각 그래프</b>: 앞의 세 종교로 그려요. 눈금 간격 10·20·25, 축 이름 화살표, 점 이름.</li>
+</ul>
+<button class="ex" type="button">인도, 방글라데시, 스리랑카의 신자 수 1, 2위 종교 표, 순위가 행, 종교는 A~C, 국가는 (가)~(다)</button>
+<button class="ex" type="button">대륙별 크리스트교, 이슬람교, 힌두교, 불교 신자 분포 누적 막대, 종교는 (가)~(라)</button>
+<button class="ex" type="button">인도, 파키스탄, 방글라데시, 스리랑카, 네팔, 말레이시아의 이슬람교·힌두교·불교 삼각 그래프, 국가는 A~F</button>
+
+<h2 id="population">인구 그래프</h2>
+<ul>
+<li><b>자료</b>: UN 세계 인구 전망 2024(1950~2025년 해마다, 2030~2100년 5년마다, 2024년 이후는 추계), 세계 도시화 전망 2025·2018, 국제 이주자 통계 2024·2020.</li>
+<li><b>지표</b>: 총인구, 인구 밀도, 성비, 중위 연령, 자연 증가율, 순 이동률, 출생률, 사망률, 합계 출산율, 기대 수명, 영아 사망률, 연령층 비율, 부양비, 노령화 지수, 도시화율, 촌락 인구 비율, 도시·촌락 인구, 연평균 도시 인구 증가율, 이민자 수·비율 등 44가지.</li>
+<li><b>시점 적기</b>: ‘2023’, ‘2015~2020’(5년 기간), ‘1970~2020년 10년 간격’. 추계는 ‘고위·중위·저위’, ‘출산율 고정’ 등.</li>
+<li><b>판 고르기</b>: 기출이 옛 판 값을 쓴 경우가 있어요. 도시화는 ‘2018년판’, 이민자는 ‘2020년판’을 문장에 넣으면 그 판으로 그려요.</li>
+<li><b>자료 불러오기</b>: 시기 변화, 두 지표, 지표 비교, 지역 안 순위, 추계 비교, 연령 구조(피라미드·연령층 비율), 이민자, 붙여넣기.</li>
+</ul>
+<button class="ex" type="button">앵글로아메리카, 유럽, 아시아, 아프리카의 인구의 자연 증가율과 순 이동률 산점도 1960년, 2020년, 지역은 (가)~(라)</button>
+<button class="ex" type="button">멕시코, 세네갈, 인도, 독일의 인구의 자연 증가율 두 시기 비교 1960~1965년, 2015~2020년, 국가는 (가)~(라)</button>
+<button class="ex" type="button">일본, 인도, 나이지리아의 인구 피라미드 2023, 국가는 (가)~(다)</button>
+<button class="ex" type="button">한국, 일본, 중국, 인도의 도시화율 변화 1960~2020년 20년 간격</button>
+<button class="ex" type="button">수단, 영국, 타이의 도시 인구(만 명), 도시화율, 연평균 도시 인구 증가율 2020 2018년판 표, 국가는 (가)~(다)</button>
+
+<h2 id="agriculture">농업 그래프</h2>
+<ul>
+<li><b>자료</b>: FAOSTAT 생산(1961·1970·1980·1990·2000·2005년, 2010~2024년), 교역(1990·2000·2005, 2010~2024), 식량 수급표(2010~2023). 곡물·서류·기호 작물·과일·가축·축산물 54개 품목.</li>
+<li><b>지표</b>: 생산량, 사육 두수, 수확 면적, 수출량, 수입량, 수출액, 국내 공급량, 1인당 식용 공급량.</li>
+<li><b>자료 불러오기</b>: 상위 나라, 대륙별, 지역 구성, 값 비교, 두 지표, 나라 이름 표, 순 수출입, 붙여넣기. 여러 해는 평균 또는 합산으로 묶어요(‘2018~2022 평균’).</li>
+<li>‘중국’은 본토·타이완·홍콩·마카오를 합친 FAOSTAT 값이에요.</li>
+</ul>
+<button class="ex" type="button">옥수수, 쌀, 밀 생산 상위 3개국 비율 2023, 작물은 (가)~(다)</button>
+<button class="ex" type="button">밀, 옥수수, 쌀의 세계 수출량 누적 막대 2018~2022 평균, 작물은 (가)~(다)</button>
+<button class="ex" type="button">곡물 순 수출·수입 상위 2개국 2018~2022</button>
+<button class="ex" type="button">앵글로아메리카, 오세아니아, 라틴 아메리카, 아시아, 아프리카, 유럽의 양, 돼지, 소 사육 두수 비율 2023, 가축은 A~C</button>
+
+<h2 id="faq">막힐 때</h2>
+<div class="wrap"><table>
+<tr><th>이럴 때</th><th>이렇게 해 보세요</th></tr>
+<tr><td>지명이 빠졌어요</td><td>세계 백지도는 편집기의 검색창이나 ‘점’ 도구, 한국지리는 ‘점’ 도구로 직접 찍어요. 기후 그래프는 ClimatView 표를 붙여 넣어 지점을 더해요.</td></tr>
+<tr><td>문장을 못 알아들어요</td><td>‘못 알아들은 말’에 나온 낱말을 정확한 이름으로 바꾸거나, 예시 문장을 복사해 고쳐 써요.</td></tr>
+<tr><td>글꼴이 시험지와 달라요</td><td>HY신명조가 없는 컴퓨터예요. 글꼴 파일을 직접 불러오거나, 글꼴이 있는 컴퓨터에서 SVG를 열어 바꿔요.</td></tr>
+<tr><td>한글에 넣으니 크기가 달라요</td><td>‘이미지 복사’ 대신 PNG 파일을 넣어요.</td></tr>
+<tr><td>어제 작업이 안 보여요</td><td>자동 저장은 기기·브라우저마다 따로예요. 작업 저장 파일(.json)을 ‘작업 파일 열기’로 열어요.</td></tr>
+<tr><td>‘새 버전’ 막대가 떠요</td><td>‘새로 고침’을 눌러도 작업은 그대로 있어요.</td></tr>
+</table></div>
+
+<h2 id="terms">이용 조건</h2>
+<p>이 도구는 <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.ko" rel="noopener">CC BY-NC 4.0</a>으로 공개합니다. 수업·평가 자료 같은 비영리 용도로 자유롭게 쓰실 수 있고, 학원·유료 강의 등 돈을 받는 용도로는 쓰지 말아 주세요. 각 자료의 출처와 조건은 <a href="licenses.html">출처·라이선스</a>에 있어요. 한국교육과정평가원 시험지의 그림은 들어 있지 않습니다.</p>
+</main>
+<script>
+document.querySelectorAll('.ex').forEach(function(b){ b.addEventListener('click',function(){
+  var t=b.textContent.trim(); var done=function(){ b.classList.add('ok'); setTimeout(function(){ b.classList.remove('ok'); },1400); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,function(){});
+}); });
+</script>
+</body>
+</html>
