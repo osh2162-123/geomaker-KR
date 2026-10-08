@@ -2923,7 +2923,7 @@ function stationData(s){ return {name:s.name,en:s.en,country:s.country,lat:s.lat
 
 /* ───────── 문장 해석 ───────── */
 const GANA=['가','나','다','라','마','바','사','아','자','차','카','타','파','하'];
-const STOP=new Set(('누적 비율 비중 방사형 레이더 삼각형 거미줄 이중축 물결 생략 행 열 그래프 기후 기후그래프 막대 막대그래프 꺾은선 꺾은선그래프 선그래프 산점도 분포도 점그래프 기온 평균기온 월평균 월평균기온 강수량 강수 강우량 차이 평균 평균값 기준 지점 시기 숨김 숨겨 숨기고 월별 비교 그려 그려줘 그려주세요 만들어 만들어줘 만들어주세요 줘 주세요 표시 라벨 가로축 세로축 연중 변화 지역 도시 각각 따로 한 그래프로 그래프에 한그래프에 함께 묶어 값 수치 계절 여름 겨울 봄 가을 연교차 연강수량 연평균 최한월 최난월 집중률 대비 기후값 나란히 같이 네 세 두 다섯 곳 개 와 과 및 의 로 으로 를 을 이 가 은 는 에 에서 도 것 거 x축 y축 가로 세로 격자 상자 십자 사분면 범례 위에 아래 오른쪽 왼쪽 정답 문제 발문 시험지 양식 1월 7월').split(' '));
+const STOP=new Set(('누적 비율 비중 방사형 레이더 삼각형 거미줄 이중축 물결 생략 행 열 그래프 기후 기후그래프 막대 막대그래프 꺾은선 꺾은선그래프 선그래프 산점도 분포도 점그래프 기온 평균기온 월평균 월평균기온 강수량 강수 강우량 차이 평균 평균값 기준 지점 시기 숨김 숨겨 숨기고 월별 비교 그려 그려줘 그려주세요 만들어 만들어줘 만들어주세요 줘 주세요 표시 라벨 가로축 세로축 연중 변화 지역 도시 각각 따로 한 그래프로 그래프에 한그래프에 함께 묶어 값 수치 계절 여름 겨울 봄 가을 연교차 연강수량 연평균 최한월 최난월 집중률 대비 기후값 나란히 같이 네 세 두 다섯 곳 개 와 과 및 의 로 으로 를 을 이 가 은 는 에 에서 도 것 거 x축 y축 가로 세로 격자 상자 십자 사분면 점선 모눈 범례 위에 아래 오른쪽 왼쪽 정답 문제 발문 시험지 양식 1월 7월').split(' '));
 const PARTICLE=/(으로|에서|과의|와의|이랑|하고|까지|부터|을|를|이|가|은|는|과|와|의|로|에|도)$/;
 function metricKey(kind,m){ const t=/기온/.test(kind)?'t':'p'; const n=+m; return n>=1&&n<=12?t+n:null; }
 const SEASON_KEY={'여름':'pJJA','겨울':'pDJF','봄':'pMAM','가을':'pSON'};
@@ -3013,7 +3013,7 @@ function parseRequest(q,docStations){
     lmark:/꺾은선|선\s*그래프/.test(text)?'line':(/막대/.test(text)&&/한\s*(?:그래프|칸)에|묶어|나란히|함께/.test(text)?'bar':null),
     rows:/지역(?:이|을)?\s*(?:가로|행)|지역별\s*행/.test(text)?'st':(/지표(?:가|를)?\s*행|지역(?:이|을)?\s*(?:세로|열)/.test(text)?'m':null),
     layout:/한\s*(?:그래프|칸)에|묶어|같은\s*그래프|함께\s*그려|하나로|이중\s*축|막대와\s*점|점과\s*막대/.test(text)?'group':(/따로|각각/.test(text)?'panels':null),
-    style:/격자|상자|네모/.test(text)?'box':(/십자|사분면/.test(text)?'cross':null),
+    style:(/십자|사분면/.test(text)&&/격자|모눈|점선/.test(text))||/점선\s*격자|격자\s*점선|모눈/.test(text)&&!/상자|네모/.test(text)?'crossgrid':/격자|상자|네모/.test(text)?'box':(/십자|사분면/.test(text)?'cross':null),
     values:/값\s*(?:을|도)?\s*(?:표시|적|써|넣)|수치/.test(text),
     cols:(m=>m?+m[1]:null)(/한\s*줄에\s*(\d)/.exec(text))};
   for(const h of hits){ if(h===ref) continue; spec.stations.push({name:h.c.data.name,lbl:lbls[h.i]||null}); }
@@ -3089,12 +3089,12 @@ function buildPrompt(q,docStations){
   const names=[...new Set([...(docStations||[]).map(s=>s.name),...STN.map(s=>s.name)])];
   const metrics=Object.values(METRICS).map(m=>`${m.key}=${m.name}`).join(', ');
   return `너는 한국 고등학교 세계지리·한국지리 시험지의 기후 그래프를 설계하는 도우미다. 교사의 요청을 아래 JSON 한 개로만 바꿔라. 설명이나 코드 블록 없이 JSON만 출력한다.
-{"kind":"climo|line|cat|sc","stations":[{"name":"지점 이름","lbl":null}],"ref":null,"seq":"gana|latin|circ|name","mode":"value|mean|ref","metrics":["지표 키"],"hide":false,"months":"all|17","v":"t|p","layout":"panels|group|null","style":"cross|box|null","values":false,"xKey":null,"yKey":null,"start":0,"brk":false,"rows":null}
+{"kind":"climo|line|cat|sc","stations":[{"name":"지점 이름","lbl":null}],"ref":null,"seq":"gana|latin|circ|name","mode":"value|mean|ref","metrics":["지표 키"],"hide":false,"months":"all|17","v":"t|p","layout":"panels|group|null","style":"cross|crossgrid|box|null","values":false,"xKey":null,"yKey":null,"start":0,"brk":false,"rows":null}
 - kind: climo=기온 꺾은선과 강수 막대를 함께 그린 기후 그래프(mode가 mean/ref면 월별 기온·강수량 차이 그래프), line=여러 지점의 월별 꺾은선, cat=지점별 막대·점(단위가 다른 두 지표를 layout group으로 두면 왼쪽 기온·오른쪽 강수량 이중축), sc=두 지표의 산점도, rd=방사형(삼각형) 상댓값 그래프(지표 3개 이상), tb=표.
 - line의 v: t=월평균 기온, p=월 강수량, pc=누적 강수량, pr=누적 강수 비율(%), ps=월 강수 비율(%). start는 누적을 시작하는 달(0=1월). brk=true면 세로축 아래를 물결선(≈)으로 생략. tb의 rows: st=지역이 행, m=지표가 행.
 - stations의 name은 반드시 다음 목록에 있는 이름을 그대로 쓴다: ${names.join(', ')}. 목록에 없는 곳은 넣지 말고 "missing":["이름"]에 적는다.
 - ref는 ‘서울과의 차이’처럼 기준이 되는 지점 이름(그래프에는 안 그림). mode가 ref일 때만 쓴다. mean은 ‘네 지역 평균과의 차이’.
-- metrics 키: ${metrics}. 산점도는 xKey(가로축)와 yKey(세로축)를 정한다.
+- metrics 키: ${metrics}. 산점도는 xKey(가로축)와 yKey(세로축)를 정한다. 산점도 style: cross=원점에서 만나는 십자 축, crossgrid=십자 축 + 점선 격자(단위는 축 끝에 따로), box=테두리 상자 + 점선 격자.
 - hide=true면 ‘(가) 시기’처럼 달 이름을 숨긴다. lbl은 요청에 지점별 라벨이 직접 적혀 있을 때만 쓴다.
 요청: ${q}`;
 }
@@ -3568,7 +3568,7 @@ function scTitle(doc,ax,diff){ const c=doc.sc[ax]; return c.title||metricLabel(c
 function composeScatter(doc){
   const o=doc.sc, S=plotted(doc); if(!S.length) return null;
   const X=S.map(s=>valueOf(doc,s,o.x.m,o.x.mode)), Y=S.map(s=>valueOf(doc,s,o.y.m,o.y.mode));
-  const cross=o.style==='cross'; const w=o.pw,h=o.ph; const ops=new Ops(doc);
+  const cross=o.style==='cross'||o.style==='crossgrid', grid=o.style==='crossgrid'; const w=o.pw,h=o.ph; const ops=new Ops(doc);
   const xa=axisOf(o.xa,X,{zero:cross||o.x.mode!=='value',target:6,head:true,foot:true});
   const ya=axisOf(o.ya,Y,{zero:cross||o.y.mode!=='value',target:6,head:true,foot:true}); LAST.x=xa; LAST.y=ya;
   const fx=v=>(v-xa.lo)/(xa.hi-xa.lo)*w, fy=yOf(ya,h);
@@ -3577,15 +3577,25 @@ function composeScatter(doc){
   const obst=[];
   if(cross){
     const ox=fx(clamp(0,xa.lo,xa.hi)), oy=fy(clamp(0,ya.lo,ya.hi));
+    if(grid){   /* 점선 격자(시험지처럼 바깥 테두리까지 점선, 0은 축이 실선으로 덮음) */
+      for(const v of ticksOf(ya)){ if(Math.abs(v)<1e-9) continue; ops.seg(0,fy(v),w,fy(v),W(doc,0.1),{dash:GRID_DASH}); }
+      for(const v of ticksOf(xa)){ if(Math.abs(v)<1e-9) continue; ops.seg(fx(v),0,fx(v),h,W(doc,0.1),{dash:GRID_DASH}); } }
     ops.seg(0,oy,w,oy,W(doc,0.15)); ops.seg(ox,0,ox,h,W(doc,0.15));
     const dx=decOf(xa.step), dy=decOf(ya.step); const dm=metrics(fontOf(doc,'tick'),'0');
     for(const v of ticksOf(xa)){ const x=fx(v); ops.seg(x,oy-0.6,x,oy+0.6,W(doc,0.15)); if(Math.abs(v)<1e-9) continue; ops.text(fmt(v,dx),x,oy+0.9+dm.A,'tick',{align:'center'}); }
     for(const v of ticksOf(ya)){ const y=fy(v); ops.seg(ox-0.6,y,ox+0.6,y,W(doc,0.15)); if(Math.abs(v)<1e-9) continue; ops.textMid(fmt(v,dy),ox-1.0,y,'tick',{align:'right'}); }
     ops.text('0',ox-0.5,oy+0.9+dm.A,'tick',{align:'right'});
     obst.push({x:0,y:oy-0.7,w,h:1.4},{x:ox-0.7,y:0,w:1.4,h});
-    const tf=fontOf(doc,'axis');
-    ops.text(`${ty}(${uy})`,ox,-digitTop(doc)-1.3,'axis',{align:'center'});
-    const xl=`${tx}(${ux})`; const parts=splitTitle(xl,14); const lh=metrics(tf,'가').H+0.7;
+    const tf=fontOf(doc,'axis'); const lh=metrics(tf,'가').H+0.7;
+    let xl=`${tx}(${ux})`, parts;
+    if(grid){   /* 단위는 따로: 세로축 이름 아래 (mm), 가로축 끝 눈금 뒤 (℃) — 2025학년도 기출 양식 */
+      const um=metrics(fontOf(doc,'unit',0.95),'(');
+      const uy0=-digitTop(doc)-1.0; ops.text(`(${uy})`,ox,uy0,'unit',{align:'center',scale:0.95});
+      const yl=wrapWords(ty,7); yl.forEach((p,i)=>ops.text(p,ox,uy0-um.H-0.5-(yl.length-1-i)*lh,'axis',{align:'center'}));
+      const lastT=ops.list.filter(t=>t.t==='text'&&Math.abs(t.y-(oy+0.9+dm.A))<0.01).sort((a,b)=>(b.box.x+b.box.w)-(a.box.x+a.box.w))[0];
+      if(lastT) ops.text(`(${ux})`,lastT.box.x+lastT.box.w+0.3,oy+0.9+dm.A,'unit',{scale:0.95});
+      xl=tx; parts=wrapWords(xl,7);
+    } else { ops.text(`${ty}(${uy})`,ox,-digitTop(doc)-1.3,'axis',{align:'center'}); parts=splitTitle(xl,14); }
     const xr=Math.max(w+2.2,...ops.list.filter(t=>t.t==='text'&&Math.abs(t.y-(oy+0.9+dm.A))<0.01).map(t=>t.box.x+t.box.w+1.6));
     parts.forEach((p,i)=>{ const m=metrics(tf,p); ops.text(p,xr,oy-((parts.length-1)*lh)/2+i*lh+(m.A-m.D)/2-(parts.length>1?0:0),'axis',{align:'left'}); });
   } else {
@@ -3625,6 +3635,11 @@ function composeScatter(doc){
   return {ops,plots:[{x:0,y:0,w,h}]};
 }
 function overlap(a,b,pad){ const x=Math.max(0,Math.min(a.x+a.w,b.x+b.w+pad)-Math.max(a.x,b.x-pad)); const y=Math.max(0,Math.min(a.y+a.h,b.y+b.h+pad)-Math.max(a.y,b.y-pad)); return x*y; }
+function wrapWords(s,max){   /* 낱말 단위로 max 글자 안쪽 줄 나누기 */
+  const out=[]; let cur='';
+  for(const w of String(s).split(/\s+/).filter(Boolean)){ if(cur&&(cur+' '+w).length>max){ out.push(cur); cur=w; } else cur=cur?cur+' '+w:w; }
+  if(cur) out.push(cur); return out.length?out:[''];
+}
 function splitTitle(s,max){
   if(s.length<=max) return [s];
   const sp=[...s.matchAll(/\s/g)].map(m=>m.index); if(!sp.length) return [s];
@@ -10513,7 +10528,7 @@ function cleanSpec(o){
   const st=Array.isArray(o.stations)?o.stations.map(x=>typeof x==='string'?{name:x,lbl:null}:{name:String(x&&x.name||''),lbl:x&&x.lbl?String(x.lbl):null}).filter(x=>x.name):[];
   return {kind:kinds.includes(o.kind)?o.kind:'climo',seq:['gana','latin','circ','name'].includes(o.seq)?o.seq:'gana',mode:['value','mean','ref'].includes(o.mode)?o.mode:'value',
     stations:st,ref:o.ref?String(o.ref):null,metrics:(Array.isArray(o.metrics)?o.metrics:[]).filter(k=>GG.METRICS[k]).slice(0,3),hide:!!o.hide,aliasSeq:['(가)','(나)','(다)'],
-    months:o.months==='17'?'17':'all',v:GG.LINE_V[o.v]?o.v:'t',start:Number.isInteger(o.start)&&o.start>=0&&o.start<12?o.start:0,brk:!!o.brk,lmark:['line','bar','panel'].includes(o.lmark)?o.lmark:null,rows:['st','m'].includes(o.rows)?o.rows:null,layout:['panels','group'].includes(o.layout)?o.layout:null,style:['cross','box'].includes(o.style)?o.style:null,
+    months:o.months==='17'?'17':'all',v:GG.LINE_V[o.v]?o.v:'t',start:Number.isInteger(o.start)&&o.start>=0&&o.start<12?o.start:0,brk:!!o.brk,lmark:['line','bar','panel'].includes(o.lmark)?o.lmark:null,rows:['st','m'].includes(o.rows)?o.rows:null,layout:['panels','group'].includes(o.layout)?o.layout:null,style:['cross','crossgrid','box'].includes(o.style)?o.style:null,
     values:!!o.values,cols:null,xKey:GG.METRICS[o.xKey]?o.xKey:null,yKey:GG.METRICS[o.yKey]?o.yKey:null};
 }
 function describe(d){
@@ -10704,7 +10719,7 @@ function renderOpts(){
       row('시기 숨김',txt(()=>c.alias,v=>{ c.alias=v; refreshHint(); },'예: (가) 시기','시기 숨김 이름')),
       row('축 제목',txt(()=>c.title,v=>c.title=v,'비우면 자동','축 제목')));
     P.append(sec('산점도',axisBlock('가로축',o.x),axisBlock('세로축',o.y),
-      row('모양',seg([['cross','십자 축'],['box','격자 상자']],()=>o.style,v=>o.style=v)),
+      row('모양',seg([['cross','십자 축'],['crossgrid','십자 축 + 점선 격자'],['box','격자 상자']],()=>o.style,v=>o.style=v)),
       sizeRow(o,'그래프 크기')));
     P.append(sec('축 범위',axisHead(),axisCtl('가로축',o.xa,'x'),axisCtl('세로축',o.ya,'y')));
   }
