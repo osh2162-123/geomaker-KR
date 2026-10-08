@@ -7199,6 +7199,16 @@ const PRESETS=[
  {id:'arctic',name:'북극 중심',proj:'polar',lon:0,edge:35,w:58,h:58,borders:false,ticks:[]}
 ];
 const presetById=id=>PRESETS.find(p=>p.id===id);
+/* 원자료는 ±180°에서 땅을 잘라 두 조각으로 저장한다(추코트카 등). 잘린 변은 해안선이 아니므로 빼고 선을 나눈다 */
+function cutAntimeridian(ml){
+  const on=p=>Math.abs(Math.abs(p[0])-180)<1e-3, out=[];
+  for(const line of ml.coordinates){ let cur=[];
+    for(let i=0;i<line.length;i++){ const p=line[i];
+      if(cur.length&&on(p)&&on(cur[cur.length-1])&&Math.sign(p[0])===Math.sign(cur[cur.length-1][0])){ if(cur.length>1) out.push(cur); cur=[p]; }
+      else cur.push(p); }
+    if(cur.length>1) out.push(cur); }
+  return {type:'MultiLineString',coordinates:out};
+}
 function makeProj(v,fw,fh){
   const P=PROJS[v.proj].f();
   P.rotate(v.proj==='polar'?[-v.rot,-90]:[-v.rot,0]);
@@ -7273,7 +7283,7 @@ function prep(raw){
   const rivers=new Map();
   riversAll.forEach(f=>{const en=f.properties.en; const k=RIVER_OF[en]||en; if(!k) return; f.properties.key=k; if(!rivers.has(k)) rivers.set(k,[]); rivers.get(k).push(f);});
   return {countries,byId:new Map(countries.map(f=>[f.id,f])),land:{type:'FeatureCollection',features:countries},
-    coast:topojson.mesh(cT,obj,(a,b)=>a===b),borders:topojson.mesh(cT,obj,(a,b)=>a!==b),lakes,rivers,riversAll};
+    coast:cutAntimeridian(topojson.mesh(cT,obj,(a,b)=>a===b)),borders:topojson.mesh(cT,obj,(a,b)=>a!==b),lakes,rivers,riversAll};
 }
 function loadLod(l){
   if(geo[l]) return Promise.resolve(geo[l]);
