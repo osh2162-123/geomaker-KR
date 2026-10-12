@@ -6546,7 +6546,7 @@ const SIDO_WORDS={'11':['서울','서울시','서울특별시'],'26':['부산','
   '50':['제주','제주도','제주특별자치도'],'51':['강원','강원도','강원특별자치도'],'52':['전북','전라북도','전북특별자치도']};
 
 /* ───────── 경계 자료 ───────── */
-function verOf(map){ return D&&D.vers[map.ver]?map.ver:'a'; }
+function verOf(map){ return D&&D.vers[map.ver]?map.ver:'b'; }
 function G(map,lod,trim){
   /* trim: 지역 지도면 그 지역의 포함 함수. 지역 본토(100 km² 넘는 조각들의 범위)에서 30 km 넘게 떨어진 섬은 뺀다
      (수도권의 백령도·연평도, 호남권의 흑산도·가거도, 충남의 격렬비열도 등). 울릉도는 상자로 따로 다룬다 */
@@ -6579,9 +6579,10 @@ function sidoName(code){ return (D&&D.sido&&D.sido[code])||code; }
 function sidoList(map){ const v=verOf(map); const have=new Set(D.vers[v].places.filter(p=>p.k==='sido').map(p=>p.c)); return SIDO_ORDER.filter(c=>have.has(c)); }
 
 /* ───────── 지도 설정 ───────── */
-function freshMap(){ return {ver:'a',area:'sk',sido:[],level:'sido',shade:{},metro:'auto',width:45,scale:true,ulleung:'box',dokdo:true,inset:false,rivers:[],nkdo:true,han:true,frame:false,sv:2,roads:[],roadStyle:{},roadLegend:true,
+function freshMap(){ return {ver:'b',verPick:false,area:'sk',sido:[],level:'sido',shade:{},metro:'auto',width:45,scale:true,ulleung:'box',dokdo:true,inset:false,rivers:[],nkdo:true,han:true,frame:false,sv:2,roads:[],roadStyle:{},roadLegend:true,
   bl:false,bp:false,ts:false,nb:false,blStyle:'solid',seaLegend:true}; }
-function normalizeMap(m){ return Object.assign(freshMap(),m||{}); }
+/* 2026년 7월 1일 전남광주통합특별시 출범: 경계 기준을 직접 고른 적이 없는 지도는 7월 기준(b)으로 연다 */
+function normalizeMap(m){ const x=Object.assign(freshMap(),m||{}); if(!x.verPick) x.ver='b'; return x; }
 /* 그릴 지역인가 */
 function incFn(map){
   const a=map.area, S=new Set(map.sido||[]);
@@ -6884,7 +6885,7 @@ function parse(q,cur){
   const text=' '+String(q||'').replace(/\s+/g,' ').trim()+' '; const map=normalizeMap(cur?JSON.parse(JSON.stringify(cur)):null);
   const out={map,labels:[],shade:[],missing:[],set:null,shuffle:false,mode:null,areaSet:false,notes:[]};
   /* 경계 기준 */
-  if(/7\s*월\s*기준|통합특별시|전남광주/.test(text)) map.ver='b'; else if(/4\s*월\s*기준/.test(text)) map.ver='a';
+  if(/7\s*월\s*기준|통합특별시|전남광주/.test(text)){ map.ver='b'; map.verPick=true; } else if(/4\s*월\s*기준|통합\s*(이)?전|광주광역시\s*(경계|시절|기준)/.test(text)){ map.ver='a'; map.verPick=true; }
   /* 범위 */
   const used=new Array(text.length).fill(false); const mark=(i,l)=>{ for(let k=i;k<i+l;k++) used[k]=true; };
   let area=null, sidos=[];
@@ -9750,7 +9751,7 @@ function renderLeft(){
     if(KM.seaOn(m)){ V.append(row('',chk('범례',()=>m.seaLegend!==false,v=>m.seaLegend=v,()=>{ syncAuto(); changed(); })));
       if((m.ts||m.nb)&&hasUl&&m.ulleung==='box') V.append(h('p',{class:'sub'},'울릉도·독도 영해선은 울릉도를 ‘제자리’로 두었을 때 그려져요.')); } }
   V.append(row('지도 너비',num(()=>m.width,v=>m.width=v,{min:30,max:250,step:1,aria:'지도 너비(mm)',on:'change',after:()=>{ mapChanged(); fit(); }}),h('span',{class:'unit'},'mm')));
-  V.append(row('경계 기준',sel(Object.entries(KM.data().vers).map(([k,v])=>[k,v.label]),()=>m.ver,v=>{ m.ver=v; m.shade={}; },()=>{ mapChanged(); fit(); },'경계 기준')));
+  V.append(row('경계 기준',sel(Object.entries(KM.data().vers).map(([k,v])=>[k,v.label]).reverse(),()=>m.ver,v=>{ m.ver=v; m.verPick=true; m.shade={}; },()=>{ mapChanged(); fit(); },'경계 기준')));
   /* 색칠 */
   const H=$('#shadeBox'); H.textContent='';
   const tones=KM.TONE_ORDER.map(t=>[t,KM.TONES[t].ko]);
