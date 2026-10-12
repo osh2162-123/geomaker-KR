@@ -8559,7 +8559,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "f8529a9cdc", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "55773df6f5", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
+const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "f8529a9cdc", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "5b008d0d5e", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
