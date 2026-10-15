@@ -496,8 +496,9 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-kmap .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--pane);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:calc(100% - 32px);z-index:20}
 .t-kmap .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){.t-kmap .toast{transition:none}}
-@media (max-width: 1180px){.t-kmap .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
-.t-kmap .opts{grid-column:1/-1;max-height:none}}
+@media (max-width: 1180px){.t-kmap{height:auto}
+.t-kmap .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(440px,calc(100vh - 120px)) auto;height:auto;min-height:100%}
+.t-kmap .opts{grid-column:1/-1;max-height:none;overflow:visible}}
 @media (max-width: 760px){.t-kmap{height:auto}
 .t-kmap .gapp{display:flex;flex-direction:column;height:auto;padding:0 16px 16px}
 .t-kmap .top{gap:10px}
@@ -763,8 +764,9 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-landform .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--pane);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:calc(100% - 32px);z-index:20}
 .t-landform .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){.t-landform .toast{transition:none}}
-@media (max-width: 1180px){.t-landform .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
-.t-landform .opts{grid-column:1/-1;max-height:none}}
+@media (max-width: 1180px){.t-landform{height:auto}
+.t-landform .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(440px,calc(100vh - 120px)) auto;height:auto;min-height:100%}
+.t-landform .opts{grid-column:1/-1;max-height:none;overflow:visible}}
 @media (max-width: 760px){.t-landform{height:auto}
 .t-landform .gapp{display:flex;flex-direction:column;height:auto;padding:0 16px 16px}
 .t-landform .top{gap:10px}
@@ -972,8 +974,9 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-climate .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--pane);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:calc(100% - 32px);z-index:20}
 .t-climate .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){.t-climate .toast{transition:none}}
-@media (max-width: 1180px){.t-climate .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
-.t-climate .opts{grid-column:1/-1;max-height:none}}
+@media (max-width: 1180px){.t-climate{height:auto}
+.t-climate .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(440px,calc(100vh - 120px)) auto;height:auto;min-height:100%}
+.t-climate .opts{grid-column:1/-1;max-height:none;overflow:visible}}
 @media (max-width: 760px){.t-climate{height:auto}
 .t-climate .gapp{display:flex;flex-direction:column;height:auto;padding:0 16px 16px}
 .t-climate .top{gap:10px}
@@ -1135,8 +1138,9 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-energy .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--pane);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:calc(100% - 32px);z-index:20}
 .t-energy .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){.t-energy .toast{transition:none}}
-@media (max-width: 1180px){.t-energy .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
-.t-energy .opts{grid-column:1/-1;max-height:none}}
+@media (max-width: 1180px){.t-energy{height:auto}
+.t-energy .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(440px,calc(100vh - 120px)) auto;height:auto;min-height:100%}
+.t-energy .opts{grid-column:1/-1;max-height:none;overflow:visible}}
 @media (max-width: 760px){.t-energy{height:auto}
 .t-energy .gapp{display:flex;flex-direction:column;height:auto;padding:0 16px 16px}
 .t-energy .top{gap:10px}
@@ -1347,8 +1351,9 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-religion .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--pane);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:calc(100% - 32px);z-index:20}
 .t-religion .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){.t-religion .toast{transition:none}}
-@media (max-width: 1180px){.t-religion .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
-.t-religion .opts{grid-column:1/-1;max-height:none}}
+@media (max-width: 1180px){.t-religion{height:auto}
+.t-religion .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(440px,calc(100vh - 120px)) auto;height:auto;min-height:100%}
+.t-religion .opts{grid-column:1/-1;max-height:none;overflow:visible}}
 @media (max-width: 760px){.t-religion{height:auto}
 .t-religion .gapp{display:flex;flex-direction:column;height:auto;padding:0 16px 16px}
 .t-religion .top{gap:10px}
@@ -1559,8 +1564,9 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-population .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--pane);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:calc(100% - 32px);z-index:20}
 .t-population .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){.t-population .toast{transition:none}}
-@media (max-width: 1180px){.t-population .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
-.t-population .opts{grid-column:1/-1;max-height:none}}
+@media (max-width: 1180px){.t-population{height:auto}
+.t-population .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(440px,calc(100vh - 120px)) auto;height:auto;min-height:100%}
+.t-population .opts{grid-column:1/-1;max-height:none;overflow:visible}}
 @media (max-width: 760px){.t-population{height:auto}
 .t-population .gapp{display:flex;flex-direction:column;height:auto;padding:0 16px 16px}
 .t-population .top{gap:10px}
@@ -1771,8 +1777,9 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-agriculture .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--pane);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:calc(100% - 32px);z-index:20}
 .t-agriculture .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){.t-agriculture .toast{transition:none}}
-@media (max-width: 1180px){.t-agriculture .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
-.t-agriculture .opts{grid-column:1/-1;max-height:none}}
+@media (max-width: 1180px){.t-agriculture{height:auto}
+.t-agriculture .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(440px,calc(100vh - 120px)) auto;height:auto;min-height:100%}
+.t-agriculture .opts{grid-column:1/-1;max-height:none;overflow:visible}}
 @media (max-width: 760px){.t-agriculture{height:auto}
 .t-agriculture .gapp{display:flex;flex-direction:column;height:auto;padding:0 16px 16px}
 .t-agriculture .top{gap:10px}
@@ -8867,7 +8874,7 @@ return {clean,fitItems,relabelItems,answerKey,placeSeas,SEA_NAMES,OCEANS,seaLabe
 const HUB=(function(){
 'use strict';
 const MODE="web";            /* artifact: 자료 파일을 그때그때 받아 옴 · standalone: 모두 들어 있음 */
-const TOOLS=[{"id": "mapquick", "name": "백지도 자동 생성기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "mapedit", "name": "백지도 편집기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "kmap", "name": "한국지리 백지도", "need": ["topo", "kmdata"], "wait": "우리나라 경계 자료를 불러오는 중…"}, {"id": "landform", "name": "지형 모식도 편집기", "need": ["ldata"], "wait": "모식도 자료를 불러오는 중…"}, {"id": "climate", "name": "기후 그래프 편집기", "need": ["stations"], "wait": "기후 지점 자료를 불러오는 중…"}, {"id": "energy", "name": "에너지 그래프 편집기", "need": [], "wait": "에너지 그래프 편집기를 여는 중…"}, {"id": "religion", "name": "종교 그래프 편집기", "need": ["rdata"], "wait": "종교 자료를 불러오는 중…"}, {"id": "population", "name": "인구 그래프 편집기", "need": ["pdata"], "wait": "인구 자료(약 8 MB)를 불러오는 중…"}, {"id": "agriculture", "name": "농업 그래프 편집기", "need": ["adata"], "wait": "농업 자료(약 4.5 MB)를 불러오는 중…"}];
+const TOOLS=[{"id": "mapquick", "name": "백지도 자동 생성기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "mapedit", "name": "백지도 편집기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "kmap", "name": "한국지리 백지도", "need": ["topo", "kmdata"], "wait": "우리나라 경계 자료를 불러오는 중…"}, {"id": "landform", "name": "지형 모식도 편집기", "need": ["ldata"], "wait": "모식도 자료를 불러오는 중…"}, {"id": "climate", "name": "기후 그래프 편집기", "need": ["stations"], "wait": "기후 지점 자료를 불러오는 중…"}, {"id": "energy", "name": "에너지 그래프 편집기", "need": ["edata"], "wait": "에너지 자료를 불러오는 중…"}, {"id": "religion", "name": "종교 그래프 편집기", "need": ["rdata"], "wait": "종교 자료를 불러오는 중…"}, {"id": "population", "name": "인구 그래프 편집기", "need": ["pdata"], "wait": "인구 자료(약 8 MB)를 불러오는 중…"}, {"id": "agriculture", "name": "농업 그래프 편집기", "need": ["adata"], "wait": "농업 자료(약 4.5 MB)를 불러오는 중…"}];
 const LIBS=['lib/d3.min.js','lib/d3-geo-projection.min.js','lib/topojson-client.min.js'];
 const DATA={
   stations:['data/stations.json',d=>GG.setStationDict(d)],
@@ -8913,7 +8920,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "853ae381c2", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "5b008d0d5e", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
+const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "853ae381c2", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "5b008d0d5e", "edata": "27d88225b0", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
@@ -11269,8 +11276,8 @@ function h(tag,attrs,...kids){
 }
 try{ const el=document.getElementById('eg-data'); if(el) EG.setData(JSON.parse(el.textContent)); }catch(e){ /* 자료 없이도 붙여넣기는 된다 */ }
 const HAS=!!EG.data();
-/* 공개판(웹 앱·배포판)에는 EI 자료를 싣지 않는다: EI 약관상 복제·재배포는 서면 허가가 필요 */
-const NODATA='이 공개판에는 Energy Institute(EI) 통계를 싣지 않았어요. EI는 자료를 복제·재배포하려면 서면 허가를 받도록 정하고 있어서, 허가를 받기 전까지 뺐어요. EI 누리집(energyinst.org)이나 다른 기관에서 받은 표를 복사해 아래에 붙여 넣으면 같은 양식의 그래프를 만들 수 있어요. 출처는 오른쪽 ‘제목·연도·출처’에 적어 주세요.';
+/* EI 자료는 2026-10-13 Energy Institute(Statistical Review 팀)의 서면 허가 메일에 따라 싣는다. 조건: 'Source: Energy Institute Statistical Review of World Energy (연도).' 로 출처를 적을 것 */
+const NODATA='이 판에는 Energy Institute(EI) 통계가 들어 있지 않아요. EI 누리집(energyinst.org)이나 다른 기관에서 받은 표를 복사해 아래에 붙여 넣으면 같은 양식의 그래프를 만들 수 있어요. 출처는 오른쪽 ‘제목·연도·출처’에 적어 주세요.';
 const cv=$('#cv');
 function exampleDoc(){
   const d=EG.freshDoc('stack'); if(!HAS) return d;
@@ -11372,7 +11379,7 @@ function renderPB(){
       if(!m.rows.length){ pbMsg('err','나라나 지역을 하나 이상 골라 주세요.'); return; } if(!m.cols.length){ pbMsg('err','에너지원을 하나 이상 골라 주세요.'); return; }
       const order=fk.filter(k=>m.cols.includes(k)); const sorted=m.cols.slice().sort((a,b)=>m.cols.indexOf(a)-m.cols.indexOf(b));
       EG.presetMix(doc,{ds:m.ds,year:m.year,rows:m.rows,cols:sorted.length?sorted:order,other:m.other}); plainStack();
-      pbMsg('ok',`${EG.MIX[m.ds].name} ${m.year}년 값으로 표를 만들었어요 (${doc.data.unit}). 출처: Energy Institute, Statistical Review of World Energy 2025.`); changed('all'); });
+      pbMsg('ok',`${EG.MIX[m.ds].name} ${m.year}년 값으로 표를 만들었어요 (${doc.data.unit}). 출처: Energy Institute Statistical Review of World Energy (2025). 그림에 쓸 때는 오른쪽 ‘EI 출처 넣기’로 지정 문구를 넣어 주세요.`); changed('all'); });
     B.append(h('div',{class:'paste-row'},go)); }
   if(ui.pb==='top'){ const t=ui.top;
     B.append(row('항목'),prodChecks(t.items,true),
@@ -11633,7 +11640,7 @@ function renderOpts(){
   /* 제목 · 연도 · 출처 · 주석 */
   const M=doc.meta;
   const notesBox=h('textarea',{class:'note-area',placeholder:'한 줄에 하나씩. 예: 수력은 양수식을 제외함.','aria-label':'덧붙일 주석'}); notesBox.value=M.notes||''; notesBox.addEventListener('input',()=>{ M.notes=notesBox.value; changed(); });
-  const auto=EG.autoNotes(doc); const eiBtn=h('button',{class:'btn small',type:'button'},'EI 출처 넣기'); eiBtn.addEventListener('click',()=>{ M.src='(Energy Institute)'; changed('opts'); });
+  const auto=EG.autoNotes(doc); const eiBtn=h('button',{class:'btn small',type:'button'},'EI 출처 넣기'); eiBtn.addEventListener('click',()=>{ M.src='Source: Energy Institute Statistical Review of World Energy (2025).'; changed('opts'); });
   P.append(sec('제목 · 연도 · 출처 · 주석',
     row('제목',txt(()=>M.title,v=>M.title=v,'예: <국가별 1차 에너지 소비 구조>','제목')),
     row('연도',txt(()=>M.year,v=>M.year=v,'예: (2024)','연도')),
