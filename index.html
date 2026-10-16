@@ -2157,6 +2157,7 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-item .idata .pfig{display:block;max-width:100%;height:auto;margin:4px auto;background:#fff}
 .t-item .idata .fignote{font-size:.85em;margin-top:4px}
 .t-item .iapp .btn[disabled]{opacity:.45;cursor:not-allowed}
+.t-item .ifig-btns{display:flex;gap:4px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -2992,7 +2993,7 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
       <label class="ino">문항 번호 <input type="number" id="iNo" min="1" max="30" value="1"></label>
       <button class="btn primary" id="iCopy" type="button" title="한글(HWP)·워드에 붙여 넣으면 밑줄도 따라가요">문항 복사</button>
       <button class="btn" id="iCopyStem" type="button">발문만 복사</button>
-      <button class="btn" id="iCopyFig" type="button" title="불러온 자료 그림을 PNG로 복사">자료 그림 복사</button>
+      <button class="btn" id="iCopyFig" type="button" title="불러온 첫 번째 자료 그림을 PNG로 복사(그림마다 복사·저장은 3단계 목록에 있어요)">첫 자료 그림 복사</button>
       <label class="check"><input type="checkbox" id="iShowAns" checked>정답 표시</label>
     </div>
     <div class="iscroll">
@@ -14340,11 +14341,11 @@ const FIG_ENGINE={climate:'GG',energy:'GG',religion:'GG',population:'GG',agricul
 const FIG_DPI=200;
 function figApi(id){ const A=typeof HUB!=='undefined'&&HUB.apis&&HUB.apis[id]; return A&&A.getDoc?A:null; }
 function blobUrl(b){ return new Promise((ok,no)=>{ const r=new FileReader(); r.onload=()=>ok(r.result); r.onerror=no; r.readAsDataURL(b); }); }
-async function pngOf(id,doc){
-  const E=FIG_ENGINE[id];
-  if(E==='GG'&&typeof GG!=='undefined') return GG.renderPng(doc,{dpi:FIG_DPI});
-  if(E==='WG'&&typeof WG!=='undefined') return WG.renderPng(doc,{dpi:FIG_DPI});
-  if(E==='LG'&&typeof LG!=='undefined') return LG.renderPng(doc,FIG_DPI);
+async function pngOf(id,doc,dpi){
+  const E=FIG_ENGINE[id]; dpi=dpi||FIG_DPI;
+  if(E==='GG'&&typeof GG!=='undefined') return GG.renderPng(doc,{dpi});
+  if(E==='WG'&&typeof WG!=='undefined') return WG.renderPng(doc,{dpi});
+  if(E==='LG'&&typeof LG!=='undefined') return LG.renderPng(doc,dpi);
   throw new Error('engine');
 }
 async function loadFig(id){
@@ -14362,6 +14363,18 @@ async function loadFig(id){
   }catch(e){ console.error(e); toast(`${name} 그림을 만들지 못했어요. 그 탭에서 자료가 보이는지 확인해 주세요.`); }
 }
 function removeFig(id){ figs=figs.filter(f=>f.id!==id); changed('step'); }
+async function copyOne(id){
+  const f=figs.find(x=>x.id===id); if(!f) return;
+  try{ await navigator.clipboard.write([new ClipboardItem({'image/png':f.blob})]); toast(`${f.name} 그림을 복사했어요. 한글·워드에 붙여 넣으세요.`); }
+  catch(e){ toast('이 브라우저에서는 복사가 막혀 있어요. ‘저장’을 눌러 PNG로 받아 주세요.'); }
+}
+async function saveOne(id){
+  const f=figs.find(x=>x.id===id); if(!f) return;
+  let blob=f.blob, note='';
+  try{ const A=figApi(id); const doc=A&&A.getDoc(); if(doc){ blob=await pngOf(id,doc,600); note=' (600 dpi, 그 탭의 지금 상태)'; } }catch(e){ note=' (화면 해상도)'; }
+  const a=h('a',{href:URL.createObjectURL(blob),download:`${f.name}_${+it.no||1}번.png`}); document.body.append(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },800);
+  toast(`${f.name} 그림을 PNG로 저장했어요${note}.`);
+}
 async function copyFig(){
   if(!figs.length){ toast('불러온 자료 그림이 없어요. 3단계에서 불러와 주세요.'); return; }
   try{ await navigator.clipboard.write([new ClipboardItem({'image/png':figs[0].blob})]); toast(figs.length>1?`첫 번째 그림(${figs[0].name})을 복사했어요. 한글·워드에 붙여 넣으세요.`:'자료 그림을 복사했어요. 한글·워드에 붙여 넣으세요.'); }
@@ -14374,11 +14387,11 @@ function figSection(){
     const b=h('button',{type:'button',class:'btn small',title:'지금 그 탭에 만들어 둔 그림을 가져와요'},have?`${name} 다시 불러오기`:`${name} 불러오기`);
     b.addEventListener('click',()=>loadFig(id)); row.append(b); }
   const list=h('div',{class:'ifigs'});
-  figs.forEach(f=>list.append(h('div',{class:'ifig'},h('img',{src:f.url,alt:`${f.name} 그림`}),h('div',{class:'ifig-info'},h('b',null,f.name),h('small',null,`${f.w}×${f.h} px`),(()=>{ const x=h('button',{type:'button',class:'btn small'},'빼기'); x.addEventListener('click',()=>removeFig(f.id)); return x; })()))));
+  figs.forEach(f=>list.append(h('div',{class:'ifig'},h('img',{src:f.url,alt:`${f.name} 그림`}),h('div',{class:'ifig-info'},h('b',null,f.name),h('small',null,`${f.w}×${f.h} px`),h('div',{class:'ifig-btns'},...[['복사',()=>copyOne(f.id)],['저장',()=>saveOne(f.id)],['빼기',()=>removeFig(f.id)]].map(([t,fn])=>{ const x=h('button',{type:'button',class:'btn small'},t); x.addEventListener('click',fn); return x; }))))));
   return sec('지금 만들고 있는 자료 불러오기',row,
     h('p',{class:'sub'},'다른 탭에서 만들고 있는 그래프·지도 그림을 그대로 가져와 시험지 미리 보기의 자료 자리에 넣어요. 그 탭에서 자료를 만든 뒤 눌러 주세요. 그 탭을 고친 뒤에는 ‘다시 불러오기’를 눌러 주세요.'),
     figs.length?list:null,
-    figs.length?h('p',{class:'sub'},'불러온 그림은 이 화면에만 있어요. 새로고침하거나 작업 파일로 저장하면 사라지니, 다시 불러와 주세요.'):null);
+    figs.length?h('p',{class:'sub'},'‘복사’는 한글·워드에 붙여 넣는 용, ‘저장’은 PNG 파일(600 dpi)로 받는 용이에요. 불러온 그림은 이 화면에만 있어서 새로고침하면 사라져요.'):null);
 }
 
 /* 3. 장면·자료 */
