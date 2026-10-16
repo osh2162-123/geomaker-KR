@@ -350,6 +350,8 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-mapedit .ans{margin-top:4px;font-size:13px;line-height:1.55;word-break:keep-all;overflow-wrap:anywhere}
 .t-mapedit .ans p{margin:2px 0}
 .t-mapedit .ans .ans-clue{color:var(--muted)}
+.t-mapedit .seqwarn{margin:2px 0 0;font-size:12px;line-height:1.45;color:var(--warn);background:var(--warn-soft);border-radius:6px;padding:5px 8px}
+.t-mapedit .seqwarn.soft{color:var(--muted);background:var(--pane-2)}
 .t-kmap{--bg:#e8e9e6; --pane:#f8f8f6; --pane-2:#efefeb; --desk:#c7ccd2;
   --ink:#1b1d20; --muted:#5d636a; --line:#d8d9d4; --line-2:#b7babd;
   --omr:#c3193f; --omr-soft:#f7e0e6; --on-omr:#ffffff;
@@ -560,6 +562,7 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-kmap .kgal .gal b{font-weight:600;color:var(--muted);font-size:10.5px;display:block}
 .t-kmap .kgal .gal .anc{color:var(--omr);font-size:10.5px}
 .t-kmap #kNote{line-height:1.45}
+.t-kmap .seqwarn{color:var(--warn);background:var(--warn-soft);border-radius:6px;padding:5px 8px}
 .t-kmap .kapp{grid-template-columns:52px minmax(0,1fr) 340px;grid-template-rows:auto minmax(0,1fr)}
 .t-kmap .kapp .top{padding:10px 0 0}
 .t-kmap .kapp .btn.icon{padding:6px 8px}
@@ -828,6 +831,7 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-landform .kgal .gal b{font-weight:600;color:var(--muted);font-size:10.5px;display:block}
 .t-landform .kgal .gal .anc{color:var(--omr);font-size:10.5px}
 .t-landform #kNote{line-height:1.45}
+.t-landform .seqwarn{color:var(--warn);background:var(--warn-soft);border-radius:6px;padding:5px 8px}
 .t-climate{--bg:#e8e9e6; --pane:#f8f8f6; --pane-2:#efefeb; --desk:#c7ccd2;
   --ink:#1b1d20; --muted:#5d636a; --line:#d8d9d4; --line-2:#b7babd;
   --omr:#c3193f; --omr-soft:#f7e0e6; --on-omr:#ffffff;
@@ -1844,13 +1848,322 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-agriculture .src-note{font-size:11.5px;color:var(--muted);line-height:1.5;margin:0}
 @media (max-width: 1180px){.t-agriculture .eapp{grid-template-columns:minmax(0,360px) minmax(0,1fr)}}
 @media (max-width: 760px){.t-agriculture .dtab-wrap{max-height:none}}
+.t-item{--bg:#e8e9e6; --pane:#f8f8f6; --pane-2:#efefeb; --desk:#c7ccd2;
+  --ink:#1b1d20; --muted:#5d636a; --line:#d8d9d4; --line-2:#b7babd;
+  --omr:#c3193f; --omr-soft:#f7e0e6; --on-omr:#ffffff;
+  --ok:#23704b; --ok-soft:#e2f1e8; --warn:#985800; --warn-soft:#f8ecd6; --err:#b3261e; --err-soft:#f9e1df;
+  --font-ui:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --font-exam:"Noto Serif KR","HY신명조","Batang",serif;
+  --r:6px;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .t-item{--bg:#131416; --pane:#1c1e21; --pane-2:#25282c; --desk:#2c3036;
+  --ink:#e6e7e9; --muted:#a1a6ad; --line:#2f3338; --line-2:#474c53;
+  --omr:#ff7390; --omr-soft:#3b1e26; --on-omr:#1b0b10;
+  --ok:#72d3a2; --ok-soft:#173327; --warn:#f0b45c; --warn-soft:#3a2a12; --err:#ff8a80; --err-soft:#3d1a18; color-scheme:dark}}
+:root[data-theme="dark"] .t-item{--bg:#131416; --pane:#1c1e21; --pane-2:#25282c; --desk:#2c3036;
+  --ink:#e6e7e9; --muted:#a1a6ad; --line:#2f3338; --line-2:#474c53;
+  --omr:#ff7390; --omr-soft:#3b1e26; --on-omr:#1b0b10;
+  --ok:#72d3a2; --ok-soft:#173327; --warn:#f0b45c; --warn-soft:#3a2a12; --err:#ff8a80; --err-soft:#3d1a18; color-scheme:dark}
+.t-item{height:100%}
+.t-item{background:var(--bg);color:var(--ink);font:14px/1.5 var(--font-ui);-webkit-font-smoothing:antialiased}
+.t-item *{box-sizing:border-box}
+.t-item button,.t-item input,.t-item select,.t-item textarea{font:inherit;color:inherit}
+.t-item :focus-visible{outline:2px solid var(--omr);outline-offset:1px}
+.t-item [hidden]{display:none!important}
+.t-item .gapp{height:100%;display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr) minmax(0,310px);grid-template-rows:auto minmax(0,1fr);gap:10px;padding:0 14px 14px}
+.t-item .top{grid-column:1/-1;display:flex;align-items:center;gap:14px;min-width:0;padding:10px 0 0;flex-wrap:wrap}
+.t-item .brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.t-item .brand h1{margin:0;font:700 18px/1.2 var(--font-exam);letter-spacing:-.01em;white-space:nowrap}
+.t-item .brand small{color:var(--muted);font-size:12px;white-space:nowrap}
+.t-item .top-actions{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.t-item .btn{border:1px solid var(--line-2);background:var(--pane);border-radius:var(--r);padding:6px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;line-height:1.2;text-decoration:none}
+.t-item .btn:hover{background:var(--pane-2)}
+.t-item .btn:disabled{opacity:.45;cursor:default}
+.t-item .btn.primary{background:var(--omr);border-color:var(--omr);color:var(--on-omr);font-weight:600}
+.t-item .btn.primary:hover{filter:brightness(1.05)}
+.t-item .btn.small{padding:3px 9px;font-size:12px}
+.t-item .filebtn{position:relative;overflow:hidden}
+.t-item .filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.t-item .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:6px;overflow:hidden;flex-wrap:nowrap;max-width:100%}
+.t-item .seg button{border:0;background:var(--pane);padding:4px 10px;cursor:pointer;font-size:13px;border-right:1px solid var(--line);white-space:nowrap}
+.t-item .seg button:last-child{border-right:0}
+.t-item .seg button[aria-pressed="true"]{background:var(--omr-soft);color:var(--omr);font-weight:600}
+.t-item .kinds button{padding:6px 12px;font-size:14px}
+.t-item .pane{background:var(--pane);border:1px solid var(--line);border-radius:10px;overflow:auto;min-height:0;display:flex;flex-direction:column}
+.t-item .sec{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.t-item .sec:last-child{border-bottom:0}
+.t-item .sec-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.t-item .sec-title{margin:0;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted)}
+.t-item .sec-head .seg{margin-left:auto}
+.t-item details.sec>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px}
+.t-item details.sec>summary::-webkit-details-marker{display:none}
+.t-item details.sec>summary::before{content:"▸";font-size:10px;color:var(--muted);transition:transform .15s}
+.t-item details.sec[open]>summary::before{transform:rotate(90deg)}
+@media (prefers-reduced-motion: reduce){.t-item details.sec>summary::before{transition:none}}
+.t-item .stlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.t-item .st{border-bottom:1px solid var(--line);background:var(--pane)}
+.t-item .st:last-child{border-bottom:0}
+.t-item .st.is-ref{background:var(--pane-2)}
+.t-item .st-row{display:grid;grid-template-columns:46px minmax(0,1fr) auto;column-gap:6px;row-gap:1px;align-items:center;padding:7px 8px 6px}
+.t-item .st-sum{grid-column:2/4}
+.t-item .st .lbl{width:46px;border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:3px 2px;text-align:center;font:600 13px/1.3 var(--font-exam)}
+.t-item .st .lbl:disabled{opacity:.6}
+.t-item .st .name{width:100%;border:1px solid transparent;background:transparent;border-radius:5px;padding:2px 4px;font-weight:600;min-width:0}
+.t-item .st .name:hover{border-color:var(--line)}
+.t-item .st .name:focus{border-color:var(--omr);background:var(--bg)}
+.t-item .st small{display:block;color:var(--muted);font-size:11px;padding:0 4px;font-variant-numeric:tabular-nums;line-height:1.45}
+.t-item .st-tools{display:flex;gap:2px;align-items:center}
+.t-item .ico{border:0;background:none;color:var(--muted);cursor:pointer;width:26px;height:26px;border-radius:5px;font-size:14px;line-height:1;display:inline-grid;place-items:center}
+.t-item .ico:hover{color:var(--ink);background:var(--pane-2)}
+.t-item .ico.x:hover{color:var(--omr)}
+.t-item .refbtn{border:1px solid var(--line-2);background:var(--pane);border-radius:999px;font-size:11px;padding:1px 8px;cursor:pointer;color:var(--muted);white-space:nowrap}
+.t-item .refbtn[aria-pressed="true"]{background:var(--omr-soft);border-color:var(--omr);color:var(--omr);font-weight:600}
+.t-item .st details{padding:0 8px 8px 60px}
+.t-item .st details summary{cursor:pointer;font-size:12px;color:var(--muted)}
+.t-item .mtab{width:100%;border-collapse:collapse;margin-top:6px;font-size:12px;font-variant-numeric:tabular-nums}
+.t-item .mtab th{font-weight:500;color:var(--muted);text-align:right;padding:1px 4px}
+.t-item .mtab th:first-child{text-align:left}
+.t-item .mtab td{padding:1px 2px}
+.t-item .mtab input{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:4px;padding:1px 4px;text-align:right;font-size:12px}
+.t-item .mtab input.bad{border-color:var(--err);background:var(--err-soft)}
+.t-item .empty{color:var(--muted);font-size:13px;margin:0;padding:10px;border:1px dashed var(--line-2);border-radius:8px;line-height:1.55}
+.t-item .paste textarea{width:100%;min-height:96px;resize:vertical;border:1px solid var(--line-2);border-radius:8px;background:var(--bg);padding:8px 10px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.t-item .paste textarea:focus{border-color:var(--omr)}
+.t-item .paste-row{display:flex;gap:6px;align-items:center}
+.t-item .paste-row input{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);border-radius:6px;padding:6px 8px}
+.t-item .msg{margin:0;font-size:12.5px;padding:7px 9px;border-radius:7px;line-height:1.5}
+.t-item .msg.ok{color:var(--ok);background:var(--ok-soft)}
+.t-item .msg.err{color:var(--err);background:var(--err-soft)}
+.t-item .msg.warn{color:var(--warn);background:var(--warn-soft)}
+.t-item .kbd-hint{margin-left:auto;color:var(--muted);font-size:11px;white-space:nowrap}
+.t-item .ask textarea{width:100%;min-height:70px;resize:vertical;border:1px solid var(--line-2);border-radius:8px;background:var(--bg);padding:8px 10px;line-height:1.5}
+.t-item .ask textarea:focus,.t-item .search input:focus{border-color:var(--omr)}
+.t-item .examples{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.t-item .ex{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:7px;padding:6px 9px;cursor:pointer;font-size:12.5px;line-height:1.45;color:var(--ink)}
+.t-item .ex:hover{border-color:var(--line-2);background:var(--pane-2)}
+.t-item .search{display:flex;flex-direction:column;gap:5px}
+.t-item .search input{width:100%;border:1px solid var(--line-2);background:var(--bg);border-radius:6px;padding:6px 8px}
+.t-item .results{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.t-item .results:empty{display:none}
+.t-item .results button{display:flex;width:100%;gap:8px;align-items:baseline;text-align:left;border:0;border-bottom:1px solid var(--line);background:var(--pane);padding:6px 9px;cursor:pointer;font-size:13px}
+.t-item .results li:last-child button{border-bottom:0}
+.t-item .results button:hover,.t-item .results button:focus-visible{background:var(--omr-soft)}
+.t-item .results small{color:var(--muted);font-size:11px;margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.t-item .help{font-size:12.5px;color:var(--muted);line-height:1.6}
+.t-item .help summary{cursor:pointer;color:var(--ink);font-weight:500}
+.t-item .help ol{margin:6px 0 0;padding-left:18px}
+.t-item .help a{color:var(--omr)}
+.t-item .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:28px}
+.t-item .row>.lab{width:74px;flex:none;color:var(--muted);font-size:13px}
+.t-item .row select,.t-item .row input[type=number],.t-item .row input[type=text]{border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:4px 6px;min-width:0}
+.t-item .row select{flex:1}
+.t-item .row input[type=text]{flex:1}
+.t-item .row input[type=number]{width:62px}
+.t-item .row input[type=range]{flex:1;min-width:80px;accent-color:var(--omr)}
+.t-item .row .val{min-width:40px;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}
+.t-item .row .unit{color:var(--muted);font-size:12px}
+.t-item .check{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
+.t-item .check input{accent-color:var(--omr);width:15px;height:15px;margin:0}
+.t-item .axis{display:grid;grid-template-columns:52px auto minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:5px;align-items:center}
+.t-item input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.t-item input[type=number]::-webkit-outer-spin-button,.t-item input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.t-item .axis .lab{color:var(--muted);font-size:13px}
+.t-item .axis input[type=number]{width:100%;border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:4px 5px;font-variant-numeric:tabular-nums}
+.t-item .axis input:disabled{opacity:.55}
+.t-item .axis-head{display:grid;grid-template-columns:52px 50px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:5px;font-size:11px;color:var(--muted)}
+.t-item .axis-head span:nth-child(n+3){padding-left:4px}
+.t-item .series{border:1px solid var(--line);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.t-item .series-head{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.t-item .series-head .ico{margin-left:auto}
+.t-item .hint{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.55;background:var(--pane-2)}
+.t-item .hint b{font-weight:600}
+.t-item .hint .copy{margin-top:6px}
+.t-item .note-area{width:100%;min-height:52px;resize:vertical;border:1px solid var(--line-2);border-radius:6px;background:var(--bg);padding:6px 8px;font-size:12.5px}
+.t-item .sub{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
+.t-item .lsty{display:grid;grid-template-columns:46px 1fr 1fr 1fr;gap:5px;align-items:center;font-size:12px}
+.t-item .lsty b{font:600 13px var(--font-exam)}
+.t-item .lsty select{border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:3px 4px;min-width:0;font-size:12px}
+.t-item .desk{position:relative;background:var(--desk);border-radius:10px;overflow:hidden;min-height:0;min-width:0;display:flex;flex-direction:column}
+.t-item .desk-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 12px;background:color-mix(in srgb,var(--pane) 88%,transparent);border-bottom:1px solid var(--line)}
+.t-item .desk-bar .info{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.t-item .canvas-wrap{position:relative;flex:1;min-height:0}
+.t-item .canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.t-item .desk-empty{position:absolute;inset:0;display:grid;place-items:center;padding:24px;pointer-events:none}
+.t-item .desk-empty div{max-width:340px;text-align:center;color:var(--ink);background:color-mix(in srgb,var(--pane) 92%,transparent);border:1px solid var(--line);border-radius:10px;padding:16px 18px;font-size:13.5px;line-height:1.6}
+.t-item .desk-empty b{display:block;font:600 16px/1.4 var(--font-exam);margin-bottom:4px}
+.t-item .desk-warn{margin:0;padding:7px 12px;font-size:12.5px;color:var(--warn);background:var(--warn-soft);border-bottom:1px solid var(--line)}
+.t-item .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--pane);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:calc(100% - 32px);z-index:20}
+.t-item .toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){.t-item .toast{transition:none}}
+@media (max-width: 1180px){.t-item{height:auto}
+.t-item .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(440px,calc(100vh - 120px)) auto;height:auto;min-height:100%}
+.t-item .opts{grid-column:1/-1;max-height:none;overflow:visible}}
+@media (max-width: 760px){.t-item{height:auto}
+.t-item .gapp{display:flex;flex-direction:column;height:auto;padding:0 16px 16px}
+.t-item .top{gap:10px}
+.t-item .brand small{display:none}
+.t-item .kinds{width:100%;overflow-x:auto}
+.t-item .kinds button{flex:1;padding:6px 8px;font-size:13px}
+.t-item .desk{order:1;height:58vh;min-height:320px}
+.t-item .data{order:2}
+.t-item .opts{order:3}
+.t-item .pane{overflow:visible}}
+.t-item .mapsend{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line-2);display:flex;flex-direction:column;gap:6px}
+.t-item .mapsend .ms-title{margin:0;font-size:13px;font-weight:600}
+.t-item .mapsend select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);color:inherit;border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
+.t-item .mapsend .ms-chk{flex:1;display:flex;align-items:center;gap:6px;font-size:13px}
+.t-item .mapsend a.btn{text-decoration:none;white-space:nowrap}
+.t-item .iapp{grid-template-columns:minmax(0,380px) minmax(0,1fr) minmax(0,330px)}
+.t-item .iapp .top{row-gap:8px}
+.t-item .isteps{display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-width:0}
+.t-item .istep-b{border:1px solid var(--line-2);background:var(--pane);border-radius:999px;padding:4px 10px 4px 6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap;color:var(--muted)}
+.t-item .istep-b .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--pane-2);font:600 12px/1 var(--font-ui);color:var(--ink)}
+.t-item .istep-b.done .n{background:var(--ok-soft);color:var(--ok)}
+.t-item .istep-b[aria-current="step"]{border-color:var(--omr);color:var(--ink);background:var(--omr-soft)}
+.t-item .istep-b[aria-current="step"] .n{background:var(--omr);color:var(--on-omr)}
+.t-item .istep-b:hover{background:var(--pane-2)}
+.t-item .ileft{display:flex;flex-direction:column}
+.t-item .istep{flex:1;overflow:auto;min-height:0}
+.t-item .inav{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;border-top:1px solid var(--line);background:var(--pane)}
+.t-item .ihead{padding:12px 14px 4px}
+.t-item .ihead h2{margin:0;font:700 16px/1.35 var(--font-exam)}
+.t-item .ihead p{margin:4px 0 0;font-size:12.5px;color:var(--muted);line-height:1.55}
+.t-item .ifld{display:flex;flex-direction:column;gap:5px}
+.t-item .ifld>label,.t-item .ifld>.lab{font-size:12px;font-weight:600;color:var(--muted)}
+.t-item .ifld textarea,.t-item .ifld input[type=text],.t-item .ifld select{width:100%;border:1px solid var(--line-2);background:var(--bg);border-radius:6px;padding:6px 8px;min-width:0;line-height:1.5}
+.t-item .ifld textarea{resize:vertical;min-height:44px;font-family:var(--font-exam);font-size:13.5px}
+.t-item .ifld .sub{margin:0}
+.t-item .iapp .seg.wrap{flex-wrap:wrap}
+.t-item .iapp .seg.wrap button{flex:1 0 auto}
+.t-item .istd{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.t-item .istd li{border:1px solid var(--line);border-radius:8px;background:var(--pane);cursor:pointer;padding:8px 10px;display:flex;flex-direction:column;gap:3px}
+.t-item .istd li:hover{border-color:var(--line-2)}
+.t-item .istd li[aria-checked="true"]{border-color:var(--omr);background:var(--omr-soft)}
+.t-item .istd .code{font:600 12px/1.3 var(--font-ui);color:var(--omr);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.t-item .istd .txt{font:13px/1.55 var(--font-exam);color:var(--ink)}
+.t-item .badge{display:inline-flex;align-items:center;border-radius:999px;padding:0 7px;font:500 11px/18px var(--font-ui);background:var(--pane-2);color:var(--muted);white-space:nowrap}
+.t-item .badge.hot{background:var(--ok-soft);color:var(--ok)}
+.t-item .badge.warn{background:var(--warn-soft);color:var(--warn)}
+.t-item .ichips{display:flex;flex-wrap:wrap;gap:5px}
+.t-item .ichip{border:1px solid var(--line-2);background:var(--pane);border-radius:999px;padding:3px 10px;font-size:12.5px;cursor:pointer;text-align:left;line-height:1.4}
+.t-item .ichip:hover{background:var(--pane-2)}
+.t-item a.ichip{text-decoration:none;color:var(--ink)}
+.t-item .ichip small{color:var(--muted);margin-left:4px}
+.t-item .ilist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.t-item .ilist li{padding:7px 9px;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.5;display:flex;gap:8px;align-items:flex-start}
+.t-item .ilist li:last-child{border-bottom:0}
+.t-item .ilist .grow{flex:1;min-width:0}
+.t-item .ilist .meta{color:var(--muted);font-size:11.5px}
+.t-item .ilist button{flex:none}
+.t-item .ilist li.col{flex-direction:column;gap:3px}
+.t-item .igroup{border:1px solid var(--line);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--pane)}
+.t-item .igroup-head{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.t-item .igroup-head select,.t-item .igroup-head input{border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:3px 6px;min-width:0}
+.t-item .igroup-head input[type=number]{width:52px}
+.t-item .igroup-head input[type=text]{flex:1;min-width:70px}
+.t-item .inames{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 6px;align-items:center}
+.t-item .inames b{font:600 13px/1 var(--font-exam);text-align:center;min-width:34px}
+.t-item .inames input{border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:3px 6px;min-width:0}
+.t-item .istm{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.t-item .istm li{border:1px solid var(--line);border-radius:8px;background:var(--pane);padding:6px 8px;display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:6px;align-items:start}
+.t-item .istm .lbl{font:600 14px/26px var(--font-exam);text-align:center}
+.t-item .istm textarea{width:100%;border:1px solid transparent;background:transparent;border-radius:5px;padding:3px 5px;font:13.5px/1.5 var(--font-exam);resize:vertical;min-height:30px}
+.t-item .istm textarea:hover{border-color:var(--line)}
+.t-item .istm textarea:focus{border-color:var(--omr);background:var(--bg)}
+.t-item .istm .tools{display:flex;gap:2px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:112px}
+.t-item .istm .why{grid-column:2/4;font-size:11.5px;color:var(--muted);margin:-2px 0 0 5px}
+.t-item .istm .why.warn{color:var(--warn)}
+.t-item .tf{border:1px solid var(--line-2);background:var(--pane);border-radius:5px;min-width:28px;height:26px;font:600 13px/1 var(--font-ui);cursor:pointer}
+.t-item .tf[data-v="1"]{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.t-item .tf[data-v="0"]{background:var(--err-soft);color:var(--err);border-color:var(--err)}
+.t-item .kind{font:500 10.5px/18px var(--font-ui);color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;white-space:nowrap}
+.t-item .icands{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.t-item .icands li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:6px;padding:6px 8px;border-bottom:1px solid var(--line);align-items:start;font-size:13px}
+.t-item .icands li:last-child{border-bottom:0}
+.t-item .icands .ox{font:700 13px/22px var(--font-ui);text-align:center;border-radius:4px}
+.t-item .icands .ox.o{color:var(--ok);background:var(--ok-soft)}
+.t-item .icands .ox.x{color:var(--err);background:var(--err-soft)}
+.t-item .icands .t{font-family:var(--font-exam);line-height:1.5}
+.t-item .icands .w{display:block;font-size:11px;color:var(--muted);font-family:var(--font-ui)}
+.t-item .icands .w.warn{color:var(--warn)}
+.t-item .icands li.used{opacity:.45}
+.t-item .ifilter{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.t-item .iapp .ifld .ifilter select{width:auto;flex:1 1 28%;border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:3px 6px}
+.t-item .idesk{background:var(--desk)}
+.t-item .iscroll{flex:1;overflow:auto;padding:22px 18px 30px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.t-item .ipaper{width:min(560px,100%);background:#ffffff;color:#000000;border-radius:2px;box-shadow:0 3px 14px rgba(0,0,0,.22);padding:26px 28px 24px;font:14.5px/1.75 "Noto Serif KR","HY신명조","Batang",serif;word-break:keep-all}
+.t-item .ipaper .q{margin:0}
+.t-item .ipaper .q b{font-weight:700;margin-right:4px}
+.t-item .ipaper u{text-underline-offset:3px}
+.t-item .ipaper .pts{white-space:nowrap}
+.t-item .ipaper .idata{margin:12px 0;border:1px dashed #9aa0a6;border-radius:4px;padding:12px;color:#5f6368;font:12.5px/1.6 "IBM Plex Sans KR",system-ui,sans-serif;text-align:center}
+.t-item .ipaper .idata table{margin:6px auto 0;border-collapse:collapse;font:12px/1.4 "Noto Serif KR",serif;color:#000}
+.t-item .ipaper .idata td,.t-item .ipaper .idata th{border:1px solid #777;padding:2px 6px;text-align:center}
+.t-item .ipaper .bogi{border:1px solid #000;margin:12px 0 10px;padding:14px 14px 8px;position:relative}
+.t-item .ipaper .bogi::before{content:"<보 기>";position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#fff;padding:0 8px;font-size:13.5px}
+.t-item .ipaper .bogi p{margin:0 0 4px;padding-left:1.6em;text-indent:-1.6em}
+.t-item .ipaper .stu p{margin:0 0 3px}
+.t-item .ipaper .iopts{display:grid;grid-template-columns:repeat(5,auto);justify-content:space-between;column-gap:10px;margin-top:8px}
+.t-item .ipaper .iopts.long{grid-template-columns:1fr}
+.t-item .ipaper .iopts.long p{padding-left:1.5em;text-indent:-1.5em}
+.t-item .ipaper .iopts p{margin:0}
+.t-item .ipaper .ans{color:#c3193f;font-weight:700}
+.t-item .ipaper .ifind{border-collapse:collapse;margin-top:8px}
+.t-item .ipaper .ifind th{font-weight:400;padding:0 14px 2px;text-decoration:underline;text-underline-offset:3px}
+.t-item .ipaper .ifind td{padding:1px 14px;text-align:center}
+.t-item .ipaper .ifind td:first-child{padding-left:0;text-align:left}
+.t-item .ipaper .ph{color:#9aa0a6;font-style:italic}
+.t-item .ipaper .empty-q{color:#80868b;font:13px/1.6 "IBM Plex Sans KR",system-ui,sans-serif;text-align:center;padding:30px 0}
+.t-item .icard{width:min(560px,100%);background:var(--pane);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.55}
+.t-item .icard h3{margin:0 0 6px;font-size:11px;letter-spacing:.08em;color:var(--muted)}
+.t-item .icard dl{margin:0;display:grid;grid-template-columns:86px minmax(0,1fr);gap:4px 10px}
+.t-item .icard dt{color:var(--muted)}
+.t-item .icard dd{margin:0}
+.t-item .iside-head{padding:10px 12px}
+.t-item .iside-body{display:flex;flex-direction:column;overflow:auto;min-height:0}
+.t-item .ichk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.t-item .ichk li{font-size:12.5px;line-height:1.5;padding:6px 8px;border-radius:7px;display:flex;gap:6px}
+.t-item .ichk li::before{flex:none;font-weight:700;width:14px;text-align:center}
+.t-item .ichk li.ok{background:var(--ok-soft);color:var(--ok)}
+.t-item .ichk li.ok::before{content:"✓"}
+.t-item .ichk li.warn{background:var(--warn-soft);color:var(--warn)}
+.t-item .ichk li.warn::before{content:"!"}
+.t-item .ichk li.err{background:var(--err-soft);color:var(--err)}
+.t-item .ichk li.err::before{content:"✕"}
+.t-item .ichk li.info{background:var(--pane-2);color:var(--ink)}
+.t-item .ichk li.info::before{content:"i";color:var(--muted)}
+.t-item .ichk li small{display:block;color:var(--muted);font-size:11px}
+.t-item .imanual{display:flex;flex-direction:column;gap:5px}
+.t-item .imanual label{display:flex;gap:7px;align-items:flex-start;font-size:12.5px;line-height:1.5;cursor:pointer}
+.t-item .imanual input{accent-color:var(--omr);margin-top:3px;flex:none}
+.t-item .igich li{flex-direction:column;gap:2px}
+.t-item .igich .stem{font-family:var(--font-exam);font-size:12.5px}
+.t-item .igich details summary{cursor:pointer;color:var(--muted);font-size:11.5px}
+.t-item .igich details ol{margin:4px 0 0;padding-left:18px;font-family:var(--font-exam);font-size:12px}
+.t-item .isrc{font-size:11px;color:var(--muted);line-height:1.5;margin:0}
+@media (max-width: 1180px){.t-item .iapp{grid-template-columns:minmax(0,360px) minmax(0,1fr)}
+.t-item .iapp .iside{grid-column:1/-1}
+.t-item .iapp .idesk{min-height:520px}}
+@media (max-width: 760px){.t-item .iapp .idesk{height:auto;min-height:0;order:2}
+.t-item .iapp .ileft{order:1}
+.t-item .iapp .iside{order:3}
+.t-item .ipaper{padding:18px 16px;font-size:14px}
+.t-item .ipaper .iopts{grid-template-columns:repeat(3,auto)}
+.t-item .isteps{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}}
+.t-item .ifigs{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.t-item .ifig{display:flex;gap:10px;align-items:center;padding:6px;border:1px solid var(--line,#d8d8d8);border-radius:6px}
+.t-item .ifig img{width:96px;height:auto;max-height:80px;object-fit:contain;background:#fff;border:1px solid var(--line,#ddd)}
+.t-item .ifig-info{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.t-item .idata.hasfig{padding:6px;text-align:center}
+.t-item .idata .pfig{display:block;max-width:100%;height:auto;margin:4px auto;background:#fff}
+.t-item .idata .fignote{font-size:.85em;margin-top:4px}
+.t-item .iapp .btn[disabled]{opacity:.45;cursor:not-allowed}
 </style>
 </head>
 <body>
 <div class="hub">
   <header class="hub-top">
     <div class="hub-brand"><span class="hub-mark" aria-hidden="true"></span><h1>지리 자료 제작기</h1></div>
-    <nav class="hub-tabs" role="tablist" aria-label="도구"><div class="hub-group" role="presentation"><span class="hub-gl" aria-hidden="true">백지도</span><button type="button" class="hub-tab" role="tab" id="hub-tab-mapquick" aria-controls="hub-tool-mapquick" aria-selected="false" tabindex="-1" aria-label="백지도 자동 생성기">자동 생성</button><button type="button" class="hub-tab" role="tab" id="hub-tab-mapedit" aria-controls="hub-tool-mapedit" aria-selected="false" tabindex="-1" aria-label="백지도 편집기">편집기</button><button type="button" class="hub-tab" role="tab" id="hub-tab-kmap" aria-controls="hub-tool-kmap" aria-selected="false" tabindex="-1" aria-label="한국지리 백지도">한국지리</button></div><div class="hub-group" role="presentation"><span class="hub-gl" aria-hidden="true">모식도</span><button type="button" class="hub-tab" role="tab" id="hub-tab-landform" aria-controls="hub-tool-landform" aria-selected="false" tabindex="-1" aria-label="지형 모식도 편집기">지형</button></div><div class="hub-group" role="presentation"><span class="hub-gl" aria-hidden="true">그래프</span><button type="button" class="hub-tab" role="tab" id="hub-tab-climate" aria-controls="hub-tool-climate" aria-selected="false" tabindex="-1" aria-label="기후 그래프 편집기">기후</button><button type="button" class="hub-tab" role="tab" id="hub-tab-energy" aria-controls="hub-tool-energy" aria-selected="false" tabindex="-1" aria-label="에너지 그래프 편집기">에너지</button><button type="button" class="hub-tab" role="tab" id="hub-tab-religion" aria-controls="hub-tool-religion" aria-selected="false" tabindex="-1" aria-label="종교 그래프 편집기">종교</button><button type="button" class="hub-tab" role="tab" id="hub-tab-population" aria-controls="hub-tool-population" aria-selected="false" tabindex="-1" aria-label="인구 그래프 편집기">인구</button><button type="button" class="hub-tab" role="tab" id="hub-tab-agriculture" aria-controls="hub-tool-agriculture" aria-selected="false" tabindex="-1" aria-label="농업 그래프 편집기">농업</button></div></nav>
+    <nav class="hub-tabs" role="tablist" aria-label="도구"><div class="hub-group" role="presentation"><span class="hub-gl" aria-hidden="true">백지도</span><button type="button" class="hub-tab" role="tab" id="hub-tab-mapquick" aria-controls="hub-tool-mapquick" aria-selected="false" tabindex="-1" aria-label="백지도 자동 생성기">자동 생성</button><button type="button" class="hub-tab" role="tab" id="hub-tab-mapedit" aria-controls="hub-tool-mapedit" aria-selected="false" tabindex="-1" aria-label="백지도 편집기">편집기</button><button type="button" class="hub-tab" role="tab" id="hub-tab-kmap" aria-controls="hub-tool-kmap" aria-selected="false" tabindex="-1" aria-label="한국지리 백지도">한국지리</button></div><div class="hub-group" role="presentation"><span class="hub-gl" aria-hidden="true">모식도</span><button type="button" class="hub-tab" role="tab" id="hub-tab-landform" aria-controls="hub-tool-landform" aria-selected="false" tabindex="-1" aria-label="지형 모식도 편집기">지형</button></div><div class="hub-group" role="presentation"><span class="hub-gl" aria-hidden="true">그래프</span><button type="button" class="hub-tab" role="tab" id="hub-tab-climate" aria-controls="hub-tool-climate" aria-selected="false" tabindex="-1" aria-label="기후 그래프 편집기">기후</button><button type="button" class="hub-tab" role="tab" id="hub-tab-energy" aria-controls="hub-tool-energy" aria-selected="false" tabindex="-1" aria-label="에너지 그래프 편집기">에너지</button><button type="button" class="hub-tab" role="tab" id="hub-tab-religion" aria-controls="hub-tool-religion" aria-selected="false" tabindex="-1" aria-label="종교 그래프 편집기">종교</button><button type="button" class="hub-tab" role="tab" id="hub-tab-population" aria-controls="hub-tool-population" aria-selected="false" tabindex="-1" aria-label="인구 그래프 편집기">인구</button><button type="button" class="hub-tab" role="tab" id="hub-tab-agriculture" aria-controls="hub-tool-agriculture" aria-selected="false" tabindex="-1" aria-label="농업 그래프 편집기">농업</button></div><div class="hub-group" role="presentation"><span class="hub-gl" aria-hidden="true">문항</span><button type="button" class="hub-tab" role="tab" id="hub-tab-item" aria-controls="hub-tool-item" aria-selected="false" tabindex="-1" aria-label="문항 설계">설계</button></div></nav>
     <div class="hub-actions"><label class="hub-btn" title="이 통합판에서 저장한 작업 파일을 알맞은 탭으로 열어요">작업 파일 열기<input type="file" id="hubOpen" accept=".json,application/json"></label></div>
   </header>
   <main class="hub-main">
@@ -1863,6 +2176,7 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 <div class="tool t-religion" id="hub-tool-religion" role="tabpanel" aria-labelledby="hub-tab-religion" hidden></div>
 <div class="tool t-population" id="hub-tool-population" role="tabpanel" aria-labelledby="hub-tab-population" hidden></div>
 <div class="tool t-agriculture" id="hub-tool-agriculture" role="tabpanel" aria-labelledby="hub-tab-agriculture" hidden></div>
+<div class="tool t-item" id="hub-tool-item" role="tabpanel" aria-labelledby="hub-tab-item" hidden></div>
     <div class="hub-wait" id="hubWait" hidden></div>
   </main>
   <footer class="hub-foot"><button type="button" class="hub-link" id="hubInstall" hidden>앱으로 설치</button><span>지리 자료 제작기 · 승현이 Claude(Anthropic)와 협업해 만들었습니다</span><a href="guide.html" target="_blank" rel="noopener">사용 안내</a><a href="licenses.html" target="_blank" rel="noopener">출처·라이선스</a></footer>
@@ -2024,6 +2338,8 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
           <p class="note">지금 지도에서 바다 위 빈자리를 찾아 넣어요. 넣은 뒤에는 끌어서 옮길 수 있어요.</p>
         </details>
         <div class="row"><label for="grat">경위선망</label><select id="grat"><option value="0">없음</option><option value="10">10° 간격</option><option value="15">15° 간격</option><option value="20">20° 간격</option><option value="30">30° 간격</option></select></div>
+        <div class="row"><label for="scaleSel">축척 막대</label><select id="scaleSel"><option value="none">없음</option><option value="auto">자동 위치</option><option value="bl">왼쪽 아래</option><option value="br">오른쪽 아래</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option></select></div>
+        <p class="seqwarn" id="scaleWarn" role="note" hidden></p>
         <div class="checks"><label class="check" title="경위선망을 켠 북극 중심 지도에서 30°N·60°N을 경선을 따라 적고, 0° 경선 끝에 0°를 적어요"><input type="checkbox" id="lyPolarLbl">북극 중심 지도에 위도·0° 글자</label></div>
       </section>
       <section class="grp"><h3>가장자리 눈금</h3>
@@ -2063,8 +2379,9 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
       </section>
       <section class="grp"><h3>새 라벨</h3>
         <div class="row"><label for="seqSel">순서</label><select id="seqSel" class="grow">
-          <option value="latin">A, B, C …</option><option value="gana">(가), (나), (다) …</option><option value="circ">㉠, ㉡, ㉢ …</option>
+          <option value="latin">A, B, C …</option><option value="gana">(가), (나), (다) …</option><option value="circ">㉠, ㉡, ㉢ …</option><option value="mk">㉮, ㉯, ㉰ …</option>
           <option value="jamo">ㄱ, ㄴ, ㄷ …</option><option value="num">1, 2, 3 …</option><option value="lower">a, b, c …</option></select></div>
+        <p class="seqwarn" id="seqWarn" role="note" hidden></p>
         <div class="row"><span class="lab">놓는 위치</span><div class="grid9" id="placeGrid" aria-label="새 라벨 위치"></div><span class="unit" id="placeName"></span></div>
         <label class="check"><input type="checkbox" id="shadeAuto">음영 국가에도 라벨 자동으로 붙이기</label>
       </section>
@@ -2075,6 +2392,7 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
       <section class="grp"><h3>기호 · 정답</h3>
         <div class="row"><label for="relabelMode">기호 순서</label><select id="relabelMode" class="grow"><option value="cw">12시부터 시계 방향</option><option value="ccw">12시부터 시계 반대 방향</option><option value="we">서쪽부터(왼쪽 → 오른쪽)</option><option value="ns">북쪽부터(위 → 아래)</option><option value="shuffle">섞기</option><option value="none">기호 지우기(점만)</option></select><button class="btn" id="relabelBtn" type="button">다시 매기기</button></div>
         <div class="ans" id="ansBox"><p class="note">기호를 붙인 항목이 없어요.</p></div>
+        <a class="btn" id="itemSendBtn" href="#open:item" hidden title="기호와 정답 지명을 ‘문항 설계’ 탭으로 넘겨요">이 기호로 문항 설계</a>
       </section>
       <section class="grp"><h3>모든 항목</h3><div class="list" id="itemList"></div></section>
     </div>
@@ -2342,6 +2660,11 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
         <div class="paste-row"><label class="ms-chk" id="msRefRow"><input type="checkbox" id="msRef" checked>기준 지점도 찍기</label>
           <a class="btn primary" id="mapSendBtn" href="#open:mapquick">지도 만들기</a></div>
         <p class="sub" id="msNote">세계지리 백지도 ‘자동 생성’ 탭에서 같은 지점·같은 기호로 지도를 만들어요.</p>
+      </div>
+      <div class="mapsend" id="itemSend" hidden>
+        <h3 class="ms-title">이 지점으로 문항 만들기</h3>
+        <p class="sub">‘문항 설계’ 탭으로 기호·지점·수치를 넘겨, 수치로 참·거짓을 판정한 선지 후보와 발문을 만들어요.</p>
+        <div class="paste-row"><a class="btn" id="itemSendBtn" href="#open:item">문항 설계로</a></div>
       </div>
     </section>
 
@@ -2645,6 +2968,46 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
   <aside class="pane opts" aria-label="그래프 설정" id="opts"></aside>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+</template>
+<template id="hub-tpl-item">
+<div class="gapp iapp">
+  <header class="top">
+    <div class="brand"><h1>문항 설계</h1><small>성취기준에서 시작해 발문·자료·선지까지</small></div>
+    <nav class="isteps" id="iSteps" aria-label="설계 단계"></nav>
+    <div class="top-actions">
+      <button class="btn" id="iSave" type="button">작업 저장</button>
+      <label class="btn filebtn">작업 불러오기<input type="file" id="iLoad" accept=".json,application/json"></label>
+      <button class="btn" id="iNew" type="button" title="설계를 모두 지우고 새 문항으로">새 문항</button>
+    </div>
+  </header>
+
+  <aside class="pane data ileft" aria-label="설계 단계">
+    <div id="iStep" class="istep"></div>
+    <div class="inav"><button class="btn" id="iPrev" type="button">이전 단계</button><button class="btn primary" id="iNext" type="button">다음 단계</button></div>
+  </aside>
+
+  <main class="desk idesk" aria-label="문항 미리 보기">
+    <div class="desk-bar">
+      <label class="ino">문항 번호 <input type="number" id="iNo" min="1" max="30" value="1"></label>
+      <button class="btn primary" id="iCopy" type="button" title="한글(HWP)·워드에 붙여 넣으면 밑줄도 따라가요">문항 복사</button>
+      <button class="btn" id="iCopyStem" type="button">발문만 복사</button>
+      <button class="btn" id="iCopyFig" type="button" title="불러온 자료 그림을 PNG로 복사">자료 그림 복사</button>
+      <label class="check"><input type="checkbox" id="iShowAns" checked>정답 표시</label>
+    </div>
+    <div class="iscroll">
+      <article class="ipaper" id="iPaper" aria-label="시험지 모양 미리 보기"></article>
+      <section class="icard" id="iCard" aria-label="설계 카드"></section>
+    </div>
+  </main>
+
+  <aside class="pane opts iside" aria-label="점검과 기출">
+    <div class="sec iside-head">
+      <div class="seg" id="iSideSeg" role="group" aria-label="오른쪽 보기"><button type="button" data-v="check">점검</button><button type="button" data-v="gichul">같은 성취기준 기출</button></div>
+    </div>
+    <div id="iSideBody" class="iside-body"></div>
+  </aside>
+</div>
 
 </template>
 <script>
@@ -6241,8 +6604,8 @@ const norm=s=>String(s||'').replace(/\s+/g,'').replace(/[()（）]/g,'').toLower
 
 /* ───────── 문서 ───────── */
 const SEQS={latin:['A','B','C','D','E','F','G','H','I','J'],gana:['(가)','(나)','(다)','(라)','(마)','(바)','(사)','(아)','(자)','(차)'],
-  circ:['㉠','㉡','㉢','㉣','㉤','㉥','㉦','㉧','㉨','㉩'],num:['1','2','3','4','5','6','7','8','9','10'],low:['a','b','c','d','e','f','g','h','i','j']};
-const SEQ_KO={latin:'A, B, C …',gana:'(가), (나) …',circ:'㉠, ㉡ …',num:'1, 2, 3 …',low:'a, b, c …'};
+  circ:['㉠','㉡','㉢','㉣','㉤','㉥','㉦','㉧','㉨','㉩'],mk:['㉮','㉯','㉰','㉱','㉲','㉳','㉴','㉵','㉶','㉷'],num:['1','2','3','4','5','6','7','8','9','10'],low:['a','b','c','d','e','f','g','h','i','j']};
+const SEQ_KO={latin:'A, B, C …',gana:'(가), (나) …',circ:'㉠, ㉡ …',mk:'㉮, ㉯ …',num:'1, 2, 3 …',low:'a, b, c …'};
 function freshDoc(app){
   return {app:app||'landform',v:1,page:{auto:true,w:120,h:80,margin:1.5},base:null,items:[],
     style:{serif:'hysm',gothic:'hyjg',latin:'times',size:10,lw:0.15},seq:{set:'latin',next:0},gen:null,meta:{notes:''}};
@@ -7270,6 +7633,7 @@ const SEQS={
  lower:'abcdefghijklmnopqrstuvwxyz'.split(''),
  gana:['가','나','다','라','마','바','사','아','자','차','카','타','파','하'].map(s=>`(${s})`),
  circ:'㉠㉡㉢㉣㉤㉥㉦㉧㉨㉩㉪㉫㉬㉭'.split(''),
+ mk:'㉮㉯㉰㉱㉲㉳㉴㉵㉶㉷㉸㉹㉺㉻'.split(''),
  jamo:'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ'.split(''),
  num:Array.from({length:40},(_,i)=>String(i+1))
 };
@@ -7352,7 +7716,7 @@ function applyPreset(d,p){
 /* ───────── 문서 ───────── */
 function freshDoc(presetId){
   const d={v:1,preset:presetId,view:{},frame:{w:46,h:45},
-    layers:{borders:true,lakes:true,dokdo:true,polarLbl:true,grat:0,lines:{eq:false,tr:false,ac:false},rivers:[],major:false,detail:'auto',zone:{belts:{A:'off',B:'off',C:'off',D:'off',E:'off'},tone:{},only:[]},plates:{on:false,typed:true,names:true},relief:{on:false,show:{shield:true,old:true,new:true},only:[],tone:{},names:false},legend:'bl'},
+    layers:{borders:true,lakes:true,dokdo:true,polarLbl:true,grat:0,lines:{eq:false,tr:false,ac:false},rivers:[],major:false,detail:'auto',zone:{belts:{A:'off',B:'off',C:'off',D:'off',E:'off'},tone:{},only:[]},plates:{on:false,typed:true,names:true},relief:{on:false,show:{shield:true,old:true,new:true},only:[],tone:{},names:false},legend:'bl',scale:'none'},
     ticks:[],
     style:{font:'hysm',latin:'same',fontPt:9,dot:1.2,ring:1.5,line:1,sea:229,seaK:0.8,shade:178,seq:'latin',place:'l',shadeAuto:true},
     items:[]};
@@ -7975,11 +8339,48 @@ function drawOverlay(doc,ctx,P,fw,fh){
   ctx.restore();
   const lg=drawLegend(doc,ctx,fw,fh);   // 범례를 먼저 놓고, 산지·판 이름은 범례와 겹치면 뺀다
   const nb=lg?[{x:lg.x-0.5,y:lg.y-0.5,w:lg.w+1,h:lg.h+1}]:[];
+  const sb=drawScale(doc,ctx,P,fw,fh,lg,geoms); if(sb) nb.push(sb);
   drawReliefNames(doc,ctx,P,fw,fh,nb);
   drawPlateNames(doc,ctx,P,fw,fh,nb);
   drawTicks(doc,ctx,P,fw,fh);
   drawPolarLabels(doc,ctx,P,fw,fh);
   return geoms;
+}
+/* ───────── 축척 막대 ─────────
+   경기도교육청 「평가문항 제작 방법(지리)」: 전도(세계·대륙 규모)를 뺀 지도에는 축척을 적는다.
+   길이는 지도 가운데 가로줄의 실제 거리(대권 거리)로 정한다. 위아래로 축척 차이가 크면(세계 전도 등) scaleInfo().vary 가 커진다 */
+function niceKm(x){ const p=Math.pow(10,Math.floor(Math.log10(x))); for(const m of [5,2,1]) if(m*p<=x) return m*p; return p; }
+function scaleInfo(doc,P,fw,fh){
+  P=P||makeProj(doc.view,fw||doc.frame.w,fh||doc.frame.h); fw=fw||doc.frame.w; fh=fh||doc.frame.h;
+  const at=y=>{ const a=P.invert([fw*0.4,y]), b=P.invert([fw*0.6,y]); if(!a||!b||!isFinite(a[0])||!isFinite(b[0])) return NaN; return d3.geoDistance(a,b)*6371/(fw*0.2); };
+  const c=at(fh/2); if(!isFinite(c)||c<=0) return null;
+  const vs=[at(fh*0.1),at(fh*0.9)].filter(isFinite); const vary=vs.length?Math.max(...vs.map(v=>Math.abs(v-c)))/c:0;
+  return {kmPerMm:c,vary};
+}
+function scaleLayout(doc,P,fw,fh,lg,geoms){
+  const pos=doc.layers.scale; if(!pos||pos==='none') return null;
+  const si=scaleInfo(doc,P,fw,fh); if(!si) return null;
+  const km=niceKm(si.kmPerMm*Math.max(fw*0.25,12)), len=km/si.kmPerMm;   /* 막대는 12 mm 이상 */
+  const fs=doc.style.fontPt*MMPT*0.75, tk=0.7, kmTxt=String(km).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  probe.font=`${fs}px ${fontStack(doc,false)}`; const tw=probe.measureText(kmTxt).width/2+0.3+probe.measureText('km').width;
+  const W=len+tw+1.4, H=fs*0.95+tk+1.3, m=1.2;
+  const box=k=>({x:k[1]==='l'?m:fw-m-W,y:k[0]==='t'?m:fh-m-H,w:W,h:H});
+  const hit=r=>{ let s=0; if(lg&&!(r.x+r.w<lg.x||lg.x+lg.w<r.x||r.y+r.h<lg.y||lg.y+lg.h<r.y)) s+=10;
+    for(const g of geoms||[]){ const p=g.a; if(p&&isFinite(p[0])&&p[0]>r.x-2&&p[0]<r.x+r.w+2&&p[1]>r.y-2&&p[1]<r.y+r.h+2) s+=3; } return s; };
+  let k=pos; if(pos==='auto'){ k=['bl','br','tl','tr'].map(c=>[c,hit(box(c))]).sort((a,b)=>a[1]-b[1])[0][0]; }
+  const b=box(k); return Object.assign(b,{km,kmTxt,len,fs,tk,vary:si.vary,corner:k});
+}
+function drawScale(doc,ctx,P,fw,fh,lg,geoms){
+  const S=scaleLayout(doc,P,fw,fh,lg,geoms); if(!S) return null;
+  const L=doc.style.line, x0=S.x+0.6, y=S.y+S.h-0.55, ty=y-S.tk-0.35;
+  ctx.save(); ctx.fillStyle='#ffffff'; ctx.fillRect(S.x,S.y,S.w,S.h);
+  ctx.strokeStyle='#000000'; ctx.lineCap='butt'; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x0+S.len,y); ctx.lineWidth=0.26*L; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x0,y-S.tk); ctx.moveTo(x0+S.len,y); ctx.lineTo(x0+S.len,y-S.tk); ctx.lineWidth=0.12*L; ctx.stroke();
+  ctx.fillStyle='#000000'; ctx.font=`${S.fs}px ${fontStack(doc,false)}`; ctx.textBaseline='alphabetic';
+  ctx.textAlign='center'; ctx.fillText('0',x0,ty); ctx.fillText(S.kmTxt,x0+S.len,ty);
+  ctx.textAlign='left'; ctx.fillText('km',x0+S.len+ctx.measureText(S.kmTxt).width/2+0.3,ty);
+  ctx.restore(); return {x:S.x,y:S.y,w:S.w,h:S.h};
 }
 function tickBoxes(doc,ctx,P,fw,fh){
   const out=[]; if(!PROJS[doc.view.proj].cyl||!doc.ticks.length) return out;
@@ -8440,6 +8841,7 @@ async function specToDoc(spec,opts){
   const ln=spec.lines||{}; doc.layers.lines={eq:!!ln.equator,tr:!!ln.tropics,ac:!!ln.polar};
   { const z=spec.zone; doc.layers.zone=normZone(z);
     const lg=spec.legend||(z&&z.legend); doc.layers.legend=ZONE_LEGEND.includes(lg)?lg:'bl';
+    if(['none','auto','bl','br','tl','tr'].includes(spec.scale)) doc.layers.scale=spec.scale;
     const pl=spec.plates; doc.layers.plates=pl&&pl.on?{on:true,typed:pl.typed!==false,names:pl.names!==false}:{on:false,typed:true,names:true};
     doc.layers.relief=normRelief(spec.relief); }
   if(doc.layers.relief.on&&doc.layers.relief.only.length) await loadRelief().catch(()=>{});
@@ -8608,7 +9010,7 @@ function docToSpec(doc){
     lines:{equator:!!doc.layers.lines.eq,tropics:!!doc.layers.lines.tr,polar:!!doc.layers.lines.ac},borders:doc.layers.borders,
     zone:zoneOn(doc)?doc.layers.zone:null,
     plates:doc.layers.plates&&doc.layers.plates.on?{on:true,typed:doc.layers.plates.typed,names:doc.layers.plates.names}:null,
-    relief:doc.layers.relief&&doc.layers.relief.on?doc.layers.relief:null,legend:doc.layers.legend,grat:doc.layers.grat||0};
+    relief:doc.layers.relief&&doc.layers.relief.on?doc.layers.relief:null,legend:doc.layers.legend,scale:doc.layers.scale||'none',grat:doc.layers.grat||0};
   const sn=doc.items.filter(it=>it.sea&&SEAS[it.name]).map(it=>it.name); if(sn.length) s.seas={oceans:false,names:sn};
   for(const it of doc.items){
     if(it.sea) continue;
@@ -8652,7 +9054,7 @@ function matchThing(t,ctx){
   return null;
 }
 function parseRules(q){
-  const spec={region:null,labelSeq:null,points:[],countries:[],areas:[],rivers:[],lines:{equator:false,tropics:false,polar:false},borders:null,zone:null,plates:null,relief:null,legend:null};
+  const spec={region:null,labelSeq:null,points:[],countries:[],areas:[],rivers:[],lines:{equator:false,tropics:false,polar:false},borders:null,zone:null,plates:null,relief:null,legend:null,scale:null};
   const unknown=[];
   let s=String(q||'').replace(/[“”"'‘’「」『』]/g,' ');
   // 바다 이름: '해양 이름'(대양 다섯), '지중해·홍해 이름'(그 바다만)
@@ -8672,6 +9074,7 @@ function parseRules(q){
     if(re.test(s)){ spec.noLbl=true; s=s.replace(new RegExp(re.source,'g'),' '); } }
   if(/\([가나다라마바사]\)|[가나다라]\)?\s*[~\-–]\s*\(?[가나다라]\)/.test(s)) spec.labelSeq='gana';
   else if(/[㉠-㉭]/.test(s)) spec.labelSeq='circ';
+  else if(/[㉮-㉻]/.test(s)) spec.labelSeq='mk';
   else if(/(^|[^가-힣])[ㄱ-ㅎ]\s*[,~\-–]\s*[ㄱ-ㅎ]/.test(s)) spec.labelSeq='jamo';
   else if(/(^|[^A-Za-z])[a-e]\s*[~\-–]\s*[a-e]([^A-Za-z]|$)/.test(s)) spec.labelSeq='lower';
   else if(/(^|\s)[1-9]\s*[~\-–]\s*[1-9]\s*(번|으로|로)?(\s|$)/.test(s)) spec.labelSeq='num';
@@ -8682,6 +9085,7 @@ function parseRules(q){
   if(/극권/.test(s)) spec.lines.polar=true;
   s=s.replace(/(적도|북회귀선|남회귀선|회귀선|북극권|남극권|극권)(을|를|도|과|와|이|가|선)?/g,' ');
   // 범례 자리(기후 지역·판의 경계 공통)
+  if(/축척/.test(s)) spec.scale=/축척\s*(없이|빼|없게|지워)/.test(s)?'none':'auto';
   if(/범례/.test(s)) spec.legend=/범례\s*(없이|빼|없게|지워)/.test(s)?'none':/범례[^,.]{0,8}(밖|바깥)[^,.]{0,6}아래/.test(s)?'outB':/범례[^,.]{0,8}(밖|바깥)/.test(s)?'outR':/범례[^,.]{0,6}오른쪽\s*위/.test(s)?'tr':/범례[^,.]{0,6}왼쪽\s*위/.test(s)?'tl':/범례[^,.]{0,6}오른쪽/.test(s)?'br':'bl';
   // 판의 경계: '판의 경계'·'판 경계'·'판 구조'. '유형 구분 없이'면 한 가지 선, '판 이름 없이'면 이름을 뺀다
   if(/판\s*의?\s*경계|판\s*구조|수렴\s*경계|발산\s*경계|보존\s*경계/.test(s)){
@@ -8832,7 +9236,7 @@ function buildPrompt(q,current){
 - 하천을 그려 달라고 하면 rivers에 아래 하천 목록의 이름을 그대로 쓴다.
 - 바다 이름을 넣어 달라고 하면 seas에 {"oceans":true(태평양·대서양·인도양·북극해·남극해 가운데 지도에 들어오는 것),"names":[이름 목록]}. names는 ${SEA_NAMES.join('·')} 중에서만.
 - label: 교사가 정한 라벨을 그대로 쓴다. 정하지 않았으면 null로 두면 언급 순서대로 붙는다.
-- labelSeq: latin(A,B,C) | gana((가),(나)) | circ(㉠,㉡) | jamo(ㄱ,ㄴ) | num(1,2) | lower(a,b) 중 하나.
+- labelSeq: latin(A,B,C) | gana((가),(나)) | circ(㉠,㉡) | mk(㉮,㉯) | jamo(ㄱ,ㄴ) | num(1,2) | lower(a,b) 중 하나.
 - marker: dot(검은 점, 기본) | ring(속 빈 원) | none(글자만).
 - region: 아래 지역 목록 중 표시할 것이 모두 들어가는 가장 좁은 것. 맞는 것이 없으면 null(자동으로 범위를 잡는다).
 - 설명으로 장소를 가리키면(예: "라인강 하구의 석유 화학 항구 도시") 해당 장소를 추론해서 넣는다.
@@ -8842,6 +9246,7 @@ function buildPrompt(q,current){
 - relief: 습곡 산지·안정 육괴를 칠할 때 {"on":true,"show":{"shield":bool,"old":bool,"new":bool},"only":[산맥 id 목록, 비우면 전부],"names":bool}. id: appalachian, ural, scandinavian, greatdividing, drakensberg(고기) / rocky, sierramadre, andes, alps, pyrenees, carpathian, dinaric, atlas, caucasus, zagros, hindukush, himalaya, southernalps(신기) / canadian, guiana, brazilian, siberian, deccan, australian, baltic, african, arabian(안정 육괴). 요청이 없으면 null.
 - plates: 판의 경계를 그릴 때 {"on":true,"typed":true(수렴·발산·보존 선 모양 구분)|false,"names":true(큰 판 이름)|false}. 요청이 없으면 null.
 - legend: 범례 자리 bl(왼쪽 아래)|br|tl|tr|outR(지도 밖 오른쪽)|outB(지도 밖 아래)|none. 기후 지역·판의 경계가 있을 때만 쓰인다. 정하지 않았으면 null.
+- scale: 축척 막대 auto|bl|br|tl|tr|none. 세계·대륙 전도가 아닌 지역 지도에서 ‘축척’을 말하면 auto. 정하지 않았으면 null.
 - zone: 쾨펜 기후 지역을 칠할 때 {"belts":{"A":"off|one|mid|detail","B":…,"C":…,"D":…,"E":…},"only":[갈래 키, 비우면 전부],"tone":{갈래 키:"light|mid|dark|hatch|hatch2|cross|dots"}}. A 열대·B 건조·C 온대·D 냉대·E 한대. one=기후대 하나로(키 A~E), mid=교과서 기후(키 Af 열대 우림, Am 열대 몬순, Aw 사바나, BW 사막, BS 스텝, Cs 지중해성, Cw 온대 겨울 건조, Cfa 온난 습윤, Cfbc 서안 해양성, Df 냉대 습윤, Dw 냉대 겨울 건조, Ds 냉대 여름 건조, ET 툰드라, EF 빙설), detail=쾨펜 기호(키는 기호 그대로, 예: Cfb). 특정 기후만 요청하면 그 키만 only에. 요청이 없으면 null.
 - order: 기호를 위치 순서로 다시 붙일 때 cw(12시부터 시계 방향)|ccw(시계 반대 방향)|we(서쪽부터)|ns(북쪽부터). 정하지 않았으면 null.
 - grat: 경위선망 간격(도) 0|10|15|20|30. 정하지 않았으면 null(북극 중심 지도는 30). noLbl: true면 점에 기호를 붙이지 않는다(‘지도에 표시된 지역 중 하나’ 유형).
@@ -8859,7 +9264,7 @@ function buildPrompt(q,current){
 """${String(q).slice(0,4000)}"""`;
 }
 
-return {clean,fitItems,relabelItems,answerKey,placeSeas,SEA_NAMES,OCEANS,seaLabel,sheetExtra,legendLayout,ZONE_BELTS,ZB,ZONE_LEVELS,zoneOn,normZone,loadRelief,reliefList,RELIEF_CAT,RELIEF_TONE,loadPlates,PLATE_STYLE,ZONE_LEGEND,ZONE_LABEL,ZONE_TONES,ZONE_TONE,zoneGroups,loadZones,MMPT,M,clamp,r3,uid,esc,norm,RAD,RIVERS,RIVER_OF,resolveRiver,KO_FIX,FONTS,userFont,fontDef,fontStack,fontInstalled,fontAvailable,needsWebFallback,labelText,ensureGlyphs,
+return {scaleInfo,niceKm,clean,fitItems,relabelItems,answerKey,placeSeas,SEA_NAMES,OCEANS,seaLabel,sheetExtra,legendLayout,ZONE_BELTS,ZB,ZONE_LEVELS,zoneOn,normZone,loadRelief,reliefList,RELIEF_CAT,RELIEF_TONE,loadPlates,PLATE_STYLE,ZONE_LEGEND,ZONE_LABEL,ZONE_TONES,ZONE_TONE,zoneGroups,loadZones,MMPT,M,clamp,r3,uid,esc,norm,RAD,RIVERS,RIVER_OF,resolveRiver,KO_FIX,FONTS,userFont,fontDef,fontStack,fontInstalled,fontAvailable,needsWebFallback,labelText,ensureGlyphs,
   SEQS,nextLabel,seqOfLabel,PROJS,kxOf,PRESETS,presetById,makeProj,fitView,applyPreset,freshDoc,normalizeDoc,
   geo,LODS,onData,loadLod,anyGeo,degAcross,wantLod,G,currentLodName,ensureGeo,
   loadPlaces,searchPlaces,exactPlaces,resolvePlace,findCountry,searchCountries,
@@ -8870,11 +9275,461 @@ return {clean,fitItems,relabelItems,answerKey,placeSeas,SEA_NAMES,OCEANS,seaLabe
 
 </script>
 <script>
+/* 문항 설계 엔진: 성취기준·기출 태그 조회, 발문 조립, 기후 자료로 선지 참·거짓 판정, 답지 구성, 문항 점검
+   규칙 출처: 경기도교육청 「2024 평가문항 제작 방법(지리)」(발문·자료·<보기>·선택지 작성 원리, 검토 관점)
+   기출 수치: 2024~2027학년도 6월·9월 모의평가와 수능 세계지리 11회 220문항 */
+const IT=(function(){
+'use strict';
+let D=null, K=null;
+function setData(d){ D=d; }
+function setKice(k){ K=k; }
+const fin=Number.isFinite;
+const sum=a=>a.reduce((s,x)=>s+x,0), avg=a=>sum(a)/a.length;
+
+/* ───────── 한국어 ───────── */
+function batchim(w){
+  const s=String(w||'').replace(/[\s)\]」』'"’”.]+$/,'');
+  const c=s.slice(-1); if(!c) return false; const code=c.charCodeAt(0);
+  if(code>=0xAC00&&code<=0xD7A3) return (code-0xAC00)%28!==0;
+  if(/[ㄱ-ㅎ㉠-㉭]/.test(c)) return true;            /* 기역, 니은 … */
+  if(/[㉮-㉻]/.test(c)) return false;                  /* 가, 나 … */
+  if(/[A-Za-z]/.test(c)) return /[LMNRlmnr]/.test(c);   /* 엘, 엠, 엔, 알 */
+  if(/\d/.test(c)) return /[013678]/.test(c);
+  if(c==='℃') return false; if(c==='%') return false;
+  return false;
+}
+function rieul(w){ const s=String(w||'').replace(/[\s)\]」』'"’”.]+$/,''); const code=s.slice(-1).charCodeAt(0); return code>=0xAC00&&code<=0xD7A3&&(code-0xAC00)%28===8; }
+/* josa('(가)','은는') → '는' */
+function josa(w,pair){
+  const b=batchim(w);
+  switch(pair){
+    case '은는': return b?'은':'는';
+    case '이가': return b?'이':'가';
+    case '을를': return b?'을':'를';
+    case '과와': return b?'과':'와';
+    case '으로로': return b&&!rieul(w)?'으로':'로';
+    case '이다': return b?'이다':'이다';
+    default: return '';
+  }
+}
+const W=(w,p)=>w+josa(w,p);
+const koSort=a=>a.slice().sort((x,y)=>x.localeCompare(y,'ko'));
+
+/* ───────── 기호 ───────── */
+const SEQ={
+  gana:['가','나','다','라','마','바','사','아','자','차'].map(s=>`(${s})`),
+  latin:'ABCDEFGHIJKL'.split(''),
+  circ:'㉠㉡㉢㉣㉤㉥㉦㉧㉨㉩'.split(''),
+  mk:'㉮㉯㉰㉱㉲㉳㉴㉵㉶㉷'.split(''),
+  jamo:'ㄱㄴㄷㄹㅁㅂㅅㅇ'.split(''),
+  num:Array.from({length:12},(_,i)=>String(i+1)),
+  stu:['갑','을','병','정','무'],
+};
+const SEQ_NAME={gana:'(가), (나), (다)',latin:'A, B, C',circ:'㉠, ㉡, ㉢',mk:'㉮, ㉯, ㉰',jamo:'ㄱ, ㄴ, ㄷ',num:'1, 2, 3'};
+function seqOf(l){ for(const [k,s] of Object.entries(SEQ)) if(s.includes(l)) return k; return null; }
+function seqIdx(l){ const k=seqOf(l); return k?SEQ[k].indexOf(l):99; }
+function orderLabels(ls){ return ls.slice().sort((a,b)=>{ const ka=Object.keys(SEQ).indexOf(seqOf(a)), kb=Object.keys(SEQ).indexOf(seqOf(b)); return ka-kb||seqIdx(a)-seqIdx(b); }); }
+/* 기호 범위: 셋 이상이고 이어지면 ‘(가)～(라)’, 아니면 쉼표 */
+const TILDE='～';
+function rangeOf(ls){
+  ls=orderLabels(ls.filter(Boolean)); if(!ls.length) return ''; if(ls.length<=2) return ls.join(', ');
+  const k=seqOf(ls[0]); const S=k?SEQ[k]:null;
+  const cont=S&&ls.every((l,i)=>seqOf(l)===k&&S.indexOf(l)===S.indexOf(ls[0])+i);
+  return cont?`${ls[0]}${TILDE}${ls[ls.length-1]}`:ls.join(', ');
+}
+function seqList(k,n){ return (SEQ[k]||SEQ.gana).slice(0,n); }
+
+/* ───────── 단서 조항 ─────────
+   groups: [{labels:['(가)','(나)'], names:['브라질','칠레']}] → ‘(단, (가), (나)는 각각 브라질, 칠레 중 하나임.)’
+   여러 묶음은 ‘… 중 하나이고, … 중 하나임.’ */
+function condSentence(groups,extra){
+  const parts=[];
+  for(const g of groups||[]){
+    if(g.cond===false) continue;
+    const ls=(g.labels||[]).filter(Boolean), ns=(g.names||[]).map(s=>String(s).trim()).filter(Boolean);
+    if(ls.length<2||ns.length<2) continue;
+    const r=rangeOf(ls); parts.push(`${r}${josa(orderLabels(ls).slice(-1)[0],'은는')} 각각 ${koSort(ns).join(', ')} 중 하나`);
+  }
+  const ex=String(extra||'').trim().replace(/^\(?\s*단,\s*/,'').replace(/[.)\s]+$/,'').replace(/임$/,'');
+  if(ex) parts.push(ex);
+  if(!parts.length) return '';
+  return '(단, '+parts.map((p,i)=>i<parts.length-1?p+'이고,':p+'임.').join(' ')+')';
+}
+
+/* ───────── 발문 ───────── */
+const SCENES=[
+  {k:'none',name:'자료만 제시',ind:''},
+  {k:'class',name:'수업 장면',ind:'다음은 세계지리 수업 장면이다.'},
+  {k:'online',name:'온라인 수업',ind:'다음은 세계지리 온라인 수업 장면이다.'},
+  {k:'trip',name:'답사 계획·안내',ind:'다음 자료는 답사 계획의 일부이다.'},
+  {k:'talk',name:'두 학생의 대화',ind:'다음은 여행 계획에 관한 두 학생 간 대화의 일부이다.'},
+  {k:'report',name:'수행 평가 보고서',ind:'다음 자료는 세계지리 수행 평가 보고서의 일부이다.'},
+  {k:'news',name:'기사·뉴스',ind:'다음 자료는 ○○ 관련 기사의 일부이다.'},
+  {k:'docu',name:'다큐멘터리·방송 대본',ind:'다음은 ○○을/를 소개하는 다큐멘터리 대본의 일부이다.'},
+  {k:'quiz',name:'퀴즈·게임',ind:'다음은 세계지리 낱말 퀴즈의 일부이다.'},
+  {k:'post',name:'게시물·메시지',ind:'다음 자료는 ○○을/를 여행한 학생의 온라인 게시물이다.'},
+  {k:'sheet',name:'평가지·질문지',ind:'다음은 세계지리 수행 평가지이다.'},
+  {k:'pick',name:'조건으로 대상 고르기',ind:'다음 자료를 토대로 ○○을/를 선정하고자 한다.'},
+];
+const DKINDS=[
+  {k:'graph',name:'그래프',noun:'그래프'},{k:'table',name:'표',noun:'표'},{k:'map',name:'지도',noun:'지도'},
+  {k:'text',name:'글',noun:'글'},{k:'photo',name:'사진·그림',noun:'자료'},{k:'mixed',name:'여러 자료',noun:'자료'},
+];
+const FORMS=[
+  {k:'one',name:'정답형',tail:'옳은 것은?'},
+  {k:'neg',name:'부정형',tail:'옳지 않은 것은?'},
+  {k:'bogi',name:'합답형',tail:'옳은 것만을 <보기>에서 고른 것은?'},
+  {k:'bogiAny',name:'합답형(있는 대로)',tail:'옳은 것만을 <보기>에서 있는 대로 고른 것은?'},
+  {k:'find',name:'찾기형',tail:'고른 것은?'},
+  {k:'stu',name:'학생형',tail:'교사의 질문에 옳게 답한 학생만을 고른 것은?'},
+  {k:'score',name:'채점형',tail:'학생이 받게 될 점수로 옳은 것은?'},
+  {k:'best',name:'최선답형',tail:'가장 적절한 것은?'},
+];
+const formOf=k=>FORMS.find(f=>f.k===k)||FORMS[0];
+/* 간접 발문: 장면 문장 또는 ‘그래프는 …을 나타낸 것이다.’ */
+function indirectStem(it){
+  const sc=SCENES.find(s=>s.k===it.scene)||SCENES[0];
+  if(sc.k!=='none') return sc.ind;
+  const about=String(it.about||'').trim(); if(!about) return '';
+  if(it.dk==='graph'||it.dk==='table'||it.dk==='map') return `${{graph:'그래프',table:'표',map:'지도'}[it.dk]}는 ${about}${josa(about,'을를')} 나타낸 것이다.`;
+  if(it.dk==='text') return `다음 글은 ${about}에 관한 것이다.`;
+  return `다음 자료는 ${about}에 관한 것이다.`;
+}
+/* 직접 발문의 앞부분: ‘(가)～(라) 지역에 대한 설명으로’ 또는 ‘이에 대한 설명으로’ */
+function refPhrase(it){
+  const g=(it.groups||[])[0]||{labels:[]}; const r=rangeOf(g.labels||[]); const tg=String(it.target||'').trim();
+  const hasInd=!!indirectStem(it);
+  if(it.refMode==='this'&&hasInd) return '이에 대한 설명으로';
+  const lead=hasInd?'':({graph:'그래프의 ',table:'표의 ',map:'지도의 ',text:'다음 글의 ',photo:'다음 자료의 ',mixed:'다음 자료의 '}[it.dk]||'');
+  if(!r) return hasInd?'이에 대한 설명으로':`${lead.replace(/의 $/,'')}에 대한 설명으로`.replace(/^에/,'이에');
+  return `${lead}${r}${tg?' '+tg:''}에 대한 설명으로`;
+}
+function directStem(it){
+  const f=formOf(it.form); const g=(it.groups||[]); const r0=rangeOf((g[0]||{}).labels||[]); const tg=String(it.target||'').trim();
+  if(f.k==='find'){
+    const r1=rangeOf((g[1]||{}).labels||[]); const pickFrom=String(it.pickFrom||'').trim()||(r1?`지도의 ${r1}`:'<보기>');
+    const what=tg?`${r0}에 해당하는 ${W(tg,'을를')}`:`${r0}${josa(r0||'가','을를')}`;
+    return `${what} ${pickFrom}에서 고른 것은?`.replace(/\s+/g,' ').trim();
+  }
+  if(f.k==='stu') return it.anyCount?'교사의 질문에 옳게 답한 학생만을 있는 대로 고른 것은?':'교사의 질문에 옳게 답한 학생만을 고른 것은?';
+  if(f.k==='score') return '학생이 받게 될 점수로 옳은 것은?';
+  if(f.k==='best') return `${refPhrase(it).replace(/설명으로$/,'내용으로')} 가장 적절한 것은?`;
+  return `${refPhrase(it)} ${f.tail}`;
+}
+function stemParts(it){
+  const ind=it.indEdit!=null&&it.indEdit!==''?it.indEdit:indirectStem(it);
+  const dir=it.dirEdit!=null&&it.dirEdit!==''?it.dirEdit:directStem(it);
+  const cond=it.condOn===false?'':condSentence(it.groups||[],it.condExtra);
+  return {ind,dir,cond,pts:it.pts===3?'[3점]':''};
+}
+function stemText(it){ const p=stemParts(it); return [p.ind,p.dir,p.cond,p.pts].filter(Boolean).join(' '); }
+
+/* ───────── 쾨펜 기후 구분(보조) ─────────
+   우리 교과서 기준: 최한월 18℃(A), -3℃(C/D), 최난월 10℃(E). 건조 한계는 연평균 기온과 강수 계절성으로 계산(Peel 외 2007 방식).
+   고산 기후(H)는 판별하지 않는다(해발 고도를 보고 사람이 판단) */
+const KNAME={Af:'열대 우림 기후',Am:'열대 몬순 기후',Aw:'사바나 기후',As:'사바나 기후',BW:'사막 기후',BS:'스텝 기후',
+  Cfa:'온난 습윤 기후',Cfb:'서안 해양성 기후',Cfc:'서안 해양성 기후',Cs:'지중해성 기후',Cw:'온대 겨울 건조 기후',
+  Df:'냉대 습윤 기후',Dw:'냉대 겨울 건조 기후',Ds:'냉대 습윤 기후',ET:'툰드라 기후',EF:'빙설 기후'};
+const GNAME={A:'열대 기후',B:'건조 기후',C:'온대 기후',D:'냉대 기후',E:'한대 기후'};
+function koppen(t,p,lat){
+  if(!t||!p||t.length!==12||p.length!==12||!t.every(fin)||!p.every(fin)) return null;
+  const Tmin=Math.min(...t), Tmax=Math.max(...t), Tann=avg(t), Pann=sum(p);
+  const nh=!(lat<0); const S=nh?[3,4,5,6,7,8]:[9,10,11,0,1,2], Wi=nh?[9,10,11,0,1,2]:[3,4,5,6,7,8];
+  const Ps=sum(S.map(i=>p[i])), Pw=sum(Wi.map(i=>p[i]));
+  const Pth=20*Tann+(Ps>=0.7*Pann?280:Pw>=0.7*Pann?0:140);
+  let code;
+  if(Tmax<10) code=Tmax>0?'ET':'EF';
+  else if(Pann<Pth) code=Pann<Pth/2?'BW':'BS';
+  else if(Tmin>=18){ const Pd=Math.min(...p); code=Pd>=60?'Af':Pd>=100-Pann/25?'Am':'Aw'; }
+  else {
+    const C=Tmin>-3; const sp=S.map(i=>p[i]), wp=Wi.map(i=>p[i]);
+    const second=(Math.min(...sp)<40&&Math.min(...sp)<Math.max(...wp)/3)?'s':(Math.min(...wp)<Math.max(...sp)/10)?'w':'f';
+    if(C) code=second==='f'?(Tmax>=22?'Cfa':(t.filter(x=>x>=10).length>=4?'Cfb':'Cfc')):'C'+second;
+    else code='D'+second;
+  }
+  const key=KNAME[code]?code:code.slice(0,2);
+  return {code,group:code[0],name:KNAME[key]||KNAME[code.slice(0,2)]||code,gname:GNAME[code[0]]};
+}
+/* 천문: 15일 기준 태양 적위(°) */
+const DECL=[-21.3,-13.3,-2.4,9.4,18.8,23.3,21.5,13.8,2.2,-9.6,-19.1,-23.3];
+function noonAlt(lat,m){ const d=DECL[m-1]; let a=90-Math.abs(lat-d); if(a>90) a=180-a; return a; }
+function dayLen(lat,m){ const d=DECL[m-1]*Math.PI/180, f=lat*Math.PI/180; const x=-Math.tan(f)*Math.tan(d); if(x<=-1) return 24; if(x>=1) return 0; return 24*Math.acos(x)/Math.PI; }
+
+/* ───────── 기후 자료 선지 후보 ───────── */
+function summerShare(s,which){ const nh=!(s.lat<0); const idx=(which==='sum')===nh?[5,6,7]:[11,0,1]; const P=sum(s.p); return P>0?sum(idx.map(i=>s.p[i]))/P*100:NaN; }
+const CM=[
+  {k:'tR',noun:'기온의 연교차',adj:'크다',attr:'큰',unit:'℃',tol:1.5,f:s=>Math.max(...s.t)-Math.min(...s.t)},
+  {k:'tY',noun:'연평균 기온',adj:'높다',attr:'높은',unit:'℃',tol:1,f:s=>avg(s.t)},
+  {k:'tMin',noun:'최한월 평균 기온',adj:'높다',attr:'높은',unit:'℃',tol:1,f:s=>Math.min(...s.t)},
+  {k:'tMax',noun:'최난월 평균 기온',adj:'높다',attr:'높은',unit:'℃',tol:1,f:s=>Math.max(...s.t)},
+  {k:'t1',noun:'1월 평균 기온',adj:'높다',attr:'높은',unit:'℃',tol:1,f:s=>s.t[0]},
+  {k:'t7',noun:'7월 평균 기온',adj:'높다',attr:'높은',unit:'℃',tol:1,f:s=>s.t[6]},
+  {k:'pY',noun:'연 강수량',adj:'많다',attr:'많은',unit:'mm',rel:0.1,tol:30,f:s=>sum(s.p)},
+  {k:'p1',noun:'1월 강수량',adj:'많다',attr:'많은',unit:'mm',rel:0.15,tol:10,f:s=>s.p[0]},
+  {k:'p7',noun:'7월 강수량',adj:'많다',attr:'많은',unit:'mm',rel:0.15,tol:10,f:s=>s.p[6]},
+  {k:'rSum',noun:'여름 강수 집중률',adj:'높다',attr:'높은',unit:'%',tol:3,f:s=>summerShare(s,'sum'),note:'여름은 북반구 6~8월, 남반구 12~2월로 보고 계산했어요. 반구가 섞이면 발문에 이 기준을 적어 주세요.'},
+  {k:'rWin',noun:'겨울 강수 집중률',adj:'높다',attr:'높은',unit:'%',tol:3,f:s=>summerShare(s,'win'),note:'겨울은 북반구 12~2월, 남반구 6~8월로 보고 계산했어요. 반구가 섞이면 발문에 이 기준을 적어 주세요.'},
+  {k:'lat',noun:'위도',special:'lat',unit:'°',tol:2,f:s=>Math.abs(s.lat)},
+  {k:'day1',noun:'1월 낮 길이',adj:'길다',attr:'긴',unit:'시간',tol:0.3,f:s=>dayLen(s.lat,1)},
+  {k:'day7',noun:'7월 낮 길이',adj:'길다',attr:'긴',unit:'시간',tol:0.3,f:s=>dayLen(s.lat,7)},
+  {k:'sun1',noun:'1월 정오의 태양 고도',adj:'높다',attr:'높은',unit:'°',tol:2,f:s=>noonAlt(s.lat,1)},
+  {k:'sun7',noun:'7월 정오의 태양 고도',adj:'높다',attr:'높은',unit:'°',tol:2,f:s=>noonAlt(s.lat,7)},
+  {k:'elev',noun:'해발 고도',adj:'높다',attr:'높은',unit:'m',tol:100,rel:0.1,f:s=>fin(s.elev)?s.elev:NaN},
+];
+const fmt=(v,u)=>!fin(v)?'—':u==='mm'||u==='m'?Math.round(v).toLocaleString('ko-KR')+u:u==='시간'?v.toFixed(1)+u:(Math.round(v*10)/10)+u;
+function closeOf(m,a,b){ const d=Math.abs(a-b); if(m.rel) return d<Math.max(m.tol,Math.max(Math.abs(a),Math.abs(b))*m.rel); return d<m.tol; }
+function needs(m,s){ if(/^(lat|day|sun)/.test(m.k)) return fin(s.lat); if(m.k==='elev') return fin(s.elev); return s.t.every(fin)&&s.p.every(fin); }
+/* st: [{l:'(가)', name, t:[12], p:[12], lat, elev}] → 후보 진술 목록 */
+function climateStmts(st){
+  st=(st||[]).filter(s=>s&&s.l&&Array.isArray(s.t)&&Array.isArray(s.p)); const out=[]; if(!st.length) return out;
+  const L=st.map(s=>s.l); const all=rangeOf(L); let n=0; const id=()=>'c'+(++n);
+  const add=o=>out.push(Object.assign({id:id(),src:'auto'},o));
+  /* 단독: 반구, 기후 구분, 기준값 */
+  for(const s of st){
+    if(fin(s.lat)){ const south=s.lat<0;
+      add({kind:'단독',grp:'위치',text:`${W(s.l,'은는')} 남반구에 위치한다.`,truth:south,why:`위도 ${fmtLat(s.lat)}`});
+      add({kind:'단독',grp:'위치',text:`${W(s.l,'은는')} 북반구에 위치한다.`,truth:!south,why:`위도 ${fmtLat(s.lat)}`}); }
+    const kp=koppen(s.t,s.p,s.lat);
+    if(kp){ const others=[...new Set(st.map(x=>koppen(x.t,x.p,x.lat)).filter(Boolean).map(x=>x.name))].filter(x=>x!==kp.name);
+      add({kind:'단독',grp:'기후 구분',text:`${W(s.l,'은는')} ${kp.name} 지역에 속한다.`,truth:true,why:`쾨펜 계산값 ${kp.code}`,warn:fin(s.elev)&&s.elev>=1500?'해발 고도가 높아 고산 기후로 볼 여지가 있어요. 사람이 확인해 주세요.':''});
+      for(const o of others.slice(0,2)) add({kind:'단독',grp:'기후 구분',text:`${W(s.l,'은는')} ${o} 지역에 속한다.`,truth:false,why:`쾨펜 계산값 ${kp.code}(${kp.name})`});
+      const tmin=Math.min(...s.t), tmax=Math.max(...s.t);
+      add({kind:'기준값',grp:'기후 구분',text:`${W(s.l,'은는')} 최한월 평균 기온이 18℃ 이상이다.`,truth:tmin>=18,why:`최한월 ${fmt(tmin,'℃')}`,warn:Math.abs(tmin-18)<1?'18℃와 차이가 1℃ 안이에요.':''});
+      add({kind:'기준값',grp:'기후 구분',text:`${W(s.l,'은는')} 최한월 평균 기온이 -3℃ 미만이다.`,truth:tmin<-3,why:`최한월 ${fmt(tmin,'℃')}`,warn:Math.abs(tmin+3)<1?'-3℃와 차이가 1℃ 안이에요.':''});
+      add({kind:'기준값',grp:'기후 구분',text:`${W(s.l,'은는')} 최난월 평균 기온이 10℃ 미만이다.`,truth:tmax<10,why:`최난월 ${fmt(tmax,'℃')}`,warn:Math.abs(tmax-10)<1?'10℃와 차이가 1℃ 안이에요.':''});
+    }
+  }
+  /* 비교: 순서쌍마다 ‘A는 B보다 ○○이 크다/높다/많다’ */
+  for(const m of CM) for(const a of st) for(const b of st){
+    if(a===b||!needs(m,a)||!needs(m,b)) continue; const va=m.f(a), vb=m.f(b); if(!fin(va)||!fin(vb)) continue;
+    const text=m.special==='lat'?`${W(a.l,'은는')} ${b.l}보다 고위도에 위치한다.`:`${W(a.l,'은는')} ${b.l}보다 ${W(m.noun,'이가')} ${m.adj}.`;
+    add({kind:'비교',grp:m.noun,m:m.k,text,truth:va>vb,why:`${a.l} ${fmt(va,m.unit)}, ${b.l} ${fmt(vb,m.unit)}`,warn:closeOf(m,va,vb)?'두 값의 차이가 작아 그래프에서 읽기 어렵거나 정답 시비가 생길 수 있어요.':'',note:m.note||''});
+  }
+  /* 통합: 가장 ~한 곳, 모두 ~, 순서 */
+  if(st.length>=3){
+    for(const m of CM){
+      const vs=st.filter(s=>needs(m,s)).map(s=>({s,v:m.f(s)})).filter(x=>fin(x.v)); if(vs.length<st.length) continue;
+      vs.sort((x,y)=>y.v-x.v); const top=vs[0], sec=vs[1];
+      const tx=l=>m.special==='lat'?`${all} 중 가장 고위도에 위치한 지역은 ${l}이다.`:`${all} 중 ${W(m.noun,'이가')} 가장 ${m.attr} 지역은 ${l}이다.`;
+      const why=vs.map(x=>`${x.s.l} ${fmt(x.v,m.unit)}`).join(', ');
+      const w=closeOf(m,top.v,sec.v)?'1위와 2위의 차이가 작아요.':'';
+      add({kind:'통합',grp:m.noun,m:m.k,text:tx(top.s.l),truth:true,why,warn:w,note:m.note||''});
+      add({kind:'통합',grp:m.noun,m:m.k,text:tx(sec.s.l),truth:false,why,warn:w,note:m.note||''});
+      if(st.length<=4&&!m.special){
+        const ord=vs.map(x=>x.s.l); const sw=ord.slice(); let gi=0,gm=1e9; for(let i=0;i<vs.length-1;i++){ const d=Math.abs(vs[i].v-vs[i+1].v); if(d<gm){ gm=d; gi=i; } } [sw[gi],sw[gi+1]]=[sw[gi+1],sw[gi]];
+        const ot=o=>`${W(m.noun,'은는')} ${o.join(' > ')} 순으로 ${m.adj}.`;
+        add({kind:'통합',grp:m.noun,m:m.k,text:ot(ord),truth:true,why,warn:vs.some((x,i)=>i&&closeOf(m,vs[i-1].v,x.v))?'이웃한 두 값의 차이가 작아요.':'',note:m.note||''});
+        add({kind:'통합',grp:m.noun,m:m.k,text:ot(sw),truth:false,why,note:m.note||''});
+      }
+    }
+  }
+  if(st.length>=2) for(let i=0;i<st.length;i++) for(let j=i+1;j<st.length;j++){
+    const a=st[i], b=st[j];
+    if(fin(a.lat)&&fin(b.lat)) for(const h of ['남','북']){ const t=h==='남'?(a.lat<0&&b.lat<0):(a.lat>=0&&b.lat>=0);
+      add({kind:'통합',grp:'위치',text:`${a.l}, ${W(b.l,'은는')} 모두 ${h}반구에 위치한다.`,truth:t,why:`${a.l} ${fmtLat(a.lat)}, ${b.l} ${fmtLat(b.lat)}`}); }
+    const ka=koppen(a.t,a.p,a.lat), kb=koppen(b.t,b.p,b.lat);
+    if(ka&&kb){ for(const g of [...new Set([ka.group,kb.group])]) add({kind:'통합',grp:'기후 구분',text:`${a.l}, ${W(b.l,'은는')} 모두 ${GNAME[g]} 지역에 속한다.`,truth:ka.group===g&&kb.group===g,why:`${a.l} ${ka.code}, ${b.l} ${kb.code}`}); }
+  }
+  return out;
+}
+function fmtLat(v){ return fin(v)?`${Math.abs(v).toFixed(1)}°${v<0?'S':'N'}`:'—'; }
+
+/* ───────── 진술 꼴 ───────── */
+const KIND_ORDER=['단독','기준값','대응','비교','통합'];
+function kindOf(t){
+  t=String(t||'').trim();
+  if(/\d+(?:\.\d+)?\s*(?:℃|°C|mm|%|명|m|달러)\s*(?:이상|미만|이하|초과|내외)/.test(t)) return '기준값';
+  if(/모두|가장|순으로|[>＞]|(?:～|∼|~)\s*\([가-힣]\)\s*중|\s중\s.*가장/.test(t)) return '통합';
+  if(/보다/.test(t)) return '비교';
+  if(/^\(?[가-힣A-Fㄱ-ㅎ㉠-㉯]\)?[은는]\s*[^,]+,\s*\(?[가-힣A-F㉠-㉯]\)?[은는]/.test(t)) return '대응';
+  return '단독';
+}
+function firstLabel(t){ const m=String(t).match(/\([가-하]\)|[㉠-㉭]|[㉮-㉻]|(?<![A-Za-z])[A-H](?![A-Za-z])/); return m?m[0]:null; }
+/* 경기도 문서: ‘단독 → 비교 → 통합’, 같은 꼴 안에서는 기호 순 */
+function sortStmts(list){
+  return list.map((s,i)=>({s,i})).sort((x,y)=>{
+    const kx=KIND_ORDER.indexOf(x.s.kind||kindOf(x.s.text)), ky=KIND_ORDER.indexOf(y.s.kind||kindOf(y.s.text));
+    const ax=firstLabel(x.s.text), ay=firstLabel(y.s.text);
+    return kx-ky||(ax&&ay?seqIdx(ax)-seqIdx(ay):0)||x.i-y.i; }).map(x=>x.s);
+}
+
+/* ───────── 답지 ─────────
+   반환: {opts:[문자열×5], ans:1~5|null, msg:[] } */
+const JAMO=['ㄱ','ㄴ','ㄷ','ㄹ'], STU=['갑','을','병','정','무'];
+function combosKey(a){ return a.join(','); }
+function answerSet(form,stmts,opt){
+  const msg=[]; const n=stmts.length; const it_any=!!(opt&&opt.any);
+  if(form==='one'||form==='neg'||form==='best'){
+    const want=form==='neg'?false:true; const hit=stmts.map((s,i)=>s.truth===want?i:-1).filter(i=>i>=0);
+    if(n!==5) msg.push(`선택지를 5개로 맞춰 주세요(지금 ${n}개).`);
+    if(stmts.some(s=>s.truth==null)) msg.push('참·거짓을 정하지 않은 선택지가 있어요.');
+    if(hit.length!==1) msg.push(form==='neg'?`옳지 않은 선택지가 하나여야 해요(지금 ${hit.length}개).`:`옳은 선택지가 하나여야 해요(지금 ${hit.length}개).`);
+    return {opts:stmts.map(s=>s.text),ans:hit.length===1?hit[0]+1:null,msg};
+  }
+  if(form==='bogi'||form==='bogiAny'||form==='stu'){
+    const L=form==='stu'?STU:JAMO; const items=L.slice(0,n);
+    if(form==='stu'?(n<4||n>5):(n<3||n>4)) msg.push(form==='stu'?'학생은 4명(갑~정)으로 맞춰 주세요.':'<보기>는 3개(ㄱ~ㄷ)나 4개(ㄱ~ㄹ)로 맞춰 주세요.');
+    if(stmts.some(s=>s.truth==null)) msg.push('참·거짓을 정하지 않은 항목이 있어요.');
+    const right=items.filter((_,i)=>stmts[i]&&stmts[i].truth===true);
+    if(form==='stu'&&n===5){ /* 다섯 명 중 한 명 */
+      if(right.length!==1) msg.push(`옳게 답한 학생이 한 명이어야 해요(지금 ${right.length}명).`);
+      return {opts:STU.slice(),ans:right.length===1?STU.indexOf(right[0])+1:null,msg,single:true}; }
+    if(!right.length){ msg.push('옳은 항목이 하나도 없어요.'); return {opts:[],ans:null,msg}; }
+    const sets=pickSets(form,n,right.length,it_any);
+    const conv=o=>o.map(c=>c.map(x=>form==='stu'&&JAMO.includes(x)?STU[JAMO.indexOf(x)]:x));
+    let best=null; for(const [s,c] of sets){ const ss=conv(s); const i=ss.findIndex(o=>combosKey(o)===combosKey(right)); if(i>=0&&(!best||c>best.c)) best={o:ss,i,c}; }
+    if(!best){
+      const std=form==='stu'?'갑,을 / 갑,병 / 을,병 / 을,정 / 병,정':'ㄱ,ㄴ / ㄱ,ㄷ / ㄴ,ㄷ / ㄴ,ㄹ / ㄷ,ㄹ';
+      const same=form==='bogi'||(form==='stu'&&!it_any);
+      if(form==='bogi'||form==='stu') msg.push(n===4&&right.length===2?`정답 ${right.join(', ')}${josa(right[right.length-1],'은는')} 기출 답지 묶음(${std})에 없어요. 진술 하나의 참·거짓을 바꾸거나 ‘있는 대로’ 형식을 검토해 보세요.`:`정답 항목 수(${right.length}개)가 이 형식의 기출 답지 묶음과 맞지 않아요. ‘있는 대로 고른’ 형식을 검토해 보세요.`);
+      else msg.push('기출에 없던 답지 묶음을 새로 만들었어요. 답지 분포를 한번 봐 주세요.');
+      const made=makeSet(items,right,same); return {opts:made.o.map(o=>o.join(', ')),ans:made.i+1,msg,made:true};
+    }
+    if(form==='bogiAny'&&right.length===Math.max(...best.o.map(o=>o.length))) msg.push('항목 수가 가장 많은 선지가 정답이에요. 경기도 문서는 이런 배치를 되도록 피하라고 해요.');
+    return {opts:best.o.map(o=>o.join(', ')),ans:best.i+1,msg,count:best.c};
+  }
+  if(form==='find'||form==='score') return {opts:stmts.map(s=>s.text),ans:stmts.findIndex(s=>s.truth===true)+1||null,msg};
+  return {opts:stmts.map(s=>s.text),ans:null,msg};
+}
+function pickSets(form,n,k,any){
+  const O=(D&&D.optsets)||{}; const out=[];
+  if(form==='bogi'&&n===4){ if(O.bogi4_2) out.push(O.bogi4_2); }
+  else if(form==='bogiAny'&&n===4){ for(const x of O.bogi4_any||[]) out.push(x); }
+  else if(form==='bogiAny'&&n===3){ for(const x of O.bogi3_any||[]) out.push(x); }
+  else if(form==='bogi'&&n===3){ /* 3개 고르기: ㄱ,ㄴ/ㄱ,ㄷ/ㄴ,ㄷ 는 답지가 셋뿐이라 기출에서는 ‘있는 대로’로 낸다 */ for(const x of O.bogi3_any||[]) out.push(x); }
+  else if(form==='stu'&&n===4){ if(any) for(const x of O.stu4_any||[]) out.push(x); else if(O.stu4_2) out.push(O.stu4_2); }
+  return out;
+}
+/* 기출 묶음에 정답이 없을 때: 정답을 넣은 다섯 묶음을 만든다(항목 수 유형은 둘 이하) */
+function makeSet(items,right,sameOnly){
+  const all=[]; const n=items.length;
+  for(let m=1;m<(1<<n);m++){ const c=items.filter((_,i)=>m&(1<<i)); if(c.length>=1&&c.length<=3) all.push(c); }
+  const k=right.length; const same=all.filter(c=>c.length===k&&combosKey(c)!==combosKey(right));
+  const other=all.filter(c=>c.length===(k===2?3:2));
+  const pick=sameOnly?[right,...same.slice(0,4)]:[right,...same.slice(0,2),...other.slice(0,2)].slice(0,5);
+  while(pick.length<5&&all.length){ const c=all.find(x=>!pick.some(p=>combosKey(p)===combosKey(x))); if(!c) break; pick.push(c); }
+  pick.sort((a,b)=>a.length-b.length||combosKey(a).localeCompare(combosKey(b),'ko'));
+  return {o:pick,i:pick.findIndex(c=>combosKey(c)===combosKey(right))};
+}
+
+/* ───────── 점검 ─────────
+   반환: [{lvl:'ok'|'warn'|'err'|'info', msg, rule}] */
+const CLUE_WORDS=['항상','반드시','언제나','누구나','절대'];
+function checks(it,ansInfo){
+  const out=[]; const add=(lvl,msg,rule)=>out.push({lvl,msg,rule:rule||''});
+  const P=stemParts(it); const stm=(it.stmts||[]);
+  /* 1. 설계 */
+  if(!it.std) add('warn','성취기준을 고르지 않았어요.','교육 과정 분석');
+  if(!String(it.eval||'').trim()) add('warn','평가 요소를 적지 않았어요.','평가 요소 선정');
+  else if(/[,·]|및|와\s|과\s/.test(it.eval)&&String(it.eval).length>40) add('info','평가 요소가 둘 이상으로 보이면 하나로 좁혀 주세요.','발문 ⑤ 한 문항, 한 평가 요소');
+  /* 2. 기호 */
+  const fam=new Set(); for(const g of it.groups||[]) for(const l of g.labels||[]){ const k=seqOf(l); if(k) fam.add(k); }
+  for(const s of stm){ const m=String(s.text).match(/[㉠-㉭]/); if(m) fam.add('circ'); }
+  if(['bogi','bogiAny'].includes(it.form)) fam.add('jamo');
+  if(fam.size>=4) add('warn',`기호를 ${fam.size}가지 쓰고 있어요. 세 가지 이하로 줄이기를 권해요.`,'자료: 기호를 네 가지 유형 이상 쓰지 않음');
+  if(fam.has('num')) add('warn','숫자 기호(1, 2…)는 답지 ①~⑤와 헷갈려요. (가)나 ㉮, A를 쓰세요.','자료 ⑫');
+  if((it.groups||[]).some(g=>(g.labels||[]).some(l=>seqOf(l)==='jamo'))&&['bogi','bogiAny'].includes(it.form)) add('err','자료 기호 ㄱ, ㄴ이 <보기> 항목 기호와 겹쳐요.','<보기> ③ 기호 구별');
+  const gana=(it.groups||[]).filter(g=>(g.labels||[]).some(l=>seqOf(l)==='gana')); if(gana.length>=2) add('warn','(가), (나)를 두 묶음에 썼어요. 표 안 항목이라면 ㉮, ㉯로 바꾸기를 권해요.','자료 ⑫');
+  /* 3. 발문 */
+  if(/^다음/.test(P.ind)&&(it.scene==='none')&&['graph','table','map'].includes(it.dk)) add('warn','그림·표·그래프 앞에는 ‘다음’을 쓰지 않아요.','발문 ⑭');
+  if(/위\s*자료|윗\s*그림/.test(P.ind+P.dir)) add('warn','‘위 자료’ 대신 ‘이 자료’, ‘이에 대한’을 써요.','자료 사례');
+  if(/○○|을\/를|이\/가|은\/는/.test(P.ind+P.dir)) add('warn','발문에 채우지 않은 자리(○○, 을/를)가 있어요. 4단계에서 고쳐 써 주세요.','발문');
+  if(/모두\s*고르면/.test(P.dir)) add('err','‘모두 고르면?’은 쓰지 않아요. ‘있는 대로 고른 것은?’으로 바꿔 주세요.','선택지 사례');
+  if(it.form==='neg'&&/가장/.test(P.dir)) add('err','부정형 발문에는 ‘가장’을 쓰지 않아요.','부정형');
+  if(/거리가\s*먼/.test(P.dir)) add('warn','‘거리가 먼’ 대신 ‘옳지 않은’을 권해요.','부정형');
+  if(it.form==='neg') add('ok','부정어 ‘않은’에 밑줄을 그어 내보내요.','부정형');
+  const ents=(it.groups||[]).map(g=>(g.names||[]).filter(Boolean).length).reduce((a,b)=>a+b,0);
+  if(it.condOn!==false&&ents===0&&(it.groups||[]).some(g=>(g.labels||[]).length>=2&&g.cond!==false)&&it.form!=='find') add('info','기호가 무엇을 가리키는지 단서 조항이 필요하면 ‘대상’에 이름을 적어 주세요.','발문 ⑥·⑦ 단서 조항');
+  /* 4. 선택지 */
+  const T=stm.map(s=>String(s.text||'').trim()).filter(Boolean);
+  if(T.some(t=>/○○|이\/가|을\/를|은\/는/.test(t))) add('warn','선택지에 채우지 않은 자리(○○, 이/가)가 있어요.','선택지');
+  for(const s of T){ const w=CLUE_WORDS.find(x=>s.includes(x)); if(w){ add('warn',`‘${w}’ 같은 단정어는 정답·오답의 단서가 돼요: “${s.slice(0,28)}…”`,'선택지 ⑩ 단서어'); break; } }
+  if(T.some(s=>/[^\s]만\s/.test(s)&&/뿐|만이/.test(s))) add('info','‘~만’, ‘~뿐’이 정답 단서가 되지 않는지 봐 주세요.','선택지 ⑩');
+  { const strip=s=>s.replace(/\([가-하]\)|[A-H]|[㉠-㉭]|[ㄱ-ㄹ]|\s/g,''); const seen={}; for(const s of T){ const k=strip(s); if(seen[k]&&seen[k]!==s){ add('warn',`주어(기호)만 바꾼 선택지가 있어요: “${s.slice(0,24)}…”`,'선택지 ⑩ 주어만 바꾸지 않음'); break; } seen[k]=s; } }
+  if(T.length>=3){ const ls=T.map(s=>s.length); const mx=Math.max(...ls), mn=Math.min(...ls); if(mx>mn*1.9&&mx-mn>12) add('info',`선택지 길이 차이가 커요(${mn}~${mx}자). 비슷하게 맞추면 단서가 줄어요.`,'선택지 ⑩ 길이·구성'); }
+  { const ks=stm.map(s=>s.kind||kindOf(s.text)); const sorted=sortStmts(stm).map(s=>s.text); if(stm.length>=3&&sorted.join('|')!==stm.map(s=>s.text).join('|')) add('info','‘단독 → 비교 → 통합’, 기호 순으로 배열하기를 권해요. [순서 정리]를 누르면 바꿔요.','선택지 사례(세계지리)'); void ks; }
+  for(const s of stm) if(s.warn){ add('warn',`값 차이 주의: “${String(s.text).slice(0,26)}…” — ${s.warn}`,'자료 가독성'); }
+  const notes=[...new Set(stm.map(s=>s.note).filter(Boolean))]; for(const n of notes) add('info',n,'단서 조항');
+  /* 5. 답지 */
+  if(!stm.length&&it.form!=='find') add('info','5단계에서 선지를 고르면 답지 구성까지 점검해요.','답지');
+  else if(ansInfo) for(const m of ansInfo.msg||[]) add(/없어요|맞지 않아요|하나여야|하나도/.test(m)?'err':/피하라고|봐 주세요/.test(m)?'info':'warn',m,'답지');
+  if(['bogi','bogiAny'].includes(it.form)){
+    const n=stm.length;
+    if(ansInfo&&ansInfo.opts&&ansInfo.opts.length){ const cnt=new Set(ansInfo.opts.map(o=>o.split(',').length)); if(cnt.size>3) add('warn','답지의 항목 수 유형이 세 가지를 넘어요.','선택지 ⑦');
+      if(it.form==='bogi'&&cnt.size>1) add('err','답지마다 고른 개수가 달라요. 발문을 ‘있는 대로 고른 것은?’으로 바꿔 주세요.','선택지 사례');
+      if(it.form==='bogiAny'&&cnt.size===1) add('warn','답지마다 고른 개수가 같아요. 발문을 ‘고른 것은?’으로 바꿔 주세요.','선택지 사례'); }
+    if(n===4&&it.form==='bogi'&&ansInfo&&ansInfo.ans&&!ansInfo.made) add('ok','기출 표준 답지 묶음을 써요(11회 중 39문항).','기출');
+  }
+  /* 6. 기출과 겹침 */
+  const names=(it.groups||[]).flatMap(g=>g.names||[]).map(s=>String(s).trim()).filter(Boolean);
+  if(names.length>=2&&D){ for(const g of D.gichul){ const o=g.ents.filter(e=>names.includes(e)); if(o.length>=Math.min(3,names.length)&&o.length>=2) add('info',`${g.name} ${g.no}번과 대상이 겹쳐요(${o.join(', ')}). 기출과 지나치게 비슷하지 않은지 봐 주세요.`,'검토: 기존 출제 문항과 유사'); } }
+  /* 7. 자료 */
+  if(it.dk==='map'&&!it.mapIsWorld) add('info','세계·대륙 전도가 아니면 지도에 축척을 넣어요(백지도 편집기 ‘축척 막대’).','자료 제작 유의 사항');
+  if(!String(it.srcNote||'').trim()&&['graph','table'].includes(it.dk)) add('info','자료 연도와 출처(오른쪽 아래)를 확인해 주세요.','자료 ⑮ 출처');
+  if(!out.some(x=>x.lvl==='err'||x.lvl==='warn')) add('ok','자동 점검에서 걸린 것이 없어요. 아래 ‘사람이 볼 것’도 확인해 주세요.','');
+  return out;
+}
+/* 사람이 볼 것(경기도 문서 검토 관점에서 추림) */
+const MANUAL=[
+  ['scope','교육과정 범위 안의 내용이고, 교과서에 실린 개념인가?'],
+  ['one','평가 요소가 하나이고 발문에 드러나는가?'],
+  ['answer','정답이 하나뿐이고, 관점에 따라 오답지가 정답이 될 여지는 없는가?'],
+  ['need','자료를 읽지 않고도 풀리는 문항은 아닌가?'],
+  ['data','자료가 최근의 공신력 있는 통계이고 연도·출처를 적었는가?'],
+  ['print','흑백으로 인쇄해도 기호·선·음영이 구별되는가?'],
+  ['fair','특정 집단·종교·지역을 비하하거나 고정 관념을 부추기지 않는가?'],
+  ['same','기출·사설 모의고사 문항과 지나치게 비슷하지 않은가?'],
+  ['words','지명·용어 표기와 띄어쓰기가 교과서·수능 표기와 같은가?'],
+];
+
+/* ───────── 기출 조회 ───────── */
+function gichulBy(codes){ if(!D) return []; const S=new Set(codes||[]); return D.gichul.filter(g=>S.has(g.std)); }
+function stats(list){
+  const c=(f)=>{ const m={}; for(const g of list) for(const v of [].concat(f(g))) if(v) m[v]=(m[v]||0)+1; return Object.entries(m).sort((a,b)=>b[1]-a[1]); };
+  return {n:list.length,data:c(g=>g.data),tool:c(g=>g.tool),scene:c(g=>g.scene||'자료만'),form:c(g=>g.form),act:c(g=>g.act),topic:c(g=>g.topic),
+    kinds:Object.entries(list.reduce((m,g)=>{ for(const [k,v] of Object.entries(g.kinds||{})) m[k]=(m[k]||0)+v; return m; },{})).sort((a,b)=>b[1]-a[1])};
+}
+function kiceOf(id){ return K&&K.items?K.items[id]||null:null; }
+function related(curr,code){ const C=D&&D.curr[curr]; if(!C) return [code]; if(curr==='c22') return (C.map2015||{})[code]||[]; return [code]; }
+const ACTS=[['개념 및 원리 이해','이해하고 있는지'],['문제 파악 및 인식','파악하고 인식할 수 있는지'],['탐구 설계 및 수행','탐구를 설계하고 수행할 수 있는지'],['자료 분석 및 해석','자료를 분석하고 해석할 수 있는지'],['결론 도출 및 평가','결론을 도출하고 평가할 수 있는지']];
+function goalOf(ev,act){ ev=String(ev||'').trim(); if(!ev) return ''; const a=ACTS.find(x=>x[0]===act)||ACTS[0];
+  if(a[0]==='자료 분석 및 해석') return `자료를 분석하여 ${W(ev,'을를')} 해석할 수 있는지를 평가한다.`;
+  if(a[0]==='결론 도출 및 평가') return `제시된 정보를 바탕으로 ${ev}에 관한 결론을 도출할 수 있는지를 평가한다.`;
+  if(a[0]==='탐구 설계 및 수행') return `${ev}에 관한 탐구를 설계하고 수행할 수 있는지를 평가한다.`;
+  if(a[0]==='문제 파악 및 인식') return `${ev}에서 나타나는 문제를 파악하고 인식할 수 있는지를 평가한다.`;
+  return `${W(ev,'을를')} 이해하고 있는지를 평가한다.`; }
+
+/* ───────── 내보내기 ───────── */
+const CIRC=['①','②','③','④','⑤'];
+function itemText(it,no){
+  const P=stemParts(it); const A=answerSet(it.form,it.stmts||[],{any:it.anyCount});
+  const L=[]; L.push(`${no||1}. ${[P.ind,P.dir,P.cond,P.pts].filter(Boolean).join(' ')}`);
+  L.push(`[자료] ${String(it.dataNote||'').trim()||'(자료를 여기에)'}`);
+  const bogi=['bogi','bogiAny'].includes(it.form);
+  if(bogi){ L.push('<보 기>'); (it.stmts||[]).forEach((s,i)=>L.push(`${JAMO[i]}. ${s.text}`)); }
+  else if(it.form==='stu'&&!A.single){ (it.stmts||[]).forEach((s,i)=>L.push(`${STU[i]}: ${s.text}`)); }
+  else if(it.form==='stu'&&A.single){ (it.stmts||[]).forEach((s,i)=>L.push(`${STU[i]}: ${s.text}`)); }
+  if(A.opts&&A.opts.length) L.push(A.opts.map((o,i)=>`${CIRC[i]} ${o}`).join(bogi||it.form==='stu'?'   ':'\n'));
+  return {text:L.join('\n'),ans:A.ans,ansInfo:A};
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function underlineNeg(html){ return html.replace(/옳지 않은/g,'옳지 <u>않은</u>'); }
+
+return {setData,setKice,get data(){ return D; },get hasKice(){ return !!(K&&K.items); },
+  josa,batchim,W,SEQ,SEQ_NAME,seqOf,seqIdx,orderLabels,rangeOf,seqList,condSentence,
+  SCENES,DKINDS,FORMS,formOf,indirectStem,directStem,stemParts,stemText,
+  koppen,KNAME,GNAME,noonAlt,dayLen,climateStmts,CM,
+  kindOf,KIND_ORDER,sortStmts,answerSet,checks,MANUAL,
+  gichulBy,stats,kiceOf,related,ACTS,goalOf,itemText,esc,underlineNeg,CIRC,JAMO,STU};
+})();
+
+</script>
+<script>
 /* 통합판 겉틀: 탭 전환, 도구를 처음 열 때만 자료·라이브러리를 불러와 붙이기, 작업 파일 갈래 나누기 */
 const HUB=(function(){
 'use strict';
 const MODE="web";            /* artifact: 자료 파일을 그때그때 받아 옴 · standalone: 모두 들어 있음 */
-const TOOLS=[{"id": "mapquick", "name": "백지도 자동 생성기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "mapedit", "name": "백지도 편집기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "kmap", "name": "한국지리 백지도", "need": ["topo", "kmdata"], "wait": "우리나라 경계 자료를 불러오는 중…"}, {"id": "landform", "name": "지형 모식도 편집기", "need": ["ldata"], "wait": "모식도 자료를 불러오는 중…"}, {"id": "climate", "name": "기후 그래프 편집기", "need": ["stations"], "wait": "기후 지점 자료를 불러오는 중…"}, {"id": "energy", "name": "에너지 그래프 편집기", "need": ["edata"], "wait": "에너지 자료를 불러오는 중…"}, {"id": "religion", "name": "종교 그래프 편집기", "need": ["rdata"], "wait": "종교 자료를 불러오는 중…"}, {"id": "population", "name": "인구 그래프 편집기", "need": ["pdata"], "wait": "인구 자료(약 8 MB)를 불러오는 중…"}, {"id": "agriculture", "name": "농업 그래프 편집기", "need": ["adata"], "wait": "농업 자료(약 4.5 MB)를 불러오는 중…"}];
+const TOOLS=[{"id": "mapquick", "name": "백지도 자동 생성기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "mapedit", "name": "백지도 편집기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "kmap", "name": "한국지리 백지도", "need": ["topo", "kmdata"], "wait": "우리나라 경계 자료를 불러오는 중…"}, {"id": "landform", "name": "지형 모식도 편집기", "need": ["ldata"], "wait": "모식도 자료를 불러오는 중…"}, {"id": "climate", "name": "기후 그래프 편집기", "need": ["stations"], "wait": "기후 지점 자료를 불러오는 중…"}, {"id": "energy", "name": "에너지 그래프 편집기", "need": ["edata"], "wait": "에너지 자료를 불러오는 중…"}, {"id": "religion", "name": "종교 그래프 편집기", "need": ["rdata"], "wait": "종교 자료를 불러오는 중…"}, {"id": "population", "name": "인구 그래프 편집기", "need": ["pdata"], "wait": "인구 자료(약 8 MB)를 불러오는 중…"}, {"id": "agriculture", "name": "농업 그래프 편집기", "need": ["adata"], "wait": "농업 자료(약 4.5 MB)를 불러오는 중…"}, {"id": "item", "name": "문항 설계", "need": ["idata"], "wait": "성취기준·기출 자료를 불러오는 중…"}];
 const LIBS=['lib/d3.min.js','lib/d3-geo-projection.min.js','lib/topojson-client.min.js'];
 const DATA={
   stations:['data/stations.json',d=>GG.setStationDict(d)],
@@ -8885,6 +9740,8 @@ const DATA={
   ldata:['data/ldata.json',d=>LG.setData(d)],
   kdata:['data/kdata.json',d=>LG.setKice(d)],
   kmdata:['data/kmdata.json',d=>KM.setData(d)],
+  idata:['data/idata.json',d=>IT.setData(d)],
+  ikice:['data/ikice.json',d=>IT.setKice(d)],
 };
 const LAST_KEY='wg-hub-tab-v1';
 const defs={}, apis={}, pending={};
@@ -8920,7 +9777,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "853ae381c2", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "5b008d0d5e", "edata": "27d88225b0", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d"}; const oldFiles=[];
+const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "822d7568ad", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "5b008d0d5e", "edata": "27d88225b0", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d", "idata": "82b5d05d88"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
@@ -9012,6 +9869,8 @@ function bindLinks(){
     e.preventDefault();
     const to=a.getAttribute('href').slice(6);
     const from=current; let d=null;
+    if(to==='item'){   // 기후·백지도 → 문항 설계: 기호·대상·수치를 넘긴다
+      show(to).then(api=>{ if(api&&api.pull) api.pull(from); }).catch(()=>{}); return; }
     if(from==='climate'&&to==='mapquick'){   // 기후 탭의 지점 → 백지도 자동 생성(같은 기호)
       const req=apis.climate&&apis.climate.mapRequest&&apis.climate.mapRequest();
       if(!req){ toast('지도에 찍을 지점이 없어요. 위도·경도가 있는 지점을 넣어 주세요.'); return; }
@@ -9033,6 +9892,7 @@ function kindOf(d){
   if(d.app==='agriculture') return 'agriculture';
   if(d.app==='landform') return 'landform';
   if(d.app==='kmap') return 'kmap';
+  if(d.app==='item') return 'item';
   if(Array.isArray(d.stations)) return 'climate';
   const m=d.doc||d; if(m&&m.view&&m.frame&&Array.isArray(m.items)) return 'mapedit';
   return null;
@@ -9644,6 +10504,12 @@ bindCheck('#lnTr',()=>doc.layers.lines.tr,v=>doc.layers.lines.tr=v);
 bindCheck('#lnAc',()=>doc.layers.lines.ac,v=>doc.layers.lines.ac=v);
 bindCheck('#lyMajor',()=>doc.layers.major,v=>doc.layers.major=v);
 $('#grat').onchange=e=>{ doc.layers.grat=+e.target.value; commit(); };
+$('#scaleSel').onchange=e=>{ doc.layers.scale=e.target.value; scaleWarn(); commit(); };
+function scaleWarn(){ const w=$('#scaleWarn'); if(!w) return; const on=doc.layers.scale&&doc.layers.scale!=='none'; let t='';
+  let si=null; try{ si=WG.scaleInfo(doc); }catch(e){}
+  if(on){ if(!si) t='이 지도에서는 축척을 잴 수 없어요.'; else if(si.vary>0.25) t='이 범위는 위아래로 축척 차이가 커요(세계·대륙 전도). 전도에는 축척을 넣지 않는 것이 시험지 관례예요.'; }
+  else if(si&&si.vary<=0.15&&doc.view.proj!=='polar') t='지역 지도로 보여요. 세계·대륙 전도가 아닌 지도에는 축척을 넣는 것이 시험지 관례예요(경기도교육청 「평가문항 제작 방법」).';
+  w.hidden=!t; w.textContent=t; w.classList.toggle('soft',!on); }
 /* 기후 지역(쾨펜: 열대·건조·온대·냉대·한대, 기후대마다 하나로/기후별/기호별) */
 const ZT=[['light','연하게'],['mid','기본'],['dark','진하게'],['hatch','빗금 ／'],['hatch2','빗금 ＼'],['cross','격자'],['dots','점무늬']];
 const ZLV=b=>[['off','표시 안 함'],['one',WG.ZB[b].one[0][1]+'(하나로)'],['mid',WG.ZB[b].mid.map(x=>x[1].replace(/ 기후$/,'')).join('·')],['detail','기호별('+WG.ZB[b].detail.map(x=>x[0]).join('·')+')']];
@@ -9705,7 +10571,7 @@ function syncMap(){
   $$('#presets .chip').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===doc.preset)));
   syncViewInputs(); segSet('#detail',doc.layers.detail);
   syncZone(); syncSeas(); $('#lyBorders').checked=doc.layers.borders; $('#lyLakes').checked=doc.layers.lakes; $('#lyDokdo').checked=doc.layers.dokdo!==false; $('#lyPolarLbl').checked=doc.layers.polarLbl!==false; $('#lnEq').checked=doc.layers.lines.eq; $('#lnTr').checked=doc.layers.lines.tr; $('#lnAc').checked=doc.layers.lines.ac; $('#lyMajor').checked=doc.layers.major;
-  $('#grat').value=String(doc.layers.grat); syncTicks(); buildRiverList();
+  $('#grat').value=String(doc.layers.grat); $('#scaleSel').value=doc.layers.scale||'none'; scaleWarn(); syncTicks(); buildRiverList();
 }
 
 /* ───────── 패널: 꾸미기 ───────── */
@@ -9734,7 +10600,8 @@ const setRsz=rangeBind('#rsz','ring',v=>v.toFixed(1)+' mm');
 const setLsc=rangeBind('#lsc','line',v=>'× '+v.toFixed(2),{base:true});
 const setSea=rangeBind('#seaG','sea',v=>String(v),{base:true});
 const setSh=rangeBind('#shG','shade',v=>String(v),{base:true});
-$('#seqSel').onchange=e=>{ doc.style.seq=e.target.value; commit({base:false}); };
+$('#seqSel').onchange=e=>{ doc.style.seq=e.target.value; seqWarn(); commit({base:false}); };
+function seqWarn(){ const w=$('#seqWarn'); if(!w) return; const v=doc.style.seq; const t=v==='num'?'숫자 기호는 답지 번호 ①~⑤와 헷갈릴 수 있어요. 시험지에는 A, B나 (가), (나)를 권해요.':v==='jamo'?'ㄱ, ㄴ은 <보기> 항목 기호와 겹쳐요. 이 지도를 <보기>가 있는 문항에 쓴다면 다른 기호를 권해요.':''; w.hidden=!t; w.textContent=t; }
 $('#shadeAuto').onchange=e=>{ doc.style.shadeAuto=e.target.checked; commit({base:false}); };
 const DIRS=[['tl','왼쪽 위'],['t','위'],['tr','오른쪽 위'],['l','왼쪽'],['c','가운데'],['r','오른쪽'],['bl','왼쪽 아래'],['b','아래'],['br','오른쪽 아래']];
 $('#placeGrid').innerHTML=DIRS.map(([k,n])=>`<button data-d="${k}" title="${n}" aria-label="${n}"></button>`).join('');
@@ -9742,7 +10609,7 @@ $$('#placeGrid button').forEach(b=>b.onclick=()=>{ doc.style.place=b.dataset.d; 
 function syncStyle(){
   const s=doc.style; $('#fontSel').value=s.font; $('#latinSel').value=s.latin; syncFontStatus();
   setFsz(s.fontPt); setDsz(s.dot); setRsz(s.ring); setLsc(s.line); setSea(s.sea); setSh(s.shade);
-  $('#seqSel').value=s.seq; $('#shadeAuto').checked=s.shadeAuto;
+  $('#seqSel').value=s.seq; seqWarn(); $('#shadeAuto').checked=s.shadeAuto;
   $$('#placeGrid button').forEach(b=>b.style.borderColor=b.dataset.d===s.place?'var(--omr)':'');
   $('#placeName').textContent=(DIRS.find(d=>d[0]===s.place)||['',''])[1];
 }
@@ -9865,7 +10732,7 @@ function updateStatus(){
 }
 /* 기호 다시 매기기 · 정답 */
 $('#relabelBtn').onclick=()=>{ const md=$('#relabelMode').value, wasEmpty=!doc.items.some(it=>it.lbl&&!it.sea), n=WG.relabelItems(doc,md); if(wasEmpty&&md!=='none'&&n) WG.autoLabel(doc); if(md==='none'){ if(!n){ toast('지울 기호가 없어요.'); return; } commit(); toast(`기호 ${n}개를 지웠어요. 점만 남았어요.`); return; } if(n<2){ toast('항목이 두 개 이상 있어야 해요.'); return; } commit(); toast('기호를 다시 매겼어요.'); };
-function syncAns(){ const a=WG.answerKey(doc), box=$('#ansBox');
+function syncAns(){ const a=WG.answerKey(doc), box=$('#ansBox'); { const ib=$('#itemSendBtn'); if(ib) ib.hidden=!a||!document.getElementById('hub-tab-item'); }
   if(!a){ box.innerHTML='<p class="note">기호를 붙인 항목이 없어요.</p>'; return; }
   box.innerHTML=`<p class="ans-key"><b>정답</b> ${esc(a.key)}</p>${a.clue?`<p class="ans-clue">${esc(a.clue)}</p>`:''}<div class="row"><button class="btn" type="button" id="ansCopy">정답 복사</button>${a.clue?'<button class="btn" type="button" id="clueCopy">단서 문구 복사</button>':''}</div>`;
   const cp=(t,msg)=>{ (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(msg),()=>toast('복사하지 못했어요. 글자를 직접 골라 복사해 주세요.')); };
@@ -9897,7 +10764,7 @@ function start(){
 }
 start();
 /* 통합판에서 작업 파일·자동 생성기 지도를 넘겨줄 때 */
-return {load:(o,msg)=>{ const d=o&&(o.doc||o); if(!d||!d.view||!d.frame||!Array.isArray(d.items)) return false; doc=normalize(d); sel=null; rebuild(); layout(); commit(); toast(msg||'작업을 불러왔어요.'); return true; },
+return {getDoc:()=>doc,load:(o,msg)=>{ const d=o&&(o.doc||o); if(!d||!d.view||!d.frame||!Array.isArray(d.items)) return false; doc=normalize(d); sel=null; rebuild(); layout(); commit(); toast(msg||'작업을 불러왔어요.'); return true; },
   handoff:()=>{ try{ const h=localStorage.getItem('wgmap-handoff'); if(!h) return false; localStorage.removeItem('wgmap-handoff'); const o=JSON.parse(h); if(!o||!o.doc) return false; doc=normalize(o.doc); sel=null; rebuild(); layout(); commit(); toast('자동 생성기에서 만든 지도를 가져왔어요.'); return true; }catch(e){ return false; } }};
 });
 </script>
@@ -10198,7 +11065,7 @@ function renderOpts(){
   const nx=h('input',{type:'text',class:'seqnext',value:LG.nextSym(doc),'aria-label':'다음 기호'});
   nx.addEventListener('change',()=>{ const S=LG.SEQS[doc.seq.set]; const i=S.indexOf(nx.value.trim()); if(i>=0){ doc.seq.next=i; changed(); } else nx.value=LG.nextSym(doc); });
   const rs=h('button',{class:'btn small',type:'button'},'처음부터'); rs.addEventListener('click',()=>{ doc.seq.next=0; changed('opts'); });
-  SB.append(sec('기호',row('종류',sel(Object.entries(LG.SEQ_KO),()=>doc.seq.set,v=>{ doc.seq.set=v; },()=>changed('opts'),'기호 종류')),row('다음 기호',nx,rs),
+  SB.append(sec('기호',row('종류',sel(Object.entries(LG.SEQ_KO),()=>doc.seq.set,v=>{ doc.seq.set=v; },()=>changed('opts'),'기호 종류')),doc.seq.set==='num'?h('p',{class:'sub seqwarn'},'숫자 기호는 답지 번호 ①~⑤와 헷갈릴 수 있어요. 시험지에는 A, B나 (가), (나)를 권해요.'):'',row('다음 기호',nx,rs),
     row('표시 방법',sel([['auto','알아서(시·군은 안쪽, 지점은 점)'],['in','지역 안에 글자'],['dot','점 + 글자'],['leader','지시선 + 점']],()=>ui.mode,v=>{ ui.mode=v; saveLocal(); },()=>{},'문장으로 놓을 때 표시 방법')),
     row('기호 바탕',sel(BOX,()=>ui.box||'halo',v=>{ ui.box=v; },null,'새 기호 바탕'))));
   const fontOpts=fam=>GG.FONTS[fam].filter(f=>f.key!=='user').map(f=>[f.key,f.label+(f.web||GG.fontAvailable(f,fam)?'':' — 없음')]);
@@ -10563,7 +11430,7 @@ function renderOpts(){
   const nx=h('input',{type:'text',class:'seqnext',value:LG.nextSym(doc),'aria-label':'다음 기호'});
   nx.addEventListener('change',()=>{ const S=LG.SEQS[doc.seq.set]; const i=S.indexOf(nx.value.trim()); if(i>=0){ doc.seq.next=i; changed(); } else nx.value=LG.nextSym(doc); });
   const rs=h('button',{class:'btn small',type:'button'},'처음부터'); rs.addEventListener('click',()=>{ doc.seq.next=0; changed('opts'); });
-  P.append(sec('기호 차례',row('종류',sel(Object.entries(LG.SEQ_KO),()=>doc.seq.set,v=>{ doc.seq.set=v; },'opts','기호 종류')),row('다음 기호',nx,rs),
+  P.append(sec('기호 차례',row('종류',sel(Object.entries(LG.SEQ_KO),()=>doc.seq.set,v=>{ doc.seq.set=v; },'opts','기호 종류')),doc.seq.set==='num'?h('p',{class:'sub seqwarn'},'숫자 기호는 답지 번호 ①~⑤와 헷갈릴 수 있어요. 시험지에는 A, B나 (가), (나)를 권해요.'):'',row('다음 기호',nx,rs),
     row('기호 바탕',sel(BOX,()=>ui.box||'halo',v=>{ ui.box=v; },null,'새 기호 바탕')),h('p',{class:'sub'},'‘기호’나 ‘지시선’ 도구로 누를 때마다 다음 기호가 차례로 들어가요.')));
   /* 기본 모양 */
   const fontOpts=fam=>GG.FONTS[fam].filter(f=>f.key!=='user').map(f=>[f.key,f.label+(f.web||GG.fontAvailable(f,fam)?'':' — 없음')]);
@@ -11242,6 +12109,7 @@ function syncMapSend(){
   const box=$('#mapSend'), a=$('#mapSendBtn'); if(!box||!a) return;
   const inHub=(a.getAttribute('href')||'').startsWith('#open:'); const S=GG.plotted(doc), R=GG.refStation(doc);
   box.hidden=!inHub||!S.length; $('#msRefRow').hidden=!R;
+  const ib=$('#itemSend'); if(ib) ib.hidden=!S.length||!document.getElementById('hub-tab-item');
   const nx=S.filter(s=>!isFinite(s.lat)||!isFinite(s.lon)).map(s=>s.name);
   $('#msNote').textContent=nx.length?`위치(위도·경도)를 모르는 지점은 빠져요: ${nx.join(', ')}`:'세계지리 백지도 ‘자동 생성’ 탭에서 같은 지점·같은 기호로 지도를 만들어요.';
 }
@@ -11256,7 +12124,7 @@ function mapRequest(){
   const q=[rn,...pts.map(p=>p.label?`${p.ko} ${p.label}`:p.ko)].filter(Boolean).join(', ')+(noLbl?', 기호 없이':'');
   return pts.length?{spec,q}:null;
 }
-return {mapRequest,load:d=>{ if(!d||!(Array.isArray(d.stations))) return false; doc=GG.normalizeDoc(d); syncTop(); changed('all'); toast('작업을 불러왔어요.'); return true; }};
+return {mapRequest,getDoc:()=>doc,load:d=>{ if(!d||!(Array.isArray(d.stations))) return false; doc=GG.normalizeDoc(d); syncTop(); changed('all'); toast('작업을 불러왔어요.'); return true; }};
 });
 </script>
 <script>
@@ -11724,7 +12592,7 @@ if(!HAS){ $('#pbSeg').querySelectorAll('button:not([data-v="paste"])').forEach(b
 renderPB(); renderTable(); renderOpts(); renderExamples(); schedule();
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ GG.clearMetrics(); schedule(); });
 /* 통합판에서 다른 곳이 작업 파일을 넘겨줄 때 */
-return {load:d=>{ if(!d||!(d.app==='energy')) return false; doc=EG.normalizeDoc(d); syncTop(); changed('all'); toast('작업을 불러왔어요.'); return true; }};
+return {getDoc:()=>doc,load:d=>{ if(!d||!(d.app==='energy')) return false; doc=EG.normalizeDoc(d); syncTop(); changed('all'); toast('작업을 불러왔어요.'); return true; }};
 });
 </script>
 <script>
@@ -12211,7 +13079,7 @@ if(!HAS){ $('#pbSeg').querySelectorAll('button:not([data-v="paste"])').forEach(b
 renderPB(); renderTable(); renderOpts(); renderExamples(); schedule();
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ GG.clearMetrics(); schedule(); });
 /* 통합판에서 다른 곳이 작업 파일을 넘겨줄 때 */
-return {load:d=>{ if(!d||!(d.app==='religion')) return false; doc=RG.normalizeDoc(d); syncTop(); changed('all'); toast('작업을 불러왔어요.'); return true; }};
+return {getDoc:()=>doc,load:d=>{ if(!d||!(d.app==='religion')) return false; doc=RG.normalizeDoc(d); syncTop(); changed('all'); toast('작업을 불러왔어요.'); return true; }};
 });
 </script>
 <script>
@@ -12757,7 +13625,7 @@ if(!HAS){ $('#pbSeg').querySelectorAll('button:not([data-v="paste"])').forEach(b
 renderPB(); renderTable(); renderOpts(); renderExamples(); schedule();
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ GG.clearMetrics(); schedule(); });
 /* 통합판에서 다른 곳이 작업 파일을 넘겨줄 때 */
-return {load:d=>{ if(!d||!(d.app==='population')) return false; doc=PG.normalizeDoc(d); syncTop(); changed('all'); toast('작업을 불러왔어요.'); return true; }};
+return {getDoc:()=>doc,load:d=>{ if(!d||!(d.app==='population')) return false; doc=PG.normalizeDoc(d); syncTop(); changed('all'); toast('작업을 불러왔어요.'); return true; }};
 });
 </script>
 <script>
@@ -13311,7 +14179,530 @@ if(!HAS){ $('#pbSeg').querySelectorAll('button:not([data-v="paste"])').forEach(b
 renderPB(); renderTable(); renderOpts(); renderExamples(); schedule();
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ GG.clearMetrics(); schedule(); });
 /* 통합판에서 다른 곳이 작업 파일을 넘겨줄 때 */
-return {load:d=>{ if(!d||!(d.app==='agriculture')) return false; doc=AG.normalizeDoc(d); syncTop(); changed('all'); toast('작업을 불러왔어요.'); return true; }};
+return {getDoc:()=>doc,load:d=>{ if(!d||!(d.app==='agriculture')) return false; doc=AG.normalizeDoc(d); syncTop(); changed('all'); toast('작업을 불러왔어요.'); return true; }};
+});
+</script>
+<script>
+/* 문항 설계 탭: 성취기준 → 평가 요소 → 장면·자료 → 발문 → 선지 → 점검
+   경기도교육청 「2024 평가문항 제작 방법(지리)」의 제작 절차(교육 과정 분석 → 평가 요소 선정 → 문제 장면 설정 → 문항 초안 → 검토)를 따른다 */
+HUB.def('item',function(ROOT){
+'use strict';
+const $=s=>ROOT.querySelector(s);
+function h(tag,attrs,...kids){
+  const e=document.createElement(tag);
+  if(attrs) for(const [k,v] of Object.entries(attrs)){
+    if(v==null||v===false) continue;
+    if(k==='class') e.className=v; else if(k.startsWith('on')) e.addEventListener(k.slice(2),v); else if(v===true) e.setAttribute(k,''); else e.setAttribute(k,String(v));
+  }
+  for(const c of kids.flat()) if(c!=null&&c!==false&&c!=='') e.append(c.nodeType?c:document.createTextNode(String(c)));
+  return e;
+}
+const KEY='wg-item-draft-v1';
+const STEPS=[['std','교육과정'],['eval','평가 요소'],['scene','장면·자료'],['stem','발문'],['stmt','선지'],['check','점검']];
+const KN={1:'한',2:'두',3:'세',4:'네',5:'다섯',6:'여섯'};
+const TOOLS=[['climate','기후 그래프'],['energy','에너지 그래프'],['religion','종교 그래프'],['population','인구 그래프'],['agriculture','농업 그래프'],['mapquick','백지도 자동 생성'],['mapedit','백지도 편집기'],['landform','지형 모식도'],['kmap','한국지리 백지도']];
+const TOOL_OF={climate:'climate',energy:'energy',religion:'religion',population:'population',agriculture:'agriculture',map:'mapquick',landform:'landform'};
+const TARGETS=['지역','국가','도시','종교','에너지 자원','작물','가축','지형','산맥','지역(대륙)','경제 블록','국제 환경 협약'];
+let step=0, side='check', candTab='data', candF={kind:'all',m:'all',ox:'all'};
+let it=fresh(); let toastT=0;
+/* 다른 탭에서 불러온 자료 그림: 크기가 커서 작업 파일·자동 저장에는 넣지 않고 이 화면에만 둔다 */
+let figs=[];
+
+function fresh(){ return {app:'item',v:1,no:1,curr:'w15',unit:'02',std:'',eval:'',act:'개념 및 원리 이해',goal:'',goalAuto:true,
+  dk:'graph',scene:'none',about:'',refMode:'labels',target:'지역',groups:[{seq:'gana',labels:['(가)','(나)','(다)','(라)'],names:['','','','']}],
+  form:'one',anyCount:false,bogiN:4,pts:2,pickFrom:'',condOn:true,condExtra:'',indEdit:'',dirEdit:'',stmts:[],climate:null,dataNote:'',srcNote:'',manual:{},mapIsWorld:false,
+  find:{map:{},opts:null}}; }
+function normalize(d){ const f=fresh(); const o=Object.assign(f,d||{}); o.app='item';
+  if(!Array.isArray(o.groups)||!o.groups.length) o.groups=f.groups;
+  o.groups=o.groups.map(g=>({seq:g.seq||IT.seqOf((g.labels||[])[0])||'gana',labels:(g.labels||[]).slice(),names:(g.names||[]).map(x=>x||''),target:g.target||'',cond:g.cond!==false}));
+  o.stmts=(o.stmts||[]).map(s=>({id:s.id||uid(),text:String(s.text||''),truth:s.truth===true?true:s.truth===false?false:null,kind:s.kind||IT.kindOf(s.text),why:s.why||'',warn:s.warn||'',note:s.note||'',src:s.src||'me'}));
+  o.manual=o.manual||{}; o.find=Object.assign({map:{},opts:null},o.find||{}); return o; }
+const uid=()=>Math.random().toString(36).slice(2,9);
+/* 한 파일판: 자료가 문서 안에 들어 있다 */
+try{ const el=document.getElementById('it-data'); if(el&&!IT.data) IT.setData(JSON.parse(el.textContent)); }catch(e){}
+try{ const el=document.getElementById('it-kice'); if(el&&!IT.hasKice) IT.setKice(JSON.parse(el.textContent)); }catch(e){}
+try{ const s=localStorage.getItem(KEY); if(s) it=normalize(JSON.parse(s)); }catch(e){}
+
+/* ───────── 공통 ───────── */
+function toast(msg){ let t=$('.itoast'); if(!t){ t=h('div',{class:'toast itoast',role:'status','aria-live':'polite'}); ROOT.querySelector('.iapp').append(t); } t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),3200); }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(it)); }catch(e){} }
+function changed(what){ save(); renderSteps(); renderPaper(); renderCard(); renderSide(); if(what==='step') renderStep(); }
+function seg(opts,get,set,cls){ const b=h('div',{class:'seg'+(cls?' '+cls:''),role:'group'}); for(const [v,t,title] of opts){ const x=h('button',{type:'button','aria-pressed':String(get()===v),title:title||null},t); x.addEventListener('click',()=>{ set(v); }); b.append(x); } return b; }
+function sec(title,...kids){ return h('section',{class:'sec'},title?h('h3',{class:'sec-title'},title):null,...kids); }
+function fld(label,el,sub){ const id='if'+uid(); if(el.id==='') el.id=id; return h('div',{class:'ifld'},h('label',{for:el.id},label),el,sub?h('p',{class:'sub'},sub):null); }
+function input(val,on,attrs){ const e=h('input',Object.assign({type:'text',value:val||''},attrs||{})); e.addEventListener('input',()=>on(e.value)); return e; }
+function area(val,on,attrs){ const e=h('textarea',Object.assign({rows:2},attrs||{})); e.value=val||''; e.addEventListener('input',()=>on(e.value)); return e; }
+const D=()=>IT.data;
+const curC=()=>D().curr[it.curr];
+const stdObj=()=>it.std?curC().std.find(s=>s.code===it.std):null;
+const g0=()=>it.groups[0]||{labels:[],names:[]};
+const toolExists=id=>!!document.getElementById('hub-tab-'+id);
+function relatedGichul(){ if(!it.std) return []; return IT.gichulBy(IT.related(it.curr,it.std)); }
+function unitName(u){ const x=curC().units.find(x=>x.u===u); return x?x.name:''; }
+function stdShort(code){ return code.replace('12세지',''); }
+const isBogi=()=>it.form==='bogi'||it.form==='bogiAny';
+function need(){ if(isBogi()) return it.bogiN||4; if(it.form==='stu') return 4; if(it.form==='find') return 0; if(it.form==='score') return 4; return 5; }
+function ans(){ return it.form==='find'?findAnswer():IT.answerSet(it.form,it.stmts,{any:it.anyCount}); }
+
+/* ───────── 단계 표시 ───────── */
+function doneOf(k){
+  if(k==='std') return !!it.std; if(k==='eval') return !!it.eval.trim();
+  if(k==='scene') return it.groups.some(g=>g.names.some(Boolean))||!!it.about.trim()||it.scene!=='none';
+  if(k==='stem') return !!it.std&&!!IT.directStem(it);
+  if(k==='stmt') return it.form==='find'?!!findAnswer().ans:it.stmts.length>=need()&&!!ans().ans;
+  if(k==='check') return IT.MANUAL.every(([id])=>it.manual[id]);
+  return false; }
+function renderSteps(){
+  const N=$('#iSteps'); N.textContent='';
+  STEPS.forEach(([k,t],i)=>{ const b=h('button',{type:'button',class:'istep-b'+(doneOf(k)?' done':''),'aria-current':i===step?'step':null},h('span',{class:'n'},doneOf(k)?'✓':String(i+1)),t);
+    b.addEventListener('click',()=>go(i)); N.append(b); });
+  $('#iPrev').disabled=step===0; $('#iNext').textContent=step===STEPS.length-1?'처음 단계로':'다음 단계'; }
+function go(i){ step=Math.max(0,Math.min(STEPS.length-1,i)); renderSteps(); renderStep(); const s=$('#iStep'); if(s) s.scrollTop=0; }
+
+/* ───────── 왼쪽: 단계 내용 ───────── */
+function head(t,p){ return h('div',{class:'ihead'},h('h2',null,t),p?h('p',null,p):null); }
+function renderStep(){
+  const S=$('#iStep'); S.textContent='';
+  const k=STEPS[step][0];
+  ({std:stepStd,eval:stepEval,scene:stepScene,stem:stepStem,stmt:stepStmt,check:stepCheck})[k](S);
+}
+
+/* 1. 교육과정 */
+function stepStd(S){
+  S.append(head('1. 교육과정 분석','평가할 성취기준을 고르세요. ‘기출’은 2024~2027학년도 6월·9월 모의평가와 수능 11회에서 이 성취기준으로 낸 문항 수예요.'));
+  const C=curC();
+  const s1=sec('과목',seg([['w15','세계지리 (2015 개정)'],['c22','세계시민과 지리 (2022 개정)']],()=>it.curr,v=>{ if(v===it.curr) return; it.curr=v; it.unit='01'; it.std=''; changed('step'); },'wrap'));
+  if(it.curr==='c22') s1.append(h('p',{class:'sub'},'세계시민과 지리는 아직 수능 기출이 없어요. 내용이 겹치는 세계지리(2015) 성취기준의 기출을 참고로 보여 줘요(연결은 Claude 판단이라 확인이 필요해요).'));
+  S.append(s1);
+  const us=h('select',{'aria-label':'대단원'}); for(const u of C.units) us.append(h('option',{value:u.u},`${+u.u}. ${u.name}`)); us.value=it.unit;
+  us.addEventListener('change',()=>{ it.unit=us.value; changed('step'); });
+  const list=h('ul',{class:'istd',role:'radiogroup','aria-label':'성취기준'});
+  for(const s of C.std.filter(s=>s.u===it.unit)){
+    const codes=IT.related(it.curr,s.code); const n=IT.gichulBy(codes).length;
+    const li=h('li',{role:'radio','aria-checked':String(it.std===s.code),tabindex:'0'},
+      h('div',{class:'code'},`[${s.code}]`,it.curr==='w15'?h('span',{class:'badge'+(n>=10?' hot':'')},`기출 ${n}`):h('span',{class:'badge'},`관련 2015: ${codes.map(stdShort).join('·')||'없음'} · 기출 ${n}`),s.checked?h('span',{class:'badge',title:'경기도교육청 문서에 인용된 문장과 글자까지 같아요'},'원문 대조'):null),
+      h('div',{class:'txt'},s.text));
+    const pick=()=>{ it.std=s.code; if(it.goalAuto) it.goal=''; changed('step'); };
+    li.addEventListener('click',pick); li.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); pick(); } });
+    list.append(li); }
+  S.append(sec('대단원',us),sec('성취기준',list));
+  S.append(sec('',h('p',{class:'isrc'},'성취기준 문장: ',it.curr==='w15'?D().src.std2015:D().src.std2022)));
+}
+
+/* 2. 평가 요소 */
+function stepEval(S){
+  S.append(head('2. 평가 요소 선정','무엇을 물을지 한 가지로 정하세요(평가 요소는 문항의 ‘몸’, 장면은 ‘옷’). 기출이 물은 것을 눌러 시작해도 돼요.'));
+  const so=stdObj(); if(!so){ S.append(sec('',h('p',{class:'empty'},'먼저 1단계에서 성취기준을 골라 주세요.'))); return; }
+  S.append(sec('고른 성취기준',h('p',{class:'sub'},`[${so.code}] ${so.text}`)));
+  /* 내용 요소 */
+  const units=it.curr==='w15'?[it.unit]:[...new Set(IT.related(it.curr,it.std).map(c=>c.slice(4,6)))];
+  const els=[]; for(const u of units){ const x=D().curr.w15.units.find(z=>z.u===u); if(x) els.push(...x.elems); }
+  if(els.length){ const ch=h('div',{class:'ichips'}); for(const e of [...new Set(els)]){ const b=h('button',{type:'button',class:'ichip'},e); b.addEventListener('click',()=>{ it.eval=e; if(it.goalAuto) it.goal=''; changed('step'); }); ch.append(b); }
+    S.append(sec('내용 요소(경기도 문서 내용 영역)',ch)); }
+  /* 기출이 물은 것 */
+  const G=relatedGichul();
+  if(G.length){
+    const byTopic={}; for(const g of G) (byTopic[g.topic]=byTopic[g.topic]||[]).push(g);
+    const ul=h('ul',{class:'ilist'});
+    for(const [tp,gs] of Object.entries(byTopic).sort((a,b)=>b[1].length-a[1].length)){
+      for(const g of gs){
+        const use=h('button',{type:'button',class:'btn small',title:'평가 요소와 행동 영역을 가져와요'},'가져오기');
+        use.addEventListener('click',()=>{ it.eval=g.eval; it.act=g.act; if(it.goalAuto) it.goal=''; changed('step'); toast('평가 요소를 가져왔어요.'); });
+        const cp=h('button',{type:'button',class:'btn small',title:'자료 종류·장면·발문 형식·배점을 이 기출처럼 맞춰요'},'구조 따라 하기');
+        cp.addEventListener('click',()=>{ followStructure(g); });
+        ul.append(h('li',{class:'col'},h('div',null,g.eval),h('div',{class:'meta'},`${g.name} ${g.no}번 · ${tp} · ${g.data.join('·')} · ${g.form} · ${g.act}${g.pts===3?' · 3점':''}`),h('div',{class:'ichips'},use,cp)));
+      }
+    }
+    S.append(sec(`기출이 물은 것 (${G.length}문항)`,ul,h('p',{class:'isrc'},'주제·평가 요소·행동 영역 태그는 Claude가 단 초안이에요.')));
+  } else S.append(sec('기출이 물은 것',h('p',{class:'empty'},'이 성취기준으로 낸 기출이 11회 안에는 없어요. 새로운 장면을 시도해 볼 수 있는 자리예요.')));
+  /* 입력 */
+  S.append(sec('평가 요소',fld('이 문항이 묻는 것',area(it.eval,v=>{ it.eval=v; if(it.goalAuto) it.goal=''; changed(); },{rows:2,placeholder:'예: 기후 그래프로 본 열대·건조 기후의 특징'}))));
+  const acts=IT.ACTS.map(a=>[a[0],a[0].replace(' 및 ','·')]);
+  S.append(sec('행동 영역',seg(acts,()=>it.act,v=>{ it.act=v; if(it.goalAuto) it.goal=''; changed('step'); },'wrap'),
+    h('p',{class:'sub'},({'개념 및 원리 이해':'지리 지식·개념·원리를 아는지','문제 파악 및 인식':'자료에서 과제·전제를 찾아내는지','탐구 설계 및 수행':'탐구 절차에 따라 조사·분석을 설계하는지','자료 분석 및 해석':'자료의 핵심 의미를 정확히 읽는지','결론 도출 및 평가':'정보로 결론을 내리거나 타당성을 판단하는지'})[it.act]||'')));
+  const gi=input(it.goalAuto?IT.goalOf(it.eval,it.act):it.goal,v=>{ it.goal=v; it.goalAuto=false; changed(); },{placeholder:'평가 요소를 적으면 저절로 채워져요'});
+  const rs=h('button',{type:'button',class:'btn small'},'자동 문장으로'); rs.addEventListener('click',()=>{ it.goalAuto=true; it.goal=''; changed('step'); });
+  S.append(sec('평가 목표',gi,rs));
+}
+function followStructure(g){
+  const dk=g.data.includes('그래프')?'graph':g.data.includes('표')?'table':g.data.includes('지도')&&g.data.length===1?'map':g.data.includes('글')?'text':g.data.includes('사진')||g.data.includes('그림')?'photo':'mixed';
+  const sc={'':'none','수업':'class','답사·여행':'trip','수행평가':'report','기사':'news','방송':'docu','퀴즈·게임':'quiz','게시물·메시지':'post','평가지':'sheet','조건 선정':'pick','질문지':'sheet'}[g.scene];
+  it.dk=dk; it.scene=sc||'none'; it.pts=g.pts;
+  it.form={'정답형':'one','부정형':'neg','합답형':'bogi','합답형(있는 대로)':'bogiAny','찾기형':'find','학생형':'stu','채점형':'score','최선답형':'best','조건형':'find'}[g.form]||'one';
+  if(it.form==='stu') it.anyCount=false;
+  const L=g.labels||[]; if(L.includes('A')&&!L.includes('(가)')) { const n=g0().labels.length||4; it.groups[0]=Object.assign(g0(),{seq:'latin',labels:IT.seqList('latin',n),names:(g0().names||[]).slice(0,n)}); }
+  changed('step'); toast(`${g.name} ${g.no}번의 자료 종류·장면·형식·배점을 맞췄어요.`);
+}
+
+
+/* ───────── 지금 만들고 있는 자료 불러오기 ───────── */
+const FIG_ENGINE={climate:'GG',energy:'GG',religion:'GG',population:'GG',agriculture:'GG',mapquick:'WG',mapedit:'WG',landform:'LG',kmap:'LG'};
+const FIG_DPI=200;
+function figApi(id){ const A=typeof HUB!=='undefined'&&HUB.apis&&HUB.apis[id]; return A&&A.getDoc?A:null; }
+function blobUrl(b){ return new Promise((ok,no)=>{ const r=new FileReader(); r.onload=()=>ok(r.result); r.onerror=no; r.readAsDataURL(b); }); }
+async function pngOf(id,doc){
+  const E=FIG_ENGINE[id];
+  if(E==='GG'&&typeof GG!=='undefined') return GG.renderPng(doc,{dpi:FIG_DPI});
+  if(E==='WG'&&typeof WG!=='undefined') return WG.renderPng(doc,{dpi:FIG_DPI});
+  if(E==='LG'&&typeof LG!=='undefined') return LG.renderPng(doc,FIG_DPI);
+  throw new Error('engine');
+}
+async function loadFig(id){
+  const name=(TOOLS.find(t=>t[0]===id)||[id,id])[1];
+  const A=figApi(id); if(!A){ toast(`${name} 탭을 먼저 열어 자료를 만들어 주세요.`); return; }
+  let doc; try{ doc=A.getDoc(); }catch(e){}
+  if(!doc){ toast(`${name} 탭에 아직 자료가 없어요.`); return; }
+  toast(`${name} 그림을 가져오는 중이에요…`);
+  try{
+    const blob=await pngOf(id,doc); if(!blob) throw new Error('empty');
+    const url=await blobUrl(blob); const im=new Image(); await new Promise((ok,no)=>{ im.onload=ok; im.onerror=no; im.src=url; });
+    const f={id,name,url,blob,w:im.naturalWidth,h:im.naturalHeight,t:Date.now()};
+    const i=figs.findIndex(x=>x.id===id); if(i>=0) figs[i]=f; else figs.push(f);
+    toast(`${name} 그림을 불러왔어요. 시험지 미리 보기에 들어가요.`); changed('step');
+  }catch(e){ console.error(e); toast(`${name} 그림을 만들지 못했어요. 그 탭에서 자료가 보이는지 확인해 주세요.`); }
+}
+function removeFig(id){ figs=figs.filter(f=>f.id!==id); changed('step'); }
+async function copyFig(){
+  if(!figs.length){ toast('불러온 자료 그림이 없어요. 3단계에서 불러와 주세요.'); return; }
+  try{ await navigator.clipboard.write([new ClipboardItem({'image/png':figs[0].blob})]); toast(figs.length>1?`첫 번째 그림(${figs[0].name})을 복사했어요. 한글·워드에 붙여 넣으세요.`:'자료 그림을 복사했어요. 한글·워드에 붙여 넣으세요.'); }
+  catch(e){ toast('이 브라우저에서는 복사가 막혀 있어요. 각 도구에서 PNG로 저장해 주세요.'); }
+}
+function figSection(){
+  const row=h('div',{class:'ichips'});
+  for(const [id,name] of TOOLS){ if(!toolExists(id)) continue;
+    const have=figs.find(f=>f.id===id);
+    const b=h('button',{type:'button',class:'btn small',title:'지금 그 탭에 만들어 둔 그림을 가져와요'},have?`${name} 다시 불러오기`:`${name} 불러오기`);
+    b.addEventListener('click',()=>loadFig(id)); row.append(b); }
+  const list=h('div',{class:'ifigs'});
+  figs.forEach(f=>list.append(h('div',{class:'ifig'},h('img',{src:f.url,alt:`${f.name} 그림`}),h('div',{class:'ifig-info'},h('b',null,f.name),h('small',null,`${f.w}×${f.h} px`),(()=>{ const x=h('button',{type:'button',class:'btn small'},'빼기'); x.addEventListener('click',()=>removeFig(f.id)); return x; })()))));
+  return sec('지금 만들고 있는 자료 불러오기',row,
+    h('p',{class:'sub'},'다른 탭에서 만들고 있는 그래프·지도 그림을 그대로 가져와 시험지 미리 보기의 자료 자리에 넣어요. 그 탭에서 자료를 만든 뒤 눌러 주세요. 그 탭을 고친 뒤에는 ‘다시 불러오기’를 눌러 주세요.'),
+    figs.length?list:null,
+    figs.length?h('p',{class:'sub'},'불러온 그림은 이 화면에만 있어요. 새로고침하거나 작업 파일로 저장하면 사라지니, 다시 불러와 주세요.'):null);
+}
+
+/* 3. 장면·자료 */
+function stepScene(S){
+  S.append(head('3. 문제 장면 설정','평가 요소를 담을 자료와 장면을 정하고, 자료의 기호가 무엇을 가리키는지 적어요. 자료 그림은 다른 탭에서 만들어요.'));
+  const G=relatedGichul();
+  if(G.length){ const st=IT.stats(G); S.append(sec('같은 성취기준 기출 경향',h('p',{class:'sub'},
+    `자료: ${st.data.slice(0,4).map(([k,v])=>`${k} ${v}`).join(', ')} · 장면: ${st.scene.slice(0,3).map(([k,v])=>`${k} ${v}`).join(', ')} · 형식: ${st.form.slice(0,3).map(([k,v])=>`${k} ${v}`).join(', ')}`))); }
+  S.append(sec('자료 종류',seg(IT.DKINDS.map(d=>[d.k,d.name]),()=>it.dk,v=>{ it.dk=v; changed('step'); },'wrap')));
+  const scs=h('select',{'aria-label':'장면'}); for(const s of IT.SCENES) scs.append(h('option',{value:s.k},s.name)); scs.value=it.scene;
+  scs.addEventListener('change',()=>{ it.scene=scs.value; it.indEdit=''; changed('step'); });
+  const ph={graph:'예: 지도에 표시된 네 지역의 기후 특성',table:'예: 세 국가의 도시화 특성',map:'예: 세계의 지진 발생 지점',text:'예: 대기 대순환',photo:'예: 두 지역의 지형',mixed:'예: 세 국가의 국장'}[it.dk];
+  const ab=input(it.about,v=>{ it.about=v; changed(); },{placeholder:ph});
+  S.append(sec('장면과 자료 설명',fld('장면',scs,it.scene==='none'?'장면 없이 자료만 주면 ‘그래프는 …을 나타낸 것이다.’로 시작해요.':'장면 문장의 ○○은 4단계에서 고쳐 써요.'),it.scene==='none'?fld('무엇을 나타낸 자료인가요?',ab):null));
+  /* 자료 만들기 */
+  const rec=new Set(IT.stats(G).tool.slice(0,2).map(([k])=>TOOL_OF[k]).filter(Boolean));
+  const links=h('div',{class:'ichips'}); for(const [id,name] of TOOLS) if(toolExists(id)) links.append(h('a',{class:'ichip',href:'#open:'+id,title:rec.has(id)?'같은 성취기준 기출에서 많이 쓴 자료예요':null},name,rec.has(id)?h('small',null,'기출'):null));
+  const imC=h('button',{type:'button',class:'btn small'},'기후 탭 지점 가져오기'); imC.addEventListener('click',importClimate);
+  const imM=h('button',{type:'button',class:'btn small'},'백지도 기호 가져오기'); imM.addEventListener('click',importMap);
+  S.append(sec('자료 만들기',links,h('div',{class:'ichips'},toolExists('climate')?imC:null,toolExists('mapedit')||toolExists('mapquick')?imM:null),
+    h('p',{class:'sub'},'다른 탭에서 기호를 붙여 자료를 만든 뒤 ‘가져오기’를 누르면 기호와 대상 이름이 아래에 채워져요. 기후 탭에서 가져오면 5단계에서 수치로 참·거짓을 판정한 선지 후보가 나와요.')));
+  S.append(figSection());
+  /* 기호 묶음 */
+  const box=h('div',{class:'ifld'});
+  it.groups.forEach((g,gi)=>box.append(groupEditor(g,gi)));
+  const add=h('button',{type:'button',class:'btn small'},'+ 기호 묶음 추가'); add.addEventListener('click',()=>{ const used=new Set(it.groups.map(g=>g.seq)); const seq=['latin','gana','circ','mk'].find(s=>!used.has(s))||'latin'; it.groups.push({seq,labels:IT.seqList(seq,4),names:['','','',''],target:''}); changed('step'); });
+  S.append(sec('자료의 기호와 대상',h('p',{class:'sub'},'기호가 가리키는 정답 대상을 적으면 단서 조항 ‘(단, … 각각 … 중 하나임.)’이 만들어져요. 대상은 가나다순으로 적혀요.'),box,add));
+  S.append(sec('자료 메모',fld('미리 보기 자료 칸에 적을 말',input(it.dataNote,v=>{ it.dataNote=v; changed(); },{placeholder:'예: 기후 그래프 (가)~(라) + 위치 지도'})),
+    fld('자료 연도·출처',input(it.srcNote,v=>{ it.srcNote=v; changed(); },{placeholder:'예: 1991~2020년 평년값, 기상청(JMA)'})),
+    it.dk==='map'?h('label',{class:'check'},(()=>{ const c=h('input',{type:'checkbox'}); c.checked=!!it.mapIsWorld; c.addEventListener('change',()=>{ it.mapIsWorld=c.checked; changed(); }); return c; })(),'세계·대륙 전도예요(축척 생략)'):null));
+}
+function groupEditor(g,gi){
+  const wrap=h('div',{class:'igroup'});
+  const sq=h('select',{'aria-label':'기호 종류'}); for(const [k,t] of Object.entries(IT.SEQ_NAME)) sq.append(h('option',{value:k},t)); sq.value=g.seq;
+  sq.addEventListener('change',()=>{ g.seq=sq.value; g.labels=IT.seqList(g.seq,g.labels.length); changed('step'); });
+  const n=h('input',{type:'number',min:'2',max:'8',value:String(g.labels.length),'aria-label':'기호 개수'});
+  n.addEventListener('change',()=>{ const k=Math.max(2,Math.min(8,+n.value||4)); g.labels=IT.seqList(g.seq,k); g.names=Array.from({length:k},(_,i)=>g.names[i]||''); changed('step'); });
+  const tg=input(gi===0?it.target:g.target,v=>{ if(gi===0) it.target=v; else g.target=v; changed(); },{placeholder:'대상 (지역·국가 …)','aria-label':'대상','list':'iTargets'});
+  const x=gi>0?h('button',{type:'button',class:'ico x','aria-label':'이 묶음 지우기'},'×'):null; if(x) x.addEventListener('click',()=>{ it.groups.splice(gi,1); changed('step'); });
+  const cc=h('input',{type:'checkbox'}); cc.checked=g.cond!==false; cc.addEventListener('change',()=>{ g.cond=cc.checked; changed(); });
+  wrap.append(h('div',{class:'igroup-head'},sq,n,tg,x),h('label',{class:'check'},cc,'이 묶음의 대상 이름을 단서 조항에 넣기'));
+  const names=h('div',{class:'inames'});
+  g.labels.forEach((l,i)=>{ names.append(h('b',null,l),input(g.names[i]||'',v=>{ g.names[i]=v; changed(); },{'aria-label':`${l} 대상 이름`,placeholder:gi===0?'정답 대상 (예: 싱가포르)':'지도 기호라면 비워 둬도 돼요'})); });
+  wrap.append(names);
+  if(!document.getElementById('iTargets')){ const dl=h('datalist',{id:'iTargets'}); for(const t of TARGETS) dl.append(h('option',{value:t})); ROOT.querySelector('.iapp').append(dl); }
+  return wrap;
+}
+function importClimate(){
+  const api=HUB.apis.climate; if(!api||!api.getDoc){ toast('기후 탭을 먼저 열어 지점을 넣어 주세요.'); HUB.show('climate').catch(()=>{}); return; }
+  const d=api.getDoc(); if(d.seq==='name'){ toast('기후 탭의 라벨이 ‘지명’이에요. (가)·A·㉠ 중 하나로 바꾼 뒤 가져와 주세요.'); return; }
+  const S=GG.plotted(d).filter(s=>s.lbl); if(!S.length){ toast('기후 탭에 기호가 붙은 지점이 없어요.'); return; }
+  it.climate=S.map(s=>({l:s.lbl,name:s.name,t:s.t.slice(),p:s.p.slice(),lat:s.lat,elev:s.elev}));
+  const labels=S.map(s=>s.lbl); const seq=IT.seqOf(labels[0])||'gana';
+  it.groups[0]={seq,labels,names:S.map(s=>s.name),target:'',cond:false}; it.target='지역'; it.dk=d.kind==='tb'?'table':'graph';
+  if(!it.about) it.about=`${KN[S.length]||S.length} 지역의 기후 특성`;
+  try{ const H=GG.hintOf(d); if(H&&H.sentence) it.condExtra=H.sentence.replace(/^\(단,\s*/,'').replace(/임\.\)$/,''); }catch(e){}
+  if(!it.srcNote&&d.notes&&d.notes.normal) it.srcNote='1991~2020년 평년값';
+  candTab='data'; changed('step'); toast(`기후 탭의 ${S.length}개 지점을 가져왔어요. 지점 이름은 정답 기록용이라 단서 조항에는 넣지 않았어요.`);
+}
+function importMap(from){
+  const A=HUB.apis; const api=from&&A[from]&&A[from].getDoc?A[from]:(A.mapedit&&A.mapedit.getDoc?A.mapedit:A.mapquick);
+  if(!api||!api.getDoc){ toast('백지도 탭을 먼저 열어 기호를 붙여 주세요.'); return; }
+  const d=api.getDoc(); if(!d){ toast('백지도에 아직 지도가 없어요.'); return; }
+  const k=WG.answerKey(d); if(!k){ toast('백지도에 기호가 붙은 곳이 없어요.'); return; }
+  const pairs=k.key.split(' · ').map(x=>{ const i=x.indexOf(' '); return [x.slice(0,i),x.slice(i+1).replace(/\(부근\)$/,'')]; });
+  const labels=pairs.map(p=>p[0]), names=pairs.map(p=>p[1]); const seq=IT.seqOf(labels[0])||'latin';
+  const gi=it.groups.findIndex(g=>g.seq===seq);
+  const ng={seq,labels,names,target:gi>0?it.groups[gi].target:'',cond:false};
+  if(gi>=0) it.groups[gi]=ng; else it.groups.push(ng);
+  it.mapIsWorld=/world/.test(String(d.preset||''));
+  changed('step'); toast(`백지도의 기호 ${labels.length}개를 가져왔어요${d.layers&&d.layers.scale&&d.layers.scale!=='none'?' (축척 있음)':''}.`);
+}
+
+/* 4. 발문 */
+function stepStem(S){
+  S.append(head('4. 발문 쓰기','형식을 고르면 경기도 문서 규칙대로 발문을 조립해요. 간접 발문(자료 설명) → 직접 발문(물음) → 단서 조항 → 배점 순이에요.'));
+  const forms=IT.FORMS.map(f=>[f.k,f.name]);
+  S.append(sec('형식',seg(forms,()=>it.form,v=>{ it.form=v; it.dirEdit=''; changed('step'); },'wrap'),
+    h('p',{class:'sub'},({one:'옳은 선택지 하나. 선택지는 5개.',neg:'옳지 않은 선택지 하나. 부정어에 밑줄을 그어요. ‘가장’을 쓰지 않아요.',bogi:'<보기> ㄱ~ㄹ에서 옳은 것을 고르는 형식. 답지마다 고른 개수가 같을 때 써요.',bogiAny:'답지마다 고른 개수가 다를 때 ‘있는 대로’를 써요. ‘모두 고르면?’은 쓰지 않아요.',find:'기호와 대상을 짝짓는 형식(지도의 A~D에서 고르기 등).',stu:'갑·을·병·정의 대답을 판정하는 형식.',score:'○·× 답변을 채점해 점수를 고르는 형식.',best:'선택지가 부분적으로 모두 맞을 때 ‘가장 적절한’을 써요. 부정형과 함께 쓰지 않아요.'})[it.form]||'')));
+  if(it.form==='stu'){ const c=h('input',{type:'checkbox'}); c.checked=!!it.anyCount; c.addEventListener('change',()=>{ it.anyCount=c.checked; changed('step'); }); S.append(sec('',h('label',{class:'check'},c,'답지마다 고른 학생 수가 달라요(‘있는 대로’)'))); }
+  if(isBogi()) S.append(sec('<보기> 항목 수',seg([[3,'3개 (ㄱ~ㄷ)'],[4,'4개 (ㄱ~ㄹ)']],()=>it.bogiN||4,v=>{ it.bogiN=v; changed('step'); })));
+  S.append(sec('배점',seg([[2,'2점'],[3,'3점']],()=>it.pts,v=>{ it.pts=v; changed('step'); })));
+  if(it.form!=='find'&&it.form!=='stu'&&it.form!=='score'&&IT.indirectStem(it)) S.append(sec('대상 부르기',seg([['labels',`${IT.rangeOf(g0().labels)} ${it.target||''}에 대한`.replace(/\s+/g,' ')],['this','이에 대한']],()=>it.refMode,v=>{ it.refMode=v; it.dirEdit=''; changed('step'); },'wrap')));
+  if(it.form==='find') S.append(sec('고를 곳',input(it.pickFrom,v=>{ it.pickFrom=v; changed(); },{placeholder:it.groups[1]?`지도의 ${IT.rangeOf(it.groups[1].labels)}`:'예: 지도의 A～D'})));
+  /* 단서 조항 */
+  const cc=h('input',{type:'checkbox'}); cc.checked=it.condOn!==false; cc.addEventListener('change',()=>{ it.condOn=cc.checked; changed(); });
+  S.append(sec('단서 조항',h('label',{class:'check'},cc,'대상 이름으로 단서 조항 만들기'),
+    fld('덧붙일 조건',input(it.condExtra,v=>{ it.condExtra=v; changed(); },{placeholder:'예: ㉠, ㉡ 시기는 각각 1월, 7월 중 하나'}),'기후 탭에서 시기 이름을 숨겼다면 가져오기 때 저절로 채워져요. 정답을 찾는 데 필요한 조건은 빠짐없이, 정답의 단서가 되는 말은 빼요.')));
+  /* 문장 */
+  const ind=area(it.indEdit||IT.indirectStem(it),v=>{ it.indEdit=v===IT.indirectStem(it)?'':v; changed(); },{rows:2,placeholder:'간접 발문이 없으면 비워 둬요'});
+  const dir=area(it.dirEdit||IT.directStem(it),v=>{ it.dirEdit=v===IT.directStem(it)?'':v; changed(); },{rows:2});
+  const rs=h('button',{type:'button',class:'btn small'},'자동 문장으로 되돌리기'); rs.addEventListener('click',()=>{ it.indEdit=''; it.dirEdit=''; changed('step'); });
+  const cp=h('button',{type:'button',class:'btn small'},'발문 복사'); cp.addEventListener('click',copyStem);
+  S.append(sec('발문',fld('간접 발문(자료 설명)',ind),fld('직접 발문(물음)',dir),h('div',{class:'ichips'},rs,cp),
+    h('p',{class:'sub'},'그림·표·그래프 앞에는 ‘다음’을 쓰지 않고, 글상자 자료에만 ‘다음 글은’을 써요. 자료를 가리킬 때는 ‘이에 대한’, ‘이 자료에 대한’이라고 써요.')));
+  /* 기출 발문 참고 */
+  if(IT.hasKice){ const G=relatedGichul().slice(0,8); if(G.length){ const ul=h('ul',{class:'ilist'}); for(const g of G){ const k=IT.kiceOf(g.id); if(!k) continue; ul.append(h('li',null,h('div',{class:'grow'},h('div',{class:'stem'},k.stem+(k.cond?' '+k.cond:'')),h('div',{class:'meta'},`${g.name} ${g.no}번 · ${g.form}`)))); }
+    S.append(sec('같은 성취기준 기출 발문(개인판에만 보여요)',ul)); } }
+}
+
+/* 5. 선지 */
+function stepStmt(S){
+  S.append(head('5. 선지 만들기',it.form==='find'?'기호와 대상의 짝을 정하면 답지 다섯 개를 기출처럼 배열해요.':'자료로 참·거짓이 갈리는 진술을 고르고, ‘단독 → 비교 → 통합’ 순으로 배열해요.'));
+  if(it.form==='find'){ stepFind(S); return; }
+  const N=need();
+  const list=h('ol',{class:'istm'});
+  const labs=it.form==='stu'?IT.STU:isBogi()?IT.JAMO:IT.CIRC;
+  it.stmts.forEach((s,i)=>{
+    const ta=h('textarea',{rows:2,'aria-label':`선택지 ${i+1}`}); ta.value=s.text; ta.addEventListener('input',()=>{ s.text=ta.value; s.kind=IT.kindOf(s.text); s.src='me'; s.why=''; s.warn=''; changed(); });
+    const tf=h('button',{type:'button',class:'tf','data-v':s.truth===true?'1':s.truth===false?'0':'',title:'참·거짓 바꾸기'},s.truth===true?'O':s.truth===false?'X':'?');
+    tf.addEventListener('click',()=>{ s.truth=s.truth===null?true:s.truth===true?false:null; changed('step'); });
+    const up=h('button',{type:'button',class:'ico','aria-label':'위로'},'↑'); up.addEventListener('click',()=>{ if(i>0){ [it.stmts[i-1],it.stmts[i]]=[it.stmts[i],it.stmts[i-1]]; changed('step'); } });
+    const dn=h('button',{type:'button',class:'ico','aria-label':'아래로'},'↓'); dn.addEventListener('click',()=>{ if(i<it.stmts.length-1){ [it.stmts[i+1],it.stmts[i]]=[it.stmts[i],it.stmts[i+1]]; changed('step'); } });
+    const x=h('button',{type:'button',class:'ico x','aria-label':'지우기'},'×'); x.addEventListener('click',()=>{ it.stmts.splice(i,1); changed('step'); });
+    list.append(h('li',null,h('span',{class:'lbl'},labs[i]||'·'),ta,h('div',{class:'tools'},tf,h('span',{class:'kind'},s.kind||IT.kindOf(s.text)),up,dn,x),
+      s.why||s.warn?h('div',{class:'why'+(s.warn?' warn':'')},[s.why,s.warn].filter(Boolean).join(' — ')):null));
+  });
+  const A=ans();
+  const sort=h('button',{type:'button',class:'btn small'},'순서 정리'); sort.addEventListener('click',()=>{ it.stmts=IT.sortStmts(it.stmts); changed('step'); toast('단독 → 비교 → 통합, 기호 순으로 정리했어요.'); });
+  const clr=h('button',{type:'button',class:'btn small'},'비우기'); clr.addEventListener('click',()=>{ if(it.stmts.length&&!confirm('선지를 모두 지울까요?')) return; it.stmts=[]; changed('step'); });
+  const status=h('p',{class:'msg '+(A.ans&&it.stmts.length===N?'ok':'warn')},
+    it.stmts.length<N?`${N}개 중 ${it.stmts.length}개를 골랐어요. 아래 후보에서 더 넣어 주세요.`:it.stmts.length>N?`${N}개보다 많아요. ${it.stmts.length-N}개를 빼 주세요.`:A.ans?`정답: ${IT.CIRC[A.ans-1]}${A.opts&&A.opts[A.ans-1]&&(isBogi()||it.form==='stu')?' ('+A.opts[A.ans-1]+')':''}`:'정답이 정해지지 않았어요. 참·거짓을 확인해 주세요.');
+  S.append(sec(`고른 선지 (${it.stmts.length}/${N})`,it.stmts.length?list:h('p',{class:'empty'},'아직 고른 선지가 없어요.'),h('div',{class:'ichips'},sort,clr),status,
+    ...(A.msg||[]).map(m=>h('p',{class:'msg warn'},m))));
+  /* 후보 */
+  const tabs=[['data','자료로 판정'],['tpl','진술 틀'],['me','직접 쓰기']]; if(IT.hasKice) tabs.splice(2,0,['gichul','기출 선지']);
+  const box=h('div',{class:'ifld'});
+  S.append(sec('후보',seg(tabs,()=>candTab,v=>{ candTab=v; renderStep(); },'wrap'),box));
+  if(candTab==='data') candData(box); else if(candTab==='tpl') candTpl(box); else if(candTab==='gichul') candGichul(box); else candMe(box);
+}
+function addStmt(o){ const N=need(); if(it.stmts.length>=N&&!confirm(`이미 ${N}개예요. 그래도 넣을까요?`)) return; it.stmts.push({id:uid(),text:o.text,truth:o.truth==null?null:o.truth,kind:o.kind||IT.kindOf(o.text),why:o.why||'',warn:o.warn||'',note:o.note||'',src:o.src||'me'}); changed('step'); }
+function candData(box){
+  if(!it.climate||!it.climate.length){ box.append(h('p',{class:'empty'},'3단계에서 ‘기후 탭 지점 가져오기’를 누르면, 지점 수치로 참·거짓을 판정한 진술 후보가 여기에 나와요. 다른 자료는 ‘진술 틀’이나 ‘직접 쓰기’를 써 주세요.')); return; }
+  const C=IT.climateStmts(it.climate); const used=new Set(it.stmts.map(s=>s.text));
+  const ks=['all','단독','기준값','비교','통합'];
+  const kSel=h('select',{'aria-label':'진술 꼴'}); for(const k of ks) kSel.append(h('option',{value:k},k==='all'?'모든 꼴':k)); kSel.value=candF.kind;
+  const grps=[...new Set(C.map(c=>c.grp))]; const mSel=h('select',{'aria-label':'지표'}); mSel.append(h('option',{value:'all'},'모든 지표')); for(const g of grps) mSel.append(h('option',{value:g},g)); mSel.value=grps.includes(candF.m)?candF.m:'all';
+  const oSel=h('select',{'aria-label':'참·거짓'}); for(const [v,t] of [['all','참·거짓 모두'],['o','참만'],['x','거짓만']]) oSel.append(h('option',{value:v},t)); oSel.value=candF.ox;
+  for(const [el,k] of [[kSel,'kind'],[mSel,'m'],[oSel,'ox']]) el.addEventListener('change',()=>{ candF[k]=el.value; renderStep(); });
+  box.append(h('div',{class:'ifilter'},kSel,mSel,oSel));
+  const show=C.filter(c=>(candF.kind==='all'||c.kind===candF.kind)&&(mSel.value==='all'||c.grp===mSel.value)&&(candF.ox==='all'||(candF.ox==='o')===c.truth));
+  const ul=h('ul',{class:'icands'});
+  const cap={}; const shown=show.filter(c=>{ cap[c.kind]=(cap[c.kind]||0)+1; return candF.kind!=='all'||cap[c.kind]<=40; });
+  for(const c of shown){
+    const add=h('button',{type:'button',class:'btn small','aria-label':'선지에 넣기'},'넣기'); add.addEventListener('click',()=>addStmt(c));
+    ul.append(h('li',{class:used.has(c.text)?'used':null},h('span',{class:'ox '+(c.truth?'o':'x')},c.truth?'O':'X'),h('span',{class:'t'},c.text,h('span',{class:'w'+(c.warn?' warn':'')},[c.why,c.warn].filter(Boolean).join(' — '))),add));
+  }
+  box.append(ul,h('p',{class:'isrc'},`후보 ${show.length}개${shown.length<show.length?` 중 ${shown.length}개(꼴마다 40개까지, 위에서 꼴·지표를 고르면 모두 보여요)`:''}. 기후 구분은 교과서 기준(18℃·-3℃·10℃)으로 계산한 보조값이에요. 고산 기후는 판별하지 않아요. 낮 길이·태양 고도는 각 달 15일 기준이에요.`));
+}
+function candTpl(box){
+  const L=g0().labels.length?g0().labels:['(가)','(나)','(다)']; const r=IT.rangeOf(L); const tg=it.target||'지역'; const a=L[0], b=L[1]||L[0], c=L[2]||L[1]||L[0];
+  const T=[
+    ['단독',`${IT.W(a,'은는')} ○○○이다.`],
+    ['단독',`${IT.W(b,'은는')} ○○○에 위치한다.`],
+    ['대응',`${IT.W(a,'은는')} ○○, ${IT.W(b,'은는')} ○○이다.`],
+    ['비교',`${IT.W(a,'은는')} ${b}보다 ○○이/가 높다.`],
+    ['비교',`${IT.W(c,'은는')} ${a}보다 ○○이/가 많다.`],
+    ['통합',`${b}, ${IT.W(c,'은는')} 모두 ○○○.`],
+    ['통합',`${r} 중 ○○이/가 가장 높은 ${tg}${IT.josa(tg,'은는')} ${c}이다.`],
+    ['기준값',`${IT.W(a,'은는')} ○○이/가 ○○ 이상이다.`],
+  ];
+  const ul=h('ul',{class:'icands'});
+  for(const [k,t] of T){ const add=h('button',{type:'button',class:'btn small'},'넣기'); add.addEventListener('click',()=>addStmt({text:t,kind:k,truth:null})); ul.append(h('li',null,h('span',{class:'kind'},k),h('span',{class:'t'},t),add)); }
+  box.append(ul,h('p',{class:'sub'},'○○을 채우고 참·거짓(O/X)을 정해 주세요. 경기도 문서 사례(세계지리 10번)는 ‘단독 → 비교 → 통합’ 순으로 놓아요. 비교 대상이 없는 진술(예: ‘건기와 우기가 뚜렷하다’)은 논란 소지가 있어 기준값이나 비교 진술로 바꾸기를 권해요.'));
+}
+function candGichul(box){
+  const G=relatedGichul(); const ul=h('ul',{class:'icands'}); let n=0;
+  for(const g of G){ const k=IT.kiceOf(g.id); if(!k) continue; for(const s of k.stmts){ n++; const add=h('button',{type:'button',class:'btn small'},'가져오기'); add.addEventListener('click',()=>addStmt({text:s,truth:null,src:'gichul'}));
+    ul.append(h('li',null,h('span',{class:'kind'},IT.kindOf(s)),h('span',{class:'t'},s,h('span',{class:'w'},`${g.name} ${g.no}번`)),add)); } }
+  box.append(n?ul:h('p',{class:'empty'},'같은 성취기준 기출 선지가 없어요.'),h('p',{class:'isrc'},'평가원 기출 문장이에요. 그대로 쓰지 말고 진술 꼴을 참고해 내 자료에 맞게 고쳐 써 주세요(참·거짓은 비워 두었어요).'));
+}
+function candMe(box){
+  const ta=h('textarea',{rows:2,placeholder:'선지 문장을 쓰고 참·거짓을 고른 뒤 넣기'}); let tv=null;
+  const tf=seg([['1','참(O)'],['0','거짓(X)'],['','미정']],()=>tv===true?'1':tv===false?'0':'',v=>{ tv=v==='1'?true:v==='0'?false:null; [...tf.children].forEach(b=>b.setAttribute('aria-pressed',String(b.textContent.startsWith(v==='1'?'참':v==='0'?'거짓':'미정')))); });
+  const add=h('button',{type:'button',class:'btn primary small'},'넣기'); add.addEventListener('click',()=>{ const t=ta.value.trim(); if(!t) return; addStmt({text:t,truth:tv}); });
+  box.append(ta,h('div',{class:'ichips'},tf,add),h('p',{class:'sub'},'‘항상’, ‘반드시’ 같은 단정어와 주어만 바꾼 오답지는 점검에서 알려 줘요.'));
+}
+/* 찾기형: 짝 정하기 → 답지 다섯 개 */
+function perms(a){ if(a.length<=1) return [a.slice()]; const out=[]; a.forEach((x,i)=>{ for(const p of perms(a.slice(0,i).concat(a.slice(i+1)))) out.push([x,...p]); }); return out; }
+function findAnswer(){
+  const A=g0().labels, B=(it.groups[1]||{}).labels||[]; const map=it.find.map||{};
+  if(!A.length||!B.length) return {opts:[],ans:null,msg:['기호 묶음이 둘(예: (가)~(다)와 지도의 A~D) 있어야 해요. 3단계에서 묶음을 추가해 주세요.']};
+  const right=A.map(a=>map[a]||''); if(right.some(x=>!x)) return {opts:[],ans:null,msg:['모든 기호의 짝을 골라 주세요.']};
+  if(new Set(right).size!==right.length) return {opts:[],ans:null,msg:['같은 짝을 두 번 골랐어요.']};
+  /* 후보: B에서 A 개수만큼 뽑은 순열. 정답과 한두 자리 다른 것 위주로 넷 */
+  const pool=[]; const choose=(arr,k)=>k===0?[[]]:arr.flatMap((x,i)=>choose(arr.slice(i+1),k-1).map(r=>[x,...r]));
+  for(const c of choose(B,A.length)) for(const p of perms(c)) pool.push(p);
+  const diff=p=>p.reduce((s,x,i)=>s+(x!==right[i]),0); const key=p=>p.join(' ');
+  const others=pool.filter(p=>key(p)!==key(right)).sort((x,y)=>diff(x)-diff(y)||key(x).localeCompare(key(y)));
+  let pick=it.find.opts&&it.find.opts.length===5&&it.find.opts.some(o=>o===key(right))&&it.find.opts.every(o=>pool.some(p=>key(p)===o))?it.find.opts.map(o=>o.split(' ')):null;
+  if(!pick){ const near=others.filter(p=>diff(p)<=2); const far=others.filter(p=>diff(p)>2); const ch=[]; for(const p of near.concat(far)){ if(ch.length>=4) break; if(!ch.some(q=>key(q)===key(p))) ch.push(p); } pick=[right,...ch]; }
+  pick.sort((x,y)=>key(x).localeCompare(key(y)));
+  const ai=pick.findIndex(p=>key(p)===key(right));
+  const msg=[]; const pos=Array.from({length:A.length},(_,i)=>new Set(pick.map(p=>p[i])).size); if(pos.some(n=>n===1)) msg.push('어느 한 자리의 답이 다섯 답지에서 모두 같아요. 그 기호는 판별하지 않아도 풀려요.');
+  return {opts:pick.map(p=>p.join('  ')),ans:ai+1,msg,head:A};
+}
+function stepFind(S){
+  const A=g0().labels, B=(it.groups[1]||{}).labels||[];
+  if(!B.length){ S.append(sec('',h('p',{class:'empty'},'찾기형은 자료 기호(예: (가)~(다))와 고를 기호(예: 지도의 A~D) 두 묶음이 필요해요. 3단계 ‘+ 기호 묶음 추가’를 눌러 주세요.'))); return; }
+  const grid=h('div',{class:'inames'});
+  for(const a of A){ const s=h('select',{'aria-label':`${a}의 짝`}); s.append(h('option',{value:''},'—')); for(const b of B) s.append(h('option',{value:b},b)); s.value=it.find.map[a]||'';
+    s.addEventListener('change',()=>{ it.find.map[a]=s.value; it.find.opts=null; changed('step'); }); grid.append(h('b',null,a),s); }
+  const F=findAnswer();
+  const re=h('button',{type:'button',class:'btn small'},'오답 답지 다시 고르기'); re.addEventListener('click',()=>{ shuffleFind(); changed('step'); });
+  S.append(sec('정답 짝',grid,h('p',{class:'sub'},'자료의 기호마다 정답이 되는 지도(그림)의 기호를 고르세요.')),
+    sec('답지',F.opts.length?h('ol',{class:'ilist'},...F.opts.map((o,i)=>h('li',null,h('span',null,IT.CIRC[i]),h('span',{class:'grow'},o),i+1===F.ans?h('span',{class:'badge hot'},'정답'):null))):h('p',{class:'empty'},F.msg.join(' ')),re,...(F.opts.length?F.msg.map(m=>h('p',{class:'msg warn'},m)):[])));
+}
+function shuffleFind(){ const A=g0().labels, B=(it.groups[1]||{}).labels||[]; const map=it.find.map||{}; const right=A.map(a=>map[a]||''); if(right.some(x=>!x)) return;
+  const choose=(arr,k)=>k===0?[[]]:arr.flatMap((x,i)=>choose(arr.slice(i+1),k-1).map(r=>[x,...r])); const pool=[]; for(const c of choose(B,A.length)) for(const p of perms(c)) pool.push(p.join(' '));
+  const others=pool.filter(p=>p!==right.join(' ')); for(let i=others.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [others[i],others[j]]=[others[j],others[i]]; }
+  it.find.opts=[right.join(' '),...others.slice(0,4)]; }
+
+/* 6. 점검 */
+function stepCheck(S){
+  S.append(head('6. 문항 검토','자동 점검은 경기도 문서의 작성 원리로 기계가 볼 수 있는 것만 봐요. 나머지는 사람이 확인해 주세요.'));
+  const C=IT.checks(it,ans());
+  S.append(sec('자동 점검',checkList(C)));
+  const box=h('div',{class:'imanual'});
+  for(const [id,t] of IT.MANUAL){ const c=h('input',{type:'checkbox'}); c.checked=!!it.manual[id]; c.addEventListener('change',()=>{ it.manual[id]=c.checked; changed(); }); box.append(h('label',null,c,t)); }
+  S.append(sec('사람이 볼 것',box));
+  const cp=h('button',{type:'button',class:'btn primary'},'문항 복사'); cp.addEventListener('click',copyItem);
+  const sv=h('button',{type:'button',class:'btn'},'작업 저장'); sv.addEventListener('click',saveFile);
+  S.append(sec('마무리',h('div',{class:'ichips'},cp,sv),h('p',{class:'sub'},'복사한 문항을 한글(HWP)에 붙여 넣은 뒤, 각 탭에서 저장한 자료 그림을 자료 칸에 넣어 주세요.')));
+}
+function checkList(C){ const ul=h('ul',{class:'ichk'}); for(const c of C) ul.append(h('li',{class:c.lvl},h('span',null,c.msg,c.rule?h('small',null,c.rule):null))); return ul; }
+
+/* ───────── 가운데: 시험지 모양 ───────── */
+function stemHTML(P){
+  const e=IT.esc; const dir=IT.underlineNeg(e(P.dir));
+  return [P.ind?e(P.ind):'',dir,P.cond?e(P.cond):'',P.pts?`<span class="pts">${P.pts}</span>`:''].filter(Boolean).join(' ');
+}
+function renderPaper(){
+  const W=$('#iPaper'); W.textContent='';
+  if(!it.std&&!it.stmts.length&&!it.eval&&!figs.length&&!it.groups.some(g=>g.names.some(Boolean))&&!it.about){ W.append(h('div',{class:'empty-q'},'왼쪽 단계를 따라가면 여기에 시험지 모양으로 문항이 만들어져요.')); return; }
+  const P=IT.stemParts(it); const showAns=$('#iShowAns').checked;
+  const q=h('p',{class:'q'}); q.innerHTML=`<b>${+it.no||1}.</b> `+stemHTML(P); W.append(q);
+  const dbox=h('div',{class:'idata'+(figs.length?' hasfig':'')}, figs.length?null:(it.dataNote||`(${(IT.DKINDS.find(d=>d.k===it.dk)||{}).name||'자료'} 자리)`));
+  figs.forEach(f=>dbox.append(h('img',{class:'pfig',src:f.url,alt:`${f.name} 그림`})));
+  if(figs.length&&it.dataNote) dbox.append(h('div',{class:'fignote'},it.dataNote));
+  const gs=it.groups.filter(g=>g.labels.length); if(gs.length) dbox.append(h('div',null,'기호: '+gs.map(g=>IT.rangeOf(g.labels)).join(' / ')));
+  if(it.srcNote) dbox.append(h('div',null,`자료: ${it.srcNote}`));
+  W.append(dbox);
+  if(it.form==='find'){ const F=findAnswer(); if(F.opts.length){ const hd=F.head||g0().labels; const tb=h('table',{class:'ifind'});
+      tb.append(h('tr',null,h('td'),...hd.map(l=>h('th',null,l)))); F.opts.forEach((t,j)=>tb.append(h('tr',{class:showAns&&j+1===F.ans?'ans':null},h('td',null,IT.CIRC[j]),...t.split(/\s+/).map(x=>h('td',null,x))))); W.append(tb); }
+    else W.append(h('p',{class:'ph'},'(5단계에서 정답 짝을 고르면 답지가 생겨요)')); return; }
+  const A=ans();
+  if(isBogi()){ const b=h('div',{class:'bogi'}); it.stmts.forEach((s,i)=>b.append(h('p',null,`${IT.JAMO[i]}. ${s.text}`))); if(!it.stmts.length) b.append(h('p',{class:'ph'},'(<보기> 항목)')); W.append(b); }
+  if(it.form==='stu'){ const b=h('div',{class:'stu'}); it.stmts.forEach((s,i)=>b.append(h('p',null,`${IT.STU[i]}: ${s.text}`))); W.append(b); }
+  const opts=A.opts&&A.opts.length?A.opts:(isBogi()||it.form==='stu'?[]:it.stmts.map(s=>s.text));
+  if(!opts.length){ W.append(h('p',{class:'ph'},'(답지)')); return; }
+  const short=opts.every(o=>o.length<=9);
+  const o=h('div',{class:'iopts'+(short?'':' long')}); opts.forEach((t,i)=>o.append(h('p',{class:showAns&&A.ans===i+1?'ans':null},`${IT.CIRC[i]} ${t}`))); W.append(o);
+}
+function renderCard(){
+  const C=$('#iCard'); C.textContent='';
+  const so=stdObj(); const A=it.form==='find'?findAnswer():ans();
+  const dl=h('dl',null,
+    h('dt',null,'과목'),h('dd',null,`${curC().title} (${curC().curr})`),
+    h('dt',null,'성취기준'),h('dd',null,so?`[${so.code}] ${so.text}`:'—'),
+    h('dt',null,'평가 요소'),h('dd',null,it.eval||'—'),
+    h('dt',null,'행동 영역'),h('dd',null,it.act),
+    h('dt',null,'평가 목표'),h('dd',null,(it.goalAuto?IT.goalOf(it.eval,it.act):it.goal)||'—'),
+    h('dt',null,'문제 장면'),h('dd',null,`${(IT.SCENES.find(s=>s.k===it.scene)||{}).name} · ${(IT.DKINDS.find(d=>d.k===it.dk)||{}).name}`),
+    h('dt',null,'형식·배점'),h('dd',null,`${IT.formOf(it.form).name} · ${it.pts}점`),
+    h('dt',null,'정답'),h('dd',null,A.ans?`${IT.CIRC[A.ans-1]}`+(it.groups[0]&&it.groups[0].names.some(Boolean)?` · ${it.groups.flatMap(g=>g.labels.map((l,i)=>g.names[i]?`${l} ${g.names[i]}`:'').filter(Boolean)).join(', ')}`:''):'—'));
+  C.append(h('h3',null,'설계 카드'),dl);
+}
+
+/* ───────── 오른쪽 ───────── */
+function renderSide(){
+  const B=$('#iSideBody'); B.textContent='';
+  [...$('#iSideSeg').children].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===side)));
+  if(side==='check'){ B.append(sec('자동 점검',checkList(IT.checks(it,ans()))),sec('',h('p',{class:'isrc'},'규칙 출처: 경기도교육청 「2024 평가문항 제작 방법(지리)」. ‘사람이 볼 것’은 6단계에 있어요.'))); return; }
+  const G=relatedGichul();
+  if(!it.std){ B.append(sec('',h('p',{class:'empty'},'성취기준을 고르면 같은 성취기준의 기출이 여기에 나와요.'))); return; }
+  const st=IT.stats(G);
+  B.append(sec(`같은 성취기준 기출 ${G.length}문항`,h('p',{class:'sub'},G.length?`선지 진술 꼴: ${st.kinds.map(([k,v])=>`${k} ${v}`).join(', ')}`:'11회 안에는 없어요.')));
+  const ul=h('ul',{class:'ilist igich'});
+  for(const g of G){ const k=IT.kiceOf(g.id);
+    const li=h('li',null,h('div',null,h('b',null,`${g.name} ${g.no}번`),g.pts===3?' [3점]':'',' · ',g.topic),h('div',{class:'meta'},`${g.eval} · ${g.data.join('·')} · ${g.form} · ${g.act}`));
+    if(k){ li.append(h('div',{class:'stem'},k.stem+(k.cond?' '+k.cond:''))); if(k.stmts.length) li.append(h('details',null,h('summary',null,`선지 ${k.stmts.length}개`),h('ol',null,...k.stmts.map(s=>h('li',null,s))))); }
+    ul.append(li); }
+  B.append(ul);
+  if(!IT.hasKice) B.append(sec('',h('p',{class:'isrc'},'공개판에는 평가원 기출 문장을 싣지 않아요(구조 태그만).')));
+}
+
+/* ───────── 복사·저장 ───────── */
+async function copyRich(html,text){
+  try{ if(navigator.clipboard&&window.ClipboardItem){ await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([text],{type:'text/plain'})})]); return true; } }catch(e){}
+  try{ await navigator.clipboard.writeText(text); return true; }catch(e){}
+  const ta=h('textarea',{style:'position:fixed;left:-9999px'}); ta.value=text; document.body.append(ta); ta.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(e){} ta.remove(); return ok;
+}
+function copyStem(){ const P=IT.stemParts(it); const t=[P.ind,P.dir,P.cond,P.pts].filter(Boolean).join(' '); copyRich(`<p>${stemHTML(P)}</p>`,t).then(ok=>toast(ok?'발문을 복사했어요.':'복사하지 못했어요.')); }
+function copyItem(){
+  const T=it.form==='find'?null:IT.itemText(it,+it.no||1);
+  let text, html;
+  if(T){ text=T.text+(T.ans?`\n정답: ${IT.CIRC[T.ans-1]}`:''); }
+  else { const F=findAnswer(); const P=IT.stemParts(it); text=`${+it.no||1}. ${[P.ind,P.dir,P.cond,P.pts].filter(Boolean).join(' ')}\n[자료] ${it.dataNote||''}\n${F.opts.map((o,i)=>`${IT.CIRC[i]} ${o}`).join('\n')}${F.ans?`\n정답: ${IT.CIRC[F.ans-1]}`:''}`; }
+  const W=$('#iPaper').cloneNode(true); W.querySelectorAll('.ans').forEach(e=>e.classList.remove('ans'));
+  html=`<div style="font-family:'HY신명조','Batang',serif;font-size:10pt;line-height:1.6">${W.innerHTML.replace(/class="[^"]*"/g,'')}</div>`;
+  copyRich(html,text).then(ok=>toast(ok?'문항을 복사했어요. 한글(HWP)에 붙여 넣으면 밑줄도 따라가요.':'복사하지 못했어요.'));
+}
+function saveFile(){
+  const blob=new Blob([JSON.stringify(it,null,1)],{type:'application/json'});
+  const a=h('a',{href:URL.createObjectURL(blob),download:`문항설계_${(it.std||'').replace('12세지','')||'새문항'}_${+it.no||1}.json`}); document.body.append(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+}
+function load(d){ if(!d||d.app!=='item') return false; it=normalize(d); step=0; renderAll(); toast('문항 설계를 불러왔어요.'); save(); return true; }
+function renderAll(){ $('#iNo').value=String(it.no||1); renderSteps(); renderStep(); renderPaper(); renderCard(); renderSide(); }
+
+/* ───────── 이벤트 ───────── */
+$('#iPrev').addEventListener('click',()=>go(step-1));
+$('#iNext').addEventListener('click',()=>go(step===STEPS.length-1?0:step+1));
+$('#iNo').addEventListener('input',()=>{ it.no=Math.max(1,Math.min(30,+$('#iNo').value||1)); changed(); });
+$('#iShowAns').addEventListener('change',renderPaper);
+$('#iCopy').addEventListener('click',copyItem);
+$('#iCopyStem').addEventListener('click',copyStem);
+$('#iCopyFig').addEventListener('click',copyFig);
+$('#iSave').addEventListener('click',saveFile);
+$('#iLoad').addEventListener('change',async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; try{ if(!load(JSON.parse(await f.text()))) toast('문항 설계 작업 파일이 아니에요.'); }catch(err){ toast('작업 파일을 읽지 못했어요.'); } e.target.value=''; });
+$('#iNew').addEventListener('click',()=>{ if(!confirm('지금 설계를 지우고 새 문항을 시작할까요?')) return; const keep={curr:it.curr,unit:it.unit,no:(+it.no||1)+1}; it=Object.assign(fresh(),keep); step=0; save(); renderAll(); });
+[...$('#iSideSeg').children].forEach(b=>b.addEventListener('click',()=>{ side=b.dataset.v; renderSide(); }));
+renderAll();
+function pull(from){ if(from==='climate') importClimate(); else if(from==='mapedit'||from==='mapquick') importMap(from); else return; if(step!==2) go(2); }
+return {load,pull,getDoc:()=>it};
 });
 </script>
 <script>HUB.start();</script>
