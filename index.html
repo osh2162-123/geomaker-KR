@@ -9705,13 +9705,21 @@ function uAdj(c){ const t=`${c.unit||''}${c.name||''}`; return /%|‰|비중|비
 function tableStmts(T){
   const out=[]; if(!T||!Array.isArray(T.rows)||!Array.isArray(T.cols)) return out;
   let n=0; const add=o=>out.push(Object.assign({id:'t'+(++n),src:'auto',tier:'calc'},o));
-  const rows=T.rows.map((r,i)=>({i,name:String(r.name||'').trim(),l:String(r.l||r.name||'').trim()})).filter(r=>r.name);
+  const allRows=T.rows.map((r,i)=>({i,name:String(r.name||'').trim(),lab:String(r.l||'').trim()})).filter(r=>r.name);
+  const labRows=allRows.filter(r=>r.lab); const colsLab=T.cols.some(c=>String(c.l||'').trim());
+  /* 기호가 열(종교·자원 등)에 붙고 행은 한 나라 이하이면 ‘열 주어’ 방식 */
+  const colMode=colsLab&&labRows.length<=1;
+  const rows=(labRows.length?labRows:(colMode?[]:allRows)).map(r=>({i:r.i,name:r.name,l:r.lab||r.name}));
+  const base=rows.length?rows:allRows.slice(0,1);
   const dup={}; for(const c of T.cols) dup[c.name]=(dup[c.name]||0)+1;
-  const cols=T.cols.map((c,j)=>({j,name:c.name,unit:c.unit||'',grp:c.grp||'',l:c.l||'',noun:(dup[c.name]>1&&c.grp?`${c.grp} ${c.name}`:c.name),tn:(()=>{ const nm=(dup[c.name]>1&&c.grp?`${c.grp} ${c.name}`:c.name); return /%|‰/.test(c.unit||'')&&!/비율|비중|률/.test(nm)?nm+' 비율':nm; })(),nlab:c.l||c.name})).filter(c=>rows.some(r=>fin((T.v[r.i]||[])[c.j])));
+  const cols=T.cols.map((c,j)=>{ const pct=/%|‰/.test(c.unit||''); const lb=String(c.l||'').trim(); const nm=(dup[c.name]>1&&c.grp?`${c.grp} ${c.name}`:c.name);
+    const meas=(T.measure&&!/^값$/.test(T.measure))?T.measure:''; const mp=meas.replace(/\s*수$/,'');
+    const tn=lb?`${lb}의 ${pct?(mp&&!/비율|비중/.test(mp)?mp+' 비율':'비율'):(meas||'값')}`:(pct&&!/비율|비중|률/.test(nm)?nm+' 비율':nm);
+    return {j,name:c.name,unit:c.unit||'',grp:c.grp||'',l:lb,noun:lb?tn:nm,tn,nlab:lb||c.name,pct,meas:mp&&pct?mp:meas}; }).filter(c=>(!colMode||c.l)&&base.some(r=>fin((T.v[r.i]||[])[c.j])));
   const val=(r,c)=>{ const x=(T.v[r.i]||[])[c.j]; return fin(x)?x:NaN; };
   const sp=rows.length>=2;
   /* 열마다: 비교, 가장 ~한 나라, 순서, 기준값 */
-  for(const c of cols){
+  for(const c of (colMode?[]:cols)){
     const ua=uAdj(c); const pct=/%|‰/.test(c.unit);
     const vs=rows.map(r=>({r,v:val(r,c)})).filter(x=>fin(x.v));
     const m={rel:0.1,tol:pct?2:0,f:null};
@@ -9733,7 +9741,7 @@ function tableStmts(T){
   }
   /* 행마다: 같은 단위의 열끼리 비교(구성 비중 자료) */
   const byUnit={}; for(const c of cols) (byUnit[c.unit+'|'+c.grp]=byUnit[c.unit+'|'+c.grp]||[]).push(c);
-  for(const g of Object.values(byUnit)) if(g.length>=2&&g.length<=8) for(const r of rows){
+  for(const g of Object.values(byUnit)) if(!colMode&&g.length>=2&&g.length<=8) for(const r of rows){
     const vs=g.map(c=>({c,v:val(r,c)})).filter(x=>fin(x.v)); if(vs.length<2) continue; const sd=vs.slice().sort((a,b)=>b.v-a.v);
     const ua=uAdj(g[0]); const cl=(a,b)=>Math.abs(a-b)<Math.max(2,Math.max(a,b)*0.1);
     for(let i=0;i<vs.length;i++) for(let k=i+1;k<vs.length;k++){ if(out.length>900) break; const a=vs[i], b=vs[k], hi=a.v>=b.v?a:b, lo=hi===a?b:a;
@@ -9742,10 +9750,29 @@ function tableStmts(T){
     if(vs.length>=3){ const why=sd.map(x=>`${x.c.nlab} ${fmtN(x.v,x.c.unit)}`).join(', ');
       add({kind:'단독',grp:`${r.l} 안의 비교`,text:`${W(r.l,'은는')} ${sd[0].c.nlab}의 ${ua.attr==='높은'?'비중':'값'}${josa(ua.attr==='높은'?'비중':'값','이가')} 가장 ${ua.adj==='높다'?'높다':'많다'}.`,truth:true,why,warn:cl(sd[0].v,sd[1].v)?'1위와 2위의 차이가 작아요.':''});
       add({kind:'단독',grp:`${r.l} 안의 비교`,text:`${W(r.l,'은는')} ${sd[1].c.nlab}의 ${ua.attr==='높은'?'비중':'값'}${josa(ua.attr==='높은'?'비중':'값','이가')} 가장 ${ua.adj==='높다'?'높다':'많다'}.`,truth:false,why}); } }
+
+  /* 열 주어 방식: 한 나라(또는 한 지역)의 구성 항목에 (가)~(라)가 붙은 자료 */
+  if(colMode&&cols.length>=2){
+    const r0=base[0]; const pct=cols.some(c=>c.pct); const meas=(cols[0].meas)||'값'; const noun=pct?(/비율|비중/.test(meas)?meas:(meas==='값'?'비율':meas+' 비율')):meas;
+    const adj=pct||/비중|비율|률/.test(noun)?{a:'높다',t:'높은',lo:'낮은'}:{a:'많다',t:'많은',lo:'적은'};
+    const vs=cols.map(c=>({c,v:val(r0,c)})).filter(x=>fin(x.v)); const lab=x=>x.c.nlab;
+    const cl=(x,y)=>Math.abs(x-y)<Math.max(pct?2:0,Math.max(Math.abs(x),Math.abs(y))*0.1);
+    for(const a of vs) for(const b of vs){ if(a===b) continue;
+      add({kind:'비교',grp:'항목끼리 비교',text:`${W(lab(a),'은는')} ${lab(b)}보다 ${W(noun,'이가')} ${adj.a}.`,truth:a.v>b.v,why:`${a.c.name} ${fmtN(a.v,a.c.unit)}, ${b.c.name} ${fmtN(b.v,b.c.unit)}`,warn:cl(a.v,b.v)?'두 값의 차이가 작아 그래프에서 읽기 어려워요.':''}); }
+    if(vs.length>=3){ const sd=vs.slice().sort((x,y)=>y.v-x.v); const all=rangeOf(vs.map(lab)); const why=sd.map(x=>`${x.c.name}(${lab(x)}) ${fmtN(x.v,x.c.unit)}`).join(', ');
+      add({kind:'통합',grp:'항목끼리 비교',text:`${all} 중 ${W(noun,'이가')} 가장 ${adj.t} 것은 ${lab(sd[0])}이다.`,truth:true,why,warn:cl(sd[0].v,sd[1].v)?'1위와 2위의 차이가 작아요.':''});
+      add({kind:'통합',grp:'항목끼리 비교',text:`${all} 중 ${W(noun,'이가')} 가장 ${adj.t} 것은 ${lab(sd[1])}이다.`,truth:false,why});
+      add({kind:'통합',grp:'항목끼리 비교',text:`${all} 중 ${W(noun,'이가')} 가장 ${adj.lo} 것은 ${lab(sd[sd.length-1])}이다.`,truth:true,why,warn:cl(sd[sd.length-1].v,sd[sd.length-2].v)?'끝에서 1위와 2위의 차이가 작아요.':''});
+      if(vs.length<=4){ const ord=sd.map(lab); const sw=ord.slice(); let gi=0,gm=1e18; for(let i=0;i<sd.length-1;i++){ const d=Math.abs(sd[i].v-sd[i+1].v); if(d<gm){ gm=d; gi=i; } } [sw[gi],sw[gi+1]]=[sw[gi+1],sw[gi]];
+        add({kind:'통합',grp:'항목끼리 비교',text:`${W(noun,'은는')} ${ord.join(' > ')} 순으로 ${adj.a}.`,truth:true,why,warn:sd.some((x,i)=>i&&cl(sd[i-1].v,x.v))?'이웃한 두 값의 차이가 작아요.':''});
+        add({kind:'통합',grp:'항목끼리 비교',text:`${W(noun,'은는')} ${sw.join(' > ')} 순으로 ${adj.a}.`,truth:false,why}); } }
+    if(pct) for(const x of vs){ const near=[10,20,30,40,50,60,70,80,90].filter(t=>Math.abs(t-x.v)>=1).sort((a,b)=>Math.abs(a-x.v)-Math.abs(b-x.v)).slice(0,2);
+      for(const t of near) add({kind:'기준값',grp:'항목별 기준값',text:`${W(lab(x),'은는')} ${W(noun,'이가')} ${t}% 이상이다.`,truth:x.v>=t,why:`${x.c.name} ${fmtN(x.v,x.c.unit)}`,warn:Math.abs(x.v-t)<3?`${t}와 차이가 3 안이에요.`:''}); }
+  }
   /* ── 지식·세계 수치 (tier: know) ── */
   const F=D&&D.facts; const know=o=>add(Object.assign({tier:'know',note:'세계 수치·분류에서 가져온 진술이에요. 출처 연도와 교과서 표기를 사람이 확인해 주세요.'},o));
   if(F){
-    const named=rows.filter(r=>F.contG[r.name]); const ct=name=>F.contG[name];
+    const named=colMode?[]:rows.filter(r=>F.contG[r.name]); const ct=name=>F.contG[name];
     const CONT=['아시아','유럽','아프리카','북아메리카','남아메리카','오세아니아'];
     for(const r of named){ const k=ct(r.name); const o=CONT.filter(x=>x!==k)[(r.name.length)%5];
       know({kind:'단독',grp:'위치(대륙)',text:`${W(r.l,'은는')} ${k}에 위치한다.`,truth:true,why:`${r.name}: ${k}`,note:'나라→대륙 분류는 사람이 확인해 주세요(러시아·튀르키예처럼 두 대륙에 걸친 나라 주의).'});
@@ -14727,17 +14754,24 @@ function tableOf(doc,tab){
 function importTable(tab){
   const api=HUB.apis[tab]; if(!api||!api.getDoc){ toast(`${TABTAB[tab]} 탭을 불러오는 중이에요…`); HUB.show(tab).then(()=>{ if(HUB.apis[tab]&&HUB.apis[tab].getDoc){ importTable(tab); HUB.show('item').catch(()=>{}); } }).catch(()=>{}); return; }
   const doc=api.getDoc(); const T=tableOf(doc,tab); if(!T){ toast(`${TABTAB[tab]} 탭에 아직 표가 없어요.`); return; }
-  const labelled=T.rows.filter(r=>r.l);
+  T.measure=String((doc.data&&doc.data.measure)||'');
+  const colLab=T.cols.some(c=>c.l);
+  let labelled=T.rows.filter(r=>r.l);
   if(labelled.length>=2&&labelled.length<T.rows.length){ const keep=T.rows.map((r,i)=>r.l?i:-1).filter(i=>i>=0); T.v=keep.map(i=>T.v[i]); T.rows=keep.map(i=>T.rows[i]); }
-  if(!labelled.length){ T.rows.forEach((r,i)=>{ r.l=(IT.SEQ.gana?IT.seqList('gana',T.rows.length)[i]:'')||''; }); }
+  let autoLab=false; if(!labelled.length&&!colLab){ const L=IT.seqList('gana',T.rows.length); T.rows.forEach((r,i)=>{ r.l=L[i]||''; }); autoLab=true; labelled=T.rows.filter(r=>r.l); }
   it.table=T; it.climate=null; it.dataSrc='table';
-  const labels=T.rows.map(r=>r.l); const seq=IT.seqOf(labels[0])||'gana';
-  it.groups[0]={seq,labels,names:T.rows.map(r=>r.name),target:'',cond:false}; it.dk=doc.kind==='tb'||doc.kind==='table'?'table':'graph';
-  it.target=(doc.data&&doc.data.rowNoun)||'국가'; if(T.flipped) it.target='국가';
+  const rowNoun=(doc.data&&doc.data.rowNoun)||'국가'; const colNoun={energy:'에너지 자원',religion:'종교',population:'항목',agriculture:'작물'}[tab]||'항목';
+  const groups=[];
+  const rowsL=T.rows.filter(r=>r.l), colsL=T.cols.filter(c=>c.l);
+  if(rowsL.length>=2||(rowsL.length===1&&!colsL.length)){ const labels=rowsL.map(r=>r.l); groups.push({seq:IT.seqOf(labels[0])||'gana',labels,names:rowsL.map(r=>r.name),target:T.flipped?'국가':rowNoun,cond:false}); }
+  if(colsL.length){ const labels=colsL.map(c=>c.l); groups.push({seq:IT.seqOf(labels[0])||'latin',labels,names:colsL.map(c=>c.name),target:T.flipped?colNoun:colNoun,cond:false}); }
+  if(!groups.length) groups.push({seq:'gana',labels:['(가)','(나)','(다)','(라)'],names:['','','',''],target:'',cond:false});
+  it.groups=groups; it.dk=doc.kind==='tb'||doc.kind==='table'?'table':'graph';
+  it.target=groups[0].target||rowNoun;
   if(!it.about) it.about=`${KN[T.rows.length]||T.rows.length} 나라의 ${TABTAB[tab]} 특징`;
   if(!it.srcNote&&doc.meta&&doc.meta.year) it.srcNote=String(doc.meta.year);
   candTab='data'; candF={kind:'all',m:'all',ox:'all',tier:'all'}; changed('step');
-  toast(`${TABTAB[tab]} 탭의 표(${T.rows.length}행 × ${T.cols.length}열)를 가져왔어요. ${labelled.length?'':'행에 기호가 없어서 (가), (나)…를 붙였어요. '}나라 이름은 정답 기록용이라 단서 조항에는 넣지 않았어요.`);
+  toast(`${TABTAB[tab]} 탭의 표(${T.rows.length}행 × ${T.cols.length}열)를 가져왔어요. ${groups.map(g=>`${IT.rangeOf(g.labels)} = ${g.target||'대상'}`).join(', ')}.${autoLab?' 표에 기호가 없어서 행에 (가), (나)…를 붙였어요.':''} 이름은 정답 기록용이라 단서 조항에는 넣지 않았어요.`);
 }
 function importMap(from){
   const A=HUB.apis; const api=from&&A[from]&&A[from].getDoc?A[from]:(A.mapedit&&A.mapedit.getDoc?A.mapedit:A.mapquick);
