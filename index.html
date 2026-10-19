@@ -2445,6 +2445,7 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
       <button type="button" class="ktool" data-v="dot" title="점 (D): 누른 자리에 점을 찍어요." aria-label="점"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="4.2" fill="currentColor"/></svg><kbd>D</kbd></button>
       <button type="button" class="ktool" data-v="sym" title="기호 (S): 누른 자리에 다음 기호를 놓아요." aria-label="기호"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M5.5 16 10 4l4.5 12M7.2 11.6h5.6"/></svg><kbd>S</kbd></button>
       <button type="button" class="ktool" data-v="leader" title="지시선 기호 (L): 지점을 누른 채 기호 자리까지 끌어요." aria-label="지시선"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="5" cy="15" r="1.8" fill="currentColor" stroke="none"/><path d="M6.3 13.7 12 8"/><path d="M12.6 7.5 15 3l2.4 4.5M13.4 6h3.2"/></svg><kbd>L</kbd></button>
+      <button type="button" class="ktool" data-v="num" title="번호 자동 (N): 시·군을 누르면 다음 번호를 안쪽 또는 지시선으로 알아서 놓아요." aria-label="번호 자동"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16 8 11"/><circle cx="3" cy="16" r="1" fill="currentColor"/><path d="M11 5l2-1.2V10M11.2 10h4"/></svg><kbd>N</kbd></button>
       <button type="button" class="ktool" data-v="ell" title="점선 원 (E)" aria-label="점선 원"><svg viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.2 1.6"/></svg><kbd>E</kbd></button>
       <button type="button" class="ktool" data-v="arrow" title="화살표 (A)" aria-label="화살표"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16 15 5M9 5h6v6"/></svg><kbd>A</kbd></button>
       <button type="button" class="ktool" data-v="line" title="선 (I)" aria-label="선"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 15 16 5"/></svg><kbd>I</kbd></button>
@@ -6717,8 +6718,8 @@ const norm=s=>String(s||'').replace(/\s+/g,'').replace(/[()（）]/g,'').toLower
 
 /* ───────── 문서 ───────── */
 const SEQS={latin:['A','B','C','D','E','F','G','H','I','J'],gana:['(가)','(나)','(다)','(라)','(마)','(바)','(사)','(아)','(자)','(차)'],
-  circ:['㉠','㉡','㉢','㉣','㉤','㉥','㉦','㉧','㉨','㉩'],mk:['㉮','㉯','㉰','㉱','㉲','㉳','㉴','㉵','㉶','㉷'],num:['1','2','3','4','5','6','7','8','9','10'],low:['a','b','c','d','e','f','g','h','i','j']};
-const SEQ_KO={latin:'A, B, C …',gana:'(가), (나) …',circ:'㉠, ㉡ …',mk:'㉮, ㉯ …',num:'1, 2, 3 …',low:'a, b, c …'};
+  circ:['㉠','㉡','㉢','㉣','㉤','㉥','㉦','㉧','㉨','㉩'],mk:['㉮','㉯','㉰','㉱','㉲','㉳','㉴','㉵','㉶','㉷'],num:Array.from({length:999},(_,i)=>String(i+1)),low:['a','b','c','d','e','f','g','h','i','j']};
+const SEQ_KO={latin:'A, B, C …',gana:'(가), (나) …',circ:'㉠, ㉡ …',mk:'㉮, ㉯ …',num:'1, 2, 3 … (끝없이)',low:'a, b, c …'};
 function freshDoc(app){
   return {app:app||'landform',v:1,page:{auto:true,w:120,h:80,margin:1.5},base:null,items:[],
     style:{serif:'hysm',gothic:'hyjg',latin:'times',size:10,lw:0.15},seq:{set:'latin',next:0},gen:null,meta:{notes:''}};
@@ -6979,7 +6980,7 @@ function parseRequest(q,pool){
   found.sort((a,b)=>a[0]-b[0]); const names=[]; for(const [,n] of found) if(!names.some(x=>norm(x)===norm(n))) names.push(n);
   out.dg=diagramFor(text,names,pool);
   /* 지형별로 기호를 직접 적었는가: ‘권곡은 A’ ‘권곡(A)’ ‘권곡=A’ */
-  const SYM=String.raw`\([가-하]\)|[A-Z]|[㉠-㉭]|[a-j]|\d{1,2}`; const direct=[];
+  const SYM=String.raw`\([가-하]\)|[A-Z]|[㉠-㉭]|[a-j]|\d{1,3}`; const direct=[];
   for(const [i,n] of found){ const rest=text.slice(i+n.length); const m=rest.match(new RegExp(String.raw`^\s*(?:은|는|을|를|이|가|=|:)?\s*\(?\s*(${SYM})\s*\)?\s*(?:로|으로)?(?=[\s,.]|$)`)); if(m) direct.push([n,m[1].length===1&&/[가-하]/.test(m[1])?`(${m[1]})`:m[1]]); }
   /* 순서 지정: ‘A~C’, ‘(가)~(라)’, ‘㉠~㉣’ */
   const rng=text.match(/(\([가-하]\)|[A-Z]|[㉠-㉭])\s*[~∼～\-–]\s*(\([가-하]\)|[A-Z]|[㉠-㉭])/);
@@ -7470,7 +7471,7 @@ function lookup(map,name,ctxSido){ const r=lookupEx(map,name,ctxSido); return r?
 function allNames(map){ const s=new Set(); for(const p of places(map)){ s.add(p.n); (p.al||[]).forEach(a=>{ if(a.length>=2) s.add(a); }); } return [...s].sort((a,b)=>b.length-a.length); }
 
 /* ───────── 문장 읽기 ───────── */
-const SEQ_RE=String.raw`\([가-하]\)|[A-Z]|[㉠-㉭]|[a-j](?![a-z])|\d{1,2}(?![\d년])`;
+const SEQ_RE=String.raw`\([가-하]\)|[A-Z]|[㉠-㉭]|[a-j](?![a-z])|\d{1,3}(?![\d년])`;
 function parse(q,cur){
   const text=' '+String(q||'').replace(/\s+/g,' ').trim()+' '; const map=normalizeMap(cur?JSON.parse(JSON.stringify(cur)):null);
   const out={map,labels:[],shade:[],missing:[],set:null,shuffle:false,mode:null,areaSet:false,notes:[]};
@@ -7628,7 +7629,7 @@ function nameSpots(L,map){ const lv=map.level; const out=[]; const v=verOf(map);
     const s=p.k==='sido'?p.c:p.s; if(!inc({s})) continue;
     const fs=L.feats.filter(f=>p.k==='sido'?f.p.s===p.c&&!isUl(f.p):p.k==='grp'?p.codes.includes(f.p.c):f.p.c===p.c); if(!fs.length) continue;
     const [x,y]=toPage(L,p.lx,p.ly); let n=p.n; if(p.k==='sido') n=sidoName(p.c); else if(p.k==='sgg'&&/[시군]$/.test(n)&&n.length>2) n=n.slice(0,-1);
-    out.push(Object.assign({n,x,y},box(fs))); }
+    out.push(Object.assign({n,x,y,p},box(fs))); }
   if(map.area==='kor'||map.area==='nk') for(const p of places(map)) if(p.k==='nkdo'){ const [x,y]=toPage(L,p.x,p.y); out.push({n:p.n,x,y,w:30,h:30}); }
   return out; }
 return {setData,data,lookupEx,boxOf,roadPoint,legendItems,legendEntries,roadLabel,ROAD_KO,roadStyleOf,seaOn,seaSegs,SEA_KO,mergeOn,unitKey,unitCodes,metroIn,REGIONS,nameSpots,SIDO_WORDS,TONES,TONE_ORDER,freshMap,normalizeMap,layout,render,scaleBarItems,locatorSVG,featuresAt,lookup,parse,spotOf,toPage,inv,
@@ -11089,8 +11090,8 @@ const HAS=!!KM.data();
 const stage=$('#stage'), wrap=$('#stageWrap');
 
 /* ───────── 상태 ───────── */
-function freshDoc(){ const d=LG.freshDoc('kmap'); d.map=KM.freshMap(); d.kgen=null; d.style.size=10; return d; }
-function norm(d){ d=GG.clean(d); const x=LG.normalizeDoc(d); if(x.app!=='kmap'){ return freshDoc(); } x.map=KM.normalizeMap(d.map); x.kgen=d.kgen||null;
+function freshDoc(){ const d=LG.freshDoc('kmap'); d.map=KM.freshMap(); d.kgen=null; d.knum=null; d.style.size=10; return d; }
+function norm(d){ d=GG.clean(d); const x=LG.normalizeDoc(d); if(x.app!=='kmap'){ return freshDoc(); } x.map=KM.normalizeMap(d.map); x.kgen=d.kgen||null; x.knum=d.knum&&Array.isArray(d.knum.pairs)?{pairs:d.knum.pairs.filter(a=>Array.isArray(a)&&a.length>=2).slice(0,999).map(a=>[String(a[0]).slice(0,40),String(a[1]).slice(0,5),String(a[2]||'').slice(0,80)])}:null;
   /* 시험지 양식으로 바꾸기 전(2026-10-04 이전) 작업: 기본 너비·글자·독도 상자를 새 기본값으로 */
   if(!(d.map&&d.map.sv)){ if(x.map.width===70) x.map.width=45; x.map.dokdo=true; if(x.style.size===9) x.style.size=10; x.map.sv=2; }
   return x; }
@@ -11186,6 +11187,18 @@ function toMM(e){ const r=wrap.getBoundingClientRect(); return {x:view.x+(e.clie
 let drag=null;
 function featAt(p){ if(!L) return null; const hits=KM.featuresAt(L,p.x,p.y); return hits[0]||null; }
 function shadeKey(f){ if(doc.map.level==='sido'&&f.p.s!=='NK') return 's:'+f.p.s; return KM.unitKey(doc.map,f.p)||f.p.c; }   /* 합친 광역시는 통째로 */
+function placeOfAt(p){ const f=featAt(p); if(!f||!L) return null; const sp=KM.nameSpots(L,doc.map);
+  const s=sp.find(s=>s.p.k==='sgg'&&s.p.c===f.p.c)||sp.find(s=>s.p.k==='grp'&&s.p.codes&&s.p.codes.includes(f.p.c))||sp.find(s=>s.p.k==='sido'&&s.p.c===f.p.s); return s?s.p:null; }
+const pkey=P=>P.k+':'+(P.c||(P.codes||[]).join(','));
+const modeArg=()=>ui.mode&&ui.mode!=='auto'?ui.mode:null;
+function numAt(p){ const P=placeOfAt(p); if(!P){ toast('시·군 안쪽을 눌러 주세요.'); return; }
+  const kk=pkey(P), prev=doc.knum&&doc.knum.pairs.find(a=>a[2]===kk);
+  if(prev){ doc.items=doc.items.filter(it=>!((it.t==='sym'||it.t==='leader')&&it.text===prev[1])); doc.knum.pairs=doc.knum.pairs.filter(a=>a!==prev); selId=null; changed('all'); commit(); toast(`${prev[0]}의 ${prev[1]}번을 지웠어요(다시 누르면 새 번호를 놓아요).`); return; }
+  const sym=LG.takeSym(doc); const made=placeLabels([{p:P,sym,shaded:false}],modeArg(),doc.items); doc.items.push(...made); (doc.knum||(doc.knum={pairs:[]})).pairs.push([nameOfPlace(P),sym,kk]);
+  selId=made.length?made[made.length-1].id:null; changed('opts'); commit(); }
+/* 고른 기호를 같은 지역의 안쪽·지시선으로 다시 놓는다 */
+function respot(it,mode){ const a=it.t==='leader'?{x:it.tx,y:it.ty}:{x:it.x,y:it.y}; const P=placeOfAt(a); if(!P){ toast('이 기호 아래에서 시·군을 찾지 못했어요. 지도 위에 놓인 기호만 고칠 수 있어요.'); return; }
+  const keep=doc.items.filter(x=>x.id!==it.id); const made=placeLabels([{p:P,sym:it.text,shaded:false}],mode,keep); if(!made.length) return; doc.items=keep.concat(made); selId=made[made.length-1].id; changed('all'); commit(); }
 function paintAt(p){ const f=featAt(p); if(!f){ toast('땅이 아닌 곳이에요. 시·군 안쪽을 눌러 주세요.'); return; }
   const k=shadeKey(f); const sh=doc.map.shade; if(sh[k]===ui.paint) delete sh[k]; else sh[k]=ui.paint; rebuild(false); changed('all',true); commit(); }
 wrap.addEventListener('pointerdown',e=>{
@@ -11195,6 +11208,7 @@ wrap.addEventListener('pointerdown',e=>{
   if(hEl&&selItem()){ drag={mode:'handle',h:hEl.dataset.h,id:selId}; capture(e); return; }
   if(tool==='select'){ const it=LG.hit(doc,p.x,p.y,tol); if(it){ selId=it.id; drag={mode:'move',id:it.id,last:p,moved:false}; capture(e); renderOpts(); drawSel(); if(!it.km) showTab('sel',true); } else { if(selId){ selId=null; renderOpts(); drawSel(); } startPan(e); } return; }
   if(tool==='paint'){ paintAt(p); return; }
+  if(tool==='num'){ numAt(p); return; }
   let it=null; const S=LG.nextSym(doc);
   if(tool==='dot'){ it=LG.makeItem('dot',{x:p.x,y:p.y,r:0.5}); doc.items.push(it); selId=it.id; changed('opts'); return; }
   if(tool==='sym'){ it=LG.makeItem('sym',{x:p.x,y:p.y,text:LG.takeSym(doc),box:ui.box||'halo'}); doc.items.push(it); selId=it.id; changed('opts'); return; }
@@ -11241,10 +11255,10 @@ wrap.addEventListener('dblclick',e=>{ const p=toMM(e); const it=LG.hit(doc,p.x,p
 wrap.addEventListener('wheel',e=>{ e.preventDefault(); if(e.ctrlKey||e.metaKey||Math.abs(e.deltaY)>=Math.abs(e.deltaX)) zoomAt(Math.exp(-e.deltaY*0.0018),e.clientX,e.clientY); },{passive:false});
 
 /* ───────── 도구·단축키 ───────── */
-const TOOLKEY={v:'select',p:'paint',d:'dot',l:'leader',s:'sym',e:'ell',a:'arrow',i:'line',r:'rect',t:'text'};
+const TOOLKEY={v:'select',p:'paint',d:'dot',l:'leader',n:'num',s:'sym',e:'ell',a:'arrow',i:'line',r:'rect',t:'text'};
 const syncTool=bindSeg($('#toolSeg'),()=>ui.tool,v=>{ setTool(v); });
 const TOOL_HINT={select:'항목을 끌어 옮기고, 빈 곳을 끌면 지도가 움직여요 · 휠로 확대·축소',paint:'시·군(시·도 지도에서는 시·도)을 누르면 칠하고, 같은 색으로 다시 누르면 지워요 · 색은 꾸미기 갈래에서',
-  dot:'누른 자리에 점을 찍어요',sym:'누른 자리에 다음 기호를 놓아요 · 기호 종류는 꾸미기 갈래에서',leader:'지점을 누른 채 기호를 놓을 자리까지 끌어요',ell:'끌어서 점선 원을 그려요 (Shift: 정원)',
+  dot:'누른 자리에 점을 찍어요',sym:'누른 자리에 다음 기호를 놓아요 · 기호 종류는 꾸미기 갈래에서',leader:'지점을 누른 채 기호를 놓을 자리까지 끌어요',num:'시·군을 누르면 다음 기호를 알아서 놓아요(넓으면 안쪽, 좁으면 지시선) · 번호 종류는 꾸미기 갈래에서',ell:'끌어서 점선 원을 그려요 (Shift: 정원)',
   arrow:'끌어서 화살표를 그려요 (Shift: 45° 단위)',line:'끌어서 선을 그려요 (Shift: 45° 단위)',rect:'끌어서 흰 가림 상자를 그려요',text:'누른 자리에 글상자를 놓아요'};
 function setTool(v){ ui.tool=v; syncTool(); wrap.dataset.tool=v; const th=$('#toolHint'); if(th) th.textContent=TOOL_HINT[v]||''; saveLocal(); }
 let clip=null;
@@ -11355,6 +11369,7 @@ function renderOpts(){
     if(it.t==='rect') p.append(row('채움',seg([['white','흰색'],['gray','회색'],['none','없음']],()=>it.fill,v=>it.fill=v)),row('테두리',seg([['none','없음'],['solid','실선'],['dash','파선']],()=>it.stroke,v=>it.stroke=v)),lw());
     if(it.t==='dot') p.append(row('크기',num(()=>it.r,v=>it.r=v,{min:0.1,max:5,step:0.05,aria:'점 반지름(mm)'}),h('span',{class:'unit'},'mm')));
     const btn=(t,fn,title)=>{ const b=h('button',{class:'btn small',type:'button',title:title||''},t); b.addEventListener('click',fn); return b; };
+    if((it.t==='sym'||it.t==='leader')&&!it.km) p.append(h('div',{class:'btnrow'},btn('안쪽으로',()=>respot(it,'in'),'이 기호를 지역 안쪽에 놓아요(너무 좁으면 지시선)'),btn('지시선으로',()=>respot(it,'leader'),'이 기호를 지역 밖에 놓고 지시선으로 이어요'),btn('자리 다시 잡기',()=>respot(it,null),'겹치지 않는 자리를 다시 찾아요')));
     p.append(h('div',{class:'btnrow'},btn('복제',()=>dup(it),'Ctrl+D'),btn('지우기',()=>delItem(it),'Delete')));
     s.append(p); P.append(s); }
   else P.append(sec('고른 것',h('p',{class:'sub'},'‘고르기’ 도구(V)로 기호나 선을 누르면 여기서 고쳐요. 축척 막대·범례·이름도 끌어서 옮길 수 있어요.')));
@@ -11370,6 +11385,7 @@ function renderOpts(){
   SB.append(sec('기호',row('종류',sel(Object.entries(LG.SEQ_KO),()=>doc.seq.set,v=>{ doc.seq.set=v; },()=>changed('opts'),'기호 종류')),doc.seq.set==='num'?h('p',{class:'sub seqwarn'},'숫자 기호는 답지 번호 ①~⑤와 헷갈릴 수 있어요. 시험지에는 A, B나 (가), (나)를 권해요.'):'',row('다음 기호',nx,rs),
     row('표시 방법',sel([['auto','알아서(시·군은 안쪽, 지점은 점)'],['in','지역 안에 글자'],['dot','점 + 글자'],['leader','지시선 + 점']],()=>ui.mode,v=>{ ui.mode=v; saveLocal(); },()=>{},'문장으로 놓을 때 표시 방법')),
     row('기호 바탕',sel(BOX,()=>ui.box||'halo',v=>{ ui.box=v; },null,'새 기호 바탕'))));
+  SB.append(numAllSec());
   const fontOpts=fam=>GG.FONTS[fam].filter(f=>f.key!=='user').map(f=>[f.key,f.label+(f.web||GG.fontAvailable(f,fam)?'':' — 없음')]);
   SB.append(sec('글자·선 기본값',row('글자 크기',num(()=>doc.style.size,v=>doc.style.size=v,{min:5,max:30,step:0.5,aria:'기본 글자 크기(pt)'}),h('span',{class:'unit'},'pt')),
     row('선 굵기',num(()=>doc.style.lw,v=>doc.style.lw=v,{min:0.05,max:1.5,step:0.05,aria:'기본 선 굵기(mm)'}),h('span',{class:'unit'},'mm')),
@@ -11378,6 +11394,28 @@ function renderOpts(){
     row('로마자',seg([['times','Times'],['same','명조와 같게']],()=>doc.style.latin==='times'?'times':'same',v=>{ doc.style.latin=v; LG.clearMetrics(); }))));
   refreshHint();
 }
+function numAllSec(){
+  const NA=ui.numAll||(ui.numAll={start:1,order:'code',mode:'auto'});
+  const go=h('button',{class:'btn primary',type:'button'},'번호 달기'); go.addEventListener('click',numberAll);
+  const cp=h('button',{class:'btn small',type:'button'},'번호·지명 표 복사'); cp.addEventListener('click',async()=>{ const k=doc.knum&&doc.knum.pairs; if(!k||!k.length){ toast('먼저 번호를 달아 주세요.'); return; }
+    try{ await navigator.clipboard.writeText(k.slice().sort((a,b)=>(+a[1]||0)-(+b[1]||0)).map(([n,s])=>s+'\t'+n).join('\n')); toast('번호와 지명을 복사했어요. 엑셀·한글에 붙여 넣으세요.'); }catch(e){ toast('복사하지 못했어요.'); } });
+  return sec('번호 한꺼번에 달기',h('p',{class:'sub'},'지도에 보이는 시·군(시·도)에 번호를 모두 달아요. 넓은 지역은 안쪽에, 좁은 지역은 바깥쪽에 지시선으로 놓아요. 번호가 많으면 글자 크기를 6~7pt로 줄이세요.'),
+    row('시작 번호',num(()=>NA.start,v=>NA.start=Math.max(1,Math.min(900,Math.round(v||1))),{min:1,max:900,step:1,aria:'시작 번호'}),h('span',{class:'unit'},'번부터')),
+    row('순서',sel([['code','행정 구역 순(시·도 → 시·군)'],['name','가나다 순'],['ns','북쪽 → 남쪽'],['we','서쪽 → 동쪽'],['cw','시계 방향(북쪽부터)'],['rand','섞어서']],()=>NA.order,v=>{ NA.order=v; saveLocal(); },null,'번호 순서')),
+    row('표시 방법',sel([['auto','알아서(좁은 곳은 지시선)'],['in','모두 안쪽'],['leader','모두 지시선']],()=>NA.mode,v=>{ NA.mode=v; saveLocal(); },null,'번호 표시 방법')),
+    row('글자 크기',num(()=>doc.style.size,v=>doc.style.size=v,{min:4,max:30,step:0.5,aria:'기본 글자 크기(pt)'}),h('span',{class:'unit'},'pt')),
+    h('div',{class:'btnrow'},go,cp)); }
+function numberAll(){
+  if(!L){ toast('지도를 먼저 만들어 주세요.'); return; } const NA=ui.numAll;
+  let sp=KM.nameSpots(L,doc.map).filter(s=>s.p&&['sgg','sido','grp'].includes(s.p.k)); if(!sp.length){ toast('번호를 달 시·군이 지도에 없어요.'); return; }
+  const cx=L.w/2, cy=L.h/2; const key={code:s=>0,name:s=>0,ns:s=>s.y*1000+s.x,we:s=>s.x*1000+s.y,cw:s=>{ const a=Math.atan2(s.x-cx,-(s.y-cy)); return a<0?a+2*Math.PI:a; },rand:s=>Math.random()}[NA.order];
+  if(NA.order==='code') sp.sort((a,b)=>String(a.p.k==='sido'?a.p.c:a.p.s+a.p.c).localeCompare(String(b.p.k==='sido'?b.p.c:b.p.s+b.p.c)));
+  else if(NA.order==='name') sp.sort((a,b)=>a.n.localeCompare(b.n,'ko')); else sp.sort((a,b)=>key(a)-key(b));
+  const st=Math.max(1,NA.start|0); if(st+sp.length-1>999){ sp=sp.slice(0,999-st+1); toast('번호는 999번까지라 앞의 '+sp.length+'곳에만 달았어요.'); }
+  const S=LG.SEQS.num; doc.seq.set='num'; const labs=sp.map((s,i)=>({p:s.p,sym:S[st-1+i],shaded:false,n:s.n}));
+  doc.items=doc.items.filter(it=>!it.gen); const made=placeLabels(labs,NA.mode==='auto'?null:NA.mode,doc.items); made.forEach(it=>it.gen=true); doc.items.push(...made);
+  doc.seq.next=st-1+labs.length; doc.knum={pairs:labs.map(x=>[x.n,x.sym,pkey(x.p)])}; doc.kgen=null;
+  const nl=made.filter(m=>m.t==='leader').length; selId=null; changed('all'); commit(); toast(`${labs.length}곳에 ${labs[0].sym}~${labs[labs.length-1].sym}번을 달았어요(지시선 ${nl}개). 어긋난 곳은 끌어서 옮기거나 ‘안쪽으로·지시선으로’를 눌러요.`); }
 function hintOf(){
   const g=doc.kgen; if(!g||!g.pairs||!g.pairs.length) return null; const have=new Set(doc.items.filter(it=>it.t==='sym'||it.t==='leader').map(it=>it.text));
   const pairs=g.pairs.filter(([,s])=>have.has(s)); if(pairs.length<2) return null;
@@ -11405,9 +11443,15 @@ function regionBox(p){ if(!L||!['sgg','sido','grp'].includes(p.k)) return null;
   return {x:b[0],y:b[1],w:b[2]-b[0],h:b[3]-b[1]}; }
 /* 선분이 상자를 지나는가(양 끝 사이를 고르게 찍어 본다) */
 function segBox(x1,y1,x2,y2,o){ for(let i=1;i<10;i++){ const t=i/10, x=x1+(x2-x1)*t, y=y1+(y2-y1)*t; if(x>=o.x&&x<=o.x+o.w&&y>=o.y&&y<=o.y+o.h) return true; } return false; }
-function placeLabels(list,mode){
+function segX(ax,ay,bx,by,cx,cy,dx,dy){ const o=(px,py,qx,qy,rx,ry)=>(qx-px)*(ry-py)-(qy-py)*(rx-px); const e=0.01;
+  if(Math.hypot(ax-cx,ay-cy)<e||Math.hypot(ax-dx,ay-dy)<e||Math.hypot(bx-cx,by-cy)<e||Math.hypot(bx-dx,by-dy)<e) return false;
+  return o(ax,ay,bx,by,cx,cy)*o(ax,ay,bx,by,dx,dy)<0&&o(cx,cy,dx,dy,ax,ay)*o(cx,cy,dx,dy,bx,by)<0; }
+const D16=Array.from({length:16},(_,i)=>[Math.cos(i*Math.PI/8),Math.sin(i*Math.PI/8)]);
+function placeLabels(list,mode,keep){
   /* list: [{p, sym, shaded}] → 항목들. 시험지처럼: 시·군은 지역 안에 흰 테두리 기호, 기호보다 작은 지역은 밖에 두고 끝점 없는 지시선, 지점은 점 + 기호 */
-  const made=[]; const boxes=[]; const dots=[]; const pb={x:0,y:0,w:L.w,h:L.h};
+  const made=[]; const boxes=[]; const dots=[]; const lsegs=[]; const rest=[]; const Ls=[]; const pb={x:0,y:0,w:L.w,h:L.h}; const cen=[pb.w/2,pb.h/2];
+  const landB=(()=>{ let b=[1e9,1e9,-1e9,-1e9]; for(const f of L.feats){ if(f.p&&f.p.s==='NK'&&0) continue; const [x0,y0]=KM.toPage(L,f.b[0],f.b[3]), [x1,y1]=KM.toPage(L,f.b[2],f.b[1]); if(x1-x0>L.w*0.9||y1-y0>L.h*0.9) { /* 큰 바탕은 그대로 */ } b=[Math.min(b[0],x0,x1),Math.min(b[1],y0,y1),Math.max(b[2],x0,x1),Math.max(b[3],y0,y1)]; } return {x:b[0],y:b[1],w:b[2]-b[0],h:b[3]-b[1]}; })();
+  for(const k of (keep||[])){ if(k.km) continue; if(k.t==='sym'||k.t==='leader') boxes.push(boxOfLabel(k)); if(k.t==='leader'){ lsegs.push([k.x,k.y,k.tx,k.ty]); if(k.dot) dots.push({x:k.tx-0.6,y:k.ty-0.6,w:1.2,h:1.2}); } if(k.t==='dot') dots.push({x:k.x-k.r-0.2,y:k.y-k.r-0.2,w:k.r*2+0.4,h:k.r*2+0.4}); }
   const frames=[L.ubox,L.dbox,L.loc&&{page:L.loc}].filter(Boolean).map(u=>u.page||KM.boxOf(L,u));   /* 울릉·독도 상자, 위치도 테두리 */
   const inside=(a,b)=>a.x>=b.x&&a.y>=b.y&&a.x+a.w<=b.x+b.w&&a.y+a.h<=b.y+b.h;
   const inFrame=(x,y)=>frames.some(f=>x>=f.x&&x<=f.x+f.w&&y>=f.y&&y<=f.y+f.h);
@@ -11435,10 +11479,15 @@ function placeLabels(list,mode){
         boxes.push(lb); made.push(it); continue; }
       /* 기호보다 작은 지역: 상자(울릉) 안이면 상자 옆에, 아니면 지시선 */
       if(inFrame(x.px,x.py)){ x.m='beside'; x.rb=rb; } else x.m='leader'; }
+    rest.push(x); }
+  /* 안쪽 기호를 먼저 놓았으니, 지점·지시선 기호는 바깥쪽 것부터 놓는다(안쪽 것이 바깥 것의 길을 막지 않게) */
+  const dc=x=>x.m==='leader'?Math.hypot(x.px-cen[0],x.py-cen[1]):1e6; rest.sort((a,b)=>dc(b)-dc(a));
+  for(const x of rest){
     const tmp=LG.makeItem('sym',{text:x.sym}); const lb=LG.labelBox(doc,tmp); const w=lb.w+0.8, hh=lb.h+0.7;
+    if(x.m==='leader'){ x.w=w; x.hh=hh; Ls.push(x); continue; }
     let best=null;
-    const dirs=[[1,0],[-1,0],[0.8,-0.8],[-0.8,-0.8],[0.8,0.8],[-0.8,0.8],[0,-1],[0,1]];
-    const R=x.m==='leader'?[3.5,5,6.5]:[0];
+    const dirs=x.m==='leader'?D16:[[1,0],[-1,0],[0.8,-0.8],[-0.8,-0.8],[0.8,0.8],[-0.8,0.8],[0,-1],[0,1]];
+    const R=x.m==='leader'?[3.5,5,6.5,8.5,11,14]:[0];
     /* 후보 자리: 지점(또는 작은 지역) 둘레 + 그것을 담은 상자(울릉·독도) 바깥 둘레 */
     const anchors=[x.m==='beside'?{c:[x.rb.x+x.rb.w/2,x.rb.y+x.rb.h/2],ox:x.rb.w/2,oy:x.rb.h/2,g:0.5,extra:0}:{c:[x.px,x.py],ox:0,oy:0,g:0.9,extra:0}];
     if(x.m!=='leader') for(const f of frames) if(x.px>=f.x&&x.px<=f.x+f.w&&x.py>=f.y&&x.py<=f.y+f.h) anchors.push({c:[f.x+f.w/2,f.y+f.h/2],ox:f.w/2,oy:f.h/2,g:0.4,extra:0.3});
@@ -11446,11 +11495,31 @@ function placeLabels(list,mode){
       const b={x:cx-w/2,y:cy-hh/2,w,h:hh}; let pen=A.extra; for(const o of boxes) pen+=ov(b,o)*10; for(const o of dots) pen+=ov(b,o)*30; for(const f of frames) if(ov(b,f)>0&&!inside(b,f)) pen+=8;
       if(roadSegs.length&&roadHit(b)) pen+=4;   /* 고속 국도 선을 가리지 않게 */
       if(x.m==='leader'){ pen+=onLand(b)*0.5;   /* 지시선 기호는 바다·빈 곳을 조금 좋아하되, 지시선이 다른 기호를 지나지 않게 */
-        const ex=b.x+b.w/2, ey=b.y+b.h/2; for(const o of boxes) if(segBox(x.px,x.py,ex,ey,o)) pen+=3; }
-      if(b.x<pb.x||b.y<pb.y||b.x+b.w>pb.w||b.y+b.h>pb.h) pen+=1; const sc=pen+di*0.05+r*0.25; if(!best||sc<best.sc) best={sc,cx,cy,b}; });
+        const ex=b.x+b.w/2, ey=b.y+b.h/2; for(const o of boxes) if(segBox(x.px,x.py,ex,ey,o)) pen+=16;
+        for(const sg of lsegs) if(segX(x.px,x.py,ex,ey,sg[0],sg[1],sg[2],sg[3])) pen+=20; for(const sg of lsegs) if(segBox(sg[0],sg[1],sg[2],sg[3],b)) pen+=6;   /* 지시선끼리 가로지르지 않게 */
+        const ox=x.px-cen[0], oy=x.py-cen[1], ol=Math.hypot(ox,oy)||1; pen+=0.7*(1-(dx*ox+dy*oy)/(ol*Math.hypot(dx,dy))); }   /* 지도 한가운데에서 바깥쪽으로 */
+      if(b.x<pb.x||b.y<pb.y||b.x+b.w>pb.w||b.y+b.h>pb.h) pen+=x.m==='leader'?2:1; const sc=pen+di*0.05+r*0.25; if(!best||sc<best.sc) best={sc,cx,cy,b,pen}; });
     boxes.push(best.b);
-    if(x.m==='leader') made.push(LG.makeItem('leader',{x:best.cx,y:best.cy,tx:x.px,ty:x.py,text:x.sym,box:'halo',dot:!isRegion(x.p)}));
+    if(x.m==='leader'){ lsegs.push([best.cx,best.cy,x.px,x.py]); made.push(LG.makeItem('leader',{x:best.cx,y:best.cy,tx:x.px,ty:x.py,text:x.sym,box:'halo',dot:!isRegion(x.p)})); }
     else { if(x.m!=='beside'&&x.m!=='road'&&!x.nodot) made.push(LG.makeItem('dot',{x:x.px,y:x.py,r:0.5})); made.push(LG.makeItem('sym',{x:best.cx,y:best.cy,text:x.sym,box:'halo'})); }
+  }
+  /* 지시선 기호: 후보 자리(둘레 + 지도 바깥 사각 둘레)를 모두 만들어 두고, 하나씩 다시 골라 가며 겹침·교차가 가장 적은 배치를 찾는다 */
+  if(Ls.length){
+    const fb=boxes.slice(), fd=dots.slice(), fs=lsegs.slice();
+    for(const x of Ls){ const w=x.w, hh=x.hh; const C=[]; const ox=x.px-cen[0], oy=x.py-cen[1], ol=Math.hypot(ox,oy)||1;
+      const add=(cx,cy,len,extra)=>{ const b={x:cx-w/2,y:cy-hh/2,w,h:hh}; let pen=extra+len*0.06; for(const o of fb) pen+=ov(b,o)*10; for(const o of fd) pen+=ov(b,o)*30; for(const f of frames) if(ov(b,f)>0&&!inside(b,f)) pen+=8;
+        if(roadSegs.length&&roadHit(b)) pen+=4; pen+=onLand(b)*0.5; for(const o of fb) if(segBox(x.px,x.py,cx,cy,o)) pen+=16; for(const sg of fs){ if(segX(x.px,x.py,cx,cy,sg[0],sg[1],sg[2],sg[3])) pen+=20; if(segBox(sg[0],sg[1],sg[2],sg[3],b)) pen+=6; }
+        if(b.x<pb.x||b.y<pb.y||b.x+b.w>pb.w||b.y+b.h>pb.h) pen+=2; C.push({cx,cy,b,pen}); };
+      for(const r of [3.5,5,6.5,8.5,11,14]) for(const [dx,dy] of D16) add(x.px+dx*(r+w/2),x.py+dy*(r+hh/2),r,r*0.25+0.7*(1-(dx*ox+dy*oy)/ol));
+      const E={x:landB.x-w/2-1.6,y:landB.y-hh/2-1.6,w:landB.w+w+3.2,h:landB.h+hh+3.2}; const step=Math.max(2.4,hh*0.9);
+      for(let t=0;t<=E.w;t+=step){ for(const yy of [E.y,E.y+E.h]) add(E.x+t,yy,Math.hypot(E.x+t-x.px,yy-x.py),0.3); } for(let t=step;t<E.h;t+=step){ for(const xx of [E.x,E.x+E.w]) add(xx,E.y+t,Math.hypot(xx-x.px,E.y+t-x.py),0.3); }
+      x.C=C; x.cur=-1; }
+    const inter=(x,c,y,d)=>{ let q=ov(c.b,d.b)*10; if(segX(x.px,x.py,c.cx,c.cy,y.px,y.py,d.cx,d.cy)) q+=20; if(segBox(x.px,x.py,c.cx,c.cy,d.b)) q+=16; if(segBox(y.px,y.py,d.cx,d.cy,c.b)) q+=16; return q; };
+    const costOf=(x,j)=>{ const c=x.C[j]; let q=c.pen; for(const y of Ls) if(y!==x&&y.cur>=0) q+=inter(x,c,y,y.C[y.cur]); return q; };
+    Ls.sort((a,b)=>Math.hypot(b.px-cen[0],b.py-cen[1])-Math.hypot(a.px-cen[0],a.py-cen[1]));
+    for(const x of Ls){ let bj=0,bc=1e9; x.C.forEach((_,j)=>{ const q=costOf(x,j); if(q<bc){ bc=q; bj=j; } }); x.cur=bj; }
+    for(let round=0;round<4;round++){ let ch=false; for(const x of Ls){ const cur=x.cur; x.cur=-1; let bj=cur,bc=1e9; x.C.forEach((_,j)=>{ const q=costOf(x,j); if(q<bc-1e-9){ bc=q; bj=j; } }); x.cur=bj; if(bj!==cur) ch=true; } if(!ch) break; }
+    for(const x of Ls){ const c=x.C[x.cur]; boxes.push(c.b); lsegs.push([c.cx,c.cy,x.px,x.py]); made.push(LG.makeItem('leader',{x:c.cx,y:c.cy,tx:x.px,ty:x.py,text:x.sym,box:'halo',dot:!isRegion(x.p)})); }
   }
   return made;
 }
