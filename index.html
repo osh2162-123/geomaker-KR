@@ -7079,8 +7079,8 @@ return {SEQS,SEQ_KO,ITEM_KO,setData,data,setKice,kiceItems,kiceItem,kiceNote,set
    문장을 읽어 범위·경계·색칠·기호를 정한다. 기호·점·글자는 지형 모식도 엔진(LG)의 항목으로 만든다. */
 const KM=(function(){
 'use strict';
-let D=null; const GC={}, PC={};
-function setData(d){ D=d; for(const k in GC) delete GC[k]; for(const k in PC) delete PC[k]; }
+let D=null; const GC={}, PC={}, PCR={};
+function setData(d){ D=d; for(const k in GC) delete GC[k]; for(const k in PC) delete PC[k]; for(const k in PCR) delete PCR[k]; }
 function data(){ return D; }
 const f2=v=>(Math.round(v*100)/100).toString();
 const norm=s=>String(s||'').replace(/[\s·.,()（）]/g,'').toLowerCase();
@@ -7090,7 +7090,7 @@ const SIDO_ORDER=['11','26','27','28','29','30','31','36','41','43','44','46','1
 const REGIONS=[
   {id:'sk',ko:'전국(남한)',w:['전국','남한','대한민국','우리나라','한국']},
   {id:'kor',ko:'한반도(남북한)',w:['한반도','남북한','북한까지','남북','한반도전체']},
-  {id:'nk',ko:'북한',w:['북한만','북한지도']},
+  {id:'nk',ko:'북한',w:['북한만','북한지도','북한 지도','북한 전도','북한 땅']},
   {id:'capital',ko:'수도권',w:['수도권'],s:['11','28','41']},
   {id:'gangwon',ko:'강원권',w:['강원권','강원지방','강원 지방','관동지방','관동 지방'],s:['51']},
   {id:'chung',ko:'충청권',w:['충청권','충청지방','충청도'],s:['30','36','43','44']},
@@ -7129,17 +7129,32 @@ function G(map,lod,trim){
 }
 function partInfo(P_){ let a=0,bb=[1e12,1e12,-1e12,-1e12]; const r=P_[0]; for(let j=0,k=r.length-1;j<r.length;k=j++){ a+=(r[k][0]+r[j][0])*(r[k][1]-r[j][1]); const [x,y]=r[j]; if(x<bb[0])bb[0]=x; if(y<bb[1])bb[1]=y; if(x>bb[2])bb[2]=x; if(y>bb[3])bb[3]=y; } return {a:Math.abs(a/2),b:bb}; }
 function eachXY(g,fn){ const C=g.coordinates; if(g.type==='Polygon') C.forEach(r=>r.forEach(p=>fn(p[0],p[1]))); else if(g.type==='MultiPolygon') C.forEach(P=>P.forEach(r=>r.forEach(p=>fn(p[0],p[1])))); }
-function places(map){ const v=verOf(map); if(PC[v]) return PC[v];
+/* 북한 도: 해방(1945) 당시 6개 도로 합쳐 보는 근사. 지금의 양강도는 함경남도, 자강도는 평안북도, 나선·평양·남포는 각각 함경북도·평안남도, 황해남·북도는 황해도로 묶는다.
+   (실제 옛 도 경계는 지금 도 경계와 달라 군 단위로 어긋나는 곳이 있다. 데이터에 군 단위 북한 경계가 없어 도 단위로만 합친다) */
+const NK_LIB={nk09:'h09',nk13:'h09',nk10:'h08',nk08:'h08',nk04:'h03',nk03:'h03',nk02:'h02',nk01:'h02',nk05:'h05',nk06:'h05',nk07:'h07'};
+const NK_LIB_MAIN={h09:'nk09',h08:'nk08',h03:'nk03',h02:'nk02',h05:'nk05',h07:'nk07'};
+const NK_LIB_NAME={h09:'함경북도',h08:'함경남도',h03:'평안북도',h02:'평안남도',h05:'황해도',h07:'강원도'};
+function libOn(map){ return map&&map.nkEra!=='now'; }
+function nkGroup(map,p){ return p&&p.s==='NK'?(libOn(map)?(NK_LIB[p.c]||p.c):p.c):null; }
+function nkName(map,p){ if(!p||p.s!=='NK') return p&&p.n; return libOn(map)?(NK_LIB_NAME[NK_LIB[p.c]]||p.n):p.n; }
+function places(map){ const v=verOf(map); const lib=libOn(map); const key=v+(lib?'L':''); if(PC[key]) return PC[key]; const base=placesRaw(map);
+  if(!lib) return PC[key]=base;
+  const nd=base.filter(p=>p.k==='nkdo'); const out=base.filter(p=>p.k!=='nkdo');
+  for(const gk of Object.keys(NK_LIB_NAME)){ const mc=NK_LIB_MAIN[gk]; const mem=nd.filter(p=>NK_LIB[p.c]===gk); const main=mem.find(p=>p.c===mc); if(!main) continue;
+    const w=p=>p===main?3:1; const sw=mem.reduce((a,p)=>a+w(p),0); const nm=NK_LIB_NAME[gk];
+    out.push(Object.assign({},main,{n:nm,x:mem.reduce((a,p)=>a+p.x*w(p),0)/sw,y:mem.reduce((a,p)=>a+p.y*w(p),0)/sw,al:nm.endsWith('도')?[nm.slice(0,-1)]:[]})); }
+  return PC[key]=out; }
+function placesRaw(map){ const v=verOf(map); if(PCR[v]) return PCR[v];
   const base=D.vers[v].places||[]; const extra=[];
   /* 통합특별시 경계에서는 옛 광주광역시(5개 구)를 ‘광주’ 묶음으로 찾는다 */
   if(!base.some(p=>p.k==='sido'&&p.c==='29')){ const g=base.filter(p=>p.k==='sgg'&&p.s==='12'&&/구$/.test(p.n));
     if(g.length){ const av=k=>g.reduce((a,p)=>a+p[k],0)/g.length; extra.push({k:'grp',n:'광주',al:['광주광역시','광주시내'],s:'12',codes:g.map(p=>p.c),x:av('x'),y:av('y'),lx:av('lx'),ly:av('ly')}); } }
-  return PC[v]=[...base,...extra,...(D.places||[])]; }
+  return PCR[v]=[...base,...extra,...(D.places||[])]; }
 function sidoName(code){ return (D&&D.sido&&D.sido[code])||code; }
 function sidoList(map){ const v=verOf(map); const have=new Set(D.vers[v].places.filter(p=>p.k==='sido').map(p=>p.c)); return SIDO_ORDER.filter(c=>have.has(c)); }
 
 /* ───────── 지도 설정 ───────── */
-function freshMap(){ return {ver:'b',verPick:false,area:'sk',sido:[],level:'sido',shade:{},metro:'auto',width:45,scale:true,ulleung:'box',dokdo:true,inset:false,rivers:[],nkdo:true,han:true,frame:false,sv:2,roads:[],roadStyle:{},roadLegend:true,
+function freshMap(){ return {ver:'b',verPick:false,area:'sk',sido:[],level:'sido',shade:{},metro:'auto',width:45,scale:true,ulleung:'box',dokdo:true,inset:false,rivers:[],nkdo:true,nkEra:'lib',skShow:true,han:true,frame:false,sv:2,roads:[],roadStyle:{},roadLegend:true,
   bl:false,bp:false,ts:false,nb:false,blStyle:'solid',seaLegend:true}; }
 /* 2026년 7월 1일 전남광주통합특별시 출범: 경계 기준을 직접 고른 적이 없는 지도는 7월 기준(b)으로 연다 */
 function normalizeMap(m){ const x=Object.assign(freshMap(),m||{}); if(!x.verPick) x.ver='b'; return x; }
@@ -7189,8 +7204,10 @@ function layout(map){
       if(map.dokdo&&dk){ const sd=Math.max(uw*0.6,5000); const x0=tx+uw-sd, y0=ty-sd;   /* 시험지처럼 울릉도 상자 아래 오른쪽에 붙인 작은 상자 */
         dbox={dx:x0+sd/2-dk.x, dy:y0+sd/2-dk.y, x:x0, y:y0, w:sd, h:sd, px:dk.x, py:dk.y};
         b=[b[0],Math.min(b[1],y0),b[2],b[3]]; } } }
+  /* 북한 지도: 시험지처럼 휴전선 아래 남한 땅이 조금 보이게 남쪽에 여백을 둔다 */
+  const skOn=map.area==='nk'&&map.skShow!==false; if(skOn) b=[b[0],b[1]-(b[3]-b[1])*0.07,b[2],b[3]];
   const w=Math.max(20,+map.width||70); const k=(w-2*M)/(b[2]-b[0]); const h=(b[3]-b[1])*k+2*M;
-  return {g,inc,feats,main,ul,ubox,dbox,b,k,w,h,lod:lodOf(map)};
+  return {g,inc,feats,main,ul,ubox,dbox,b,k,w,h,lod:lodOf(map),skOn};
 }
 function P(L,x,y,ul){ if(ul&&L.ubox){ x+=L.ubox.dx; y+=L.ubox.dy; } return [M+(x-L.b[0])*L.k, M+(L.b[3]-y)*L.k]; }
 function inv(L,px,py){ return [(px-M)/L.k+L.b[0], L.b[3]-(py-M)/L.k]; }
@@ -7314,12 +7331,18 @@ function render(map){
   /* 흰 바탕(땅) */
   const land=L.feats.map(f=>geomPath(L,f.geometry,incUl(f.p))).join('');
   out.push(`<path d="${land}" fill="#fff" stroke="none"/>`);
+  /* 북한 지도에서 보이는 남한 땅(윤곽만): 쪽 밖으로 넘치지 않게 자른다 */
+  const skPart=L.skOn?g.fc.filter(f=>f.p.s!=='NK'&&!isUl(f.p)&&f.fb[3]>=L.b[1]&&f.fb[0]<=L.b[2]):[];
+  const skSet=new Set(skPart.map(f=>f.p.c));
+  if(skPart.length){ const sd=skPart.map(f=>geomPath(L,f.geometry,false)).join('');
+    out.push(`<clipPath id="kmSkClip"><rect x="0" y="0" width="${f2(W)}" height="${f2(H)}"/></clipPath>`,`<path d="${sd}" fill="#fff" stroke="none" clip-path="url(#kmSkClip)"/>`); }
   /* 색칠: 시군구 단위(코드) · 시도 단위(s:코드) */
   const sh=map.shade||{};
   for(const [code,tone] of Object.entries(sh)){ const T=TONES[tone]; if(!T) continue; let d='';
     if(code.startsWith('s:')){ const sc=code.slice(2); const gs=obj.geometries.filter(o=>o.p.s===sc&&inc(o.p)&&!isUl(o.p)); if(gs.length) d+=geomPath(L,topojson.merge(t,gs),false);
       const ug=obj.geometries.filter(o=>o.p.s===sc&&inc(o.p)&&isUl(o.p)); if(ug.length) d+=geomPath(L,topojson.merge(t,ug),L.ul==='box'); }
     else if(code==='g:12'){ const gs=obj.geometries.filter(o=>o.p.s==='12'&&/구$/.test(o.p.n||'')&&inc(o.p)); if(gs.length) d+=geomPath(L,topojson.merge(t,gs),false); }
+    else if(NK_LIB[code]&&libOn(map)){ const gk=NK_LIB[code]; for(const f of L.feats) if(f.p.s==='NK'&&NK_LIB[f.p.c]===gk) d+=geomPath(L,f.geometry,false); }
     else { const f=L.feats.find(f=>f.p.c===code); if(f) d+=geomPath(L,f.geometry,incUl(f.p)); }
     if(d) out.push(`<path d="${d}" fill="${T.fill}" stroke="none" fill-rule="evenodd"/>`); }
   /* 하천(그릴 땅 안으로만) */
@@ -7339,13 +7362,14 @@ function render(map){
   if(sggLevel){ const uk=p=>unitKey(map,p); line('sgg',mesh((a,b)=>both(a,b)&&a.p.s===b.p.s&&SK(a.p)&&!isUl(a.p)&&!isUl(b.p)&&!(uk(a.p)&&uk(a.p)===uk(b.p)))); }
   /* 서울 한강: 강북·강남 자치구 사이 경계(한강 가운데)를 두 줄 띠로 */
   const han=hanPath(L,map,t,obj);
-  if(map.nkdo!==false) line('nk',mesh((a,b)=>both(a,b)&&isNK(a.p)&&isNK(b.p)));
+  if(map.nkdo!==false) line('nk',mesh((a,b)=>both(a,b)&&isNK(a.p)&&isNK(b.p)&&nkGroup(map,a.p)!==nkGroup(map,b.p)));
   /* 시·도 경계: 그리는 시·도끼리, 그리고 그리는 땅과 그리지 않는 남한 땅 사이(바깥 육지 경계) */
   line('sido',mesh((a,b)=>a!==b&&SK(a.p)&&SK(b.p)&&(inc(a.p)||inc(b.p))&&!isUl(a.p)&&!isUl(b.p)&&(a.p.s!==b.p.s||inc(a.p)!==inc(b.p))));
   line('dmz',mesh((a,b)=>a!==b&&SK(a.p)!==SK(b.p)&&(inc(a.p)||inc(b.p))));
   if(han){ const bw=han.w; out.push(`<path d="${han.d}" fill="none" stroke="#000" stroke-width="${f2(bw+2*LS.coast.w)}" stroke-linejoin="round" stroke-linecap="butt"/>`,
     `<path d="${han.d}" fill="none" stroke="#fff" stroke-width="${f2(bw)}" stroke-linejoin="round" stroke-linecap="butt"/>`); }
   line('coast',mesh((a,b)=>a===b&&inc(a.p)&&!incUl(a.p)));
+  if(skPart.length){ const cd=mesh((a,b)=>a===b&&skSet.has(a.p.c)); if(cd) out.push(`<path d="${cd}" ${strokeOf('coast')} clip-path="url(#kmSkClip)"/>`); }
   out.push(...roadSvg);
   out.push(...seaSvg(L,map)); L.segs=seaSegs(L,map);   /* 축척·범례가 영해 선을 가리지 않게 */
   /* 울릉도·독도 상자 */
@@ -7462,6 +7486,7 @@ function parse(q,cur){
       const ks=[]; while((k=nm.exec(seg))){ const hit=uniq.find(n=>n[0].replace(/ /g,'')===k[0].replace(/\s/g,'')); if(hit&&!ks.includes(hit[1])) ks.push(hit[1]); }
       ks.forEach((r,j)=>roadHits.push({r,sym:sm&&ks.length===1?(sm[1].length===1&&/[가-하]/.test(sm[1])?`(${sm[1]})`:sm[1]):null,style}));
       if(sm&&ks.length===1) mark(end,sm[0].length); } }
+  { const re=/남한\s*(?:은|도|을|를)?\s*(?:빼|없이|지우|제외|함께|같이|넣|표시|포함)/g; let m; while((m=re.exec(text))) mark(m.index,m[0].length); }
   for(const R of REGIONS) for(const w of R.w){ let from=0; for(;;){ const i=text.indexOf(w,from); if(i<0) break; from=i+1; if(!used[i]){ area=area||R.id; mark(i,w.length); break; } } }
   /* ‘X 지도’, ‘X 시군’, ‘X 시군 경계’처럼 범위를 말하는 시도 이름(문장 앞쪽, 기호가 붙지 않은 것) */
   const sidoHit=[]; const SW=Object.values(SIDO_WORDS).flat().sort((a,b)=>b.length-a.length).join('|');
@@ -7476,12 +7501,14 @@ function parse(q,cur){
       if(chainRe.test(post)||(!nextSido&&/^(?:특별자치도|광역시|특별시)?\s*[,·]?\s*$/.test(post.slice(0,2)))) { sidoHit.push([i,c,w]); mark(i,w.length); break; }
     } }
   if(sidoHit.length){ sidos=[...new Set(sidoHit.sort((a,b)=>a[0]-b[0]).map(h=>h[1]))]; if(!area) area='sido'; }
-  if(area){ map.area=area; map.sido=area==='sido'?sidos:[]; out.areaSet=true; map.inset=false; map.rivers=[]; map.metro='auto'; }
+  if(area){ map.area=area; map.sido=area==='sido'?sidos:[]; out.areaSet=true; map.inset=false; map.rivers=[]; map.metro='auto'; map.skShow=true; }
   /* 경계 수준 */
   if(/시\s*·?\s*군\s*·?\s*구|시\s*·?\s*군|시군|구\s*·?\s*군|자치구|구\s*경계|군\s*경계/.test(text)) map.level='sgg';
   else if(/시\s*·?\s*도\s*(?:경계|단위|별)?|광역\s*자치\s*단체/.test(text)) map.level='sido';
   else if(out.areaSet) map.level=(map.area==='sk'||map.area==='kor'||map.area==='nk')?'sido':'sgg';
   if(map.area==='kor'||map.area==='nk') map.nkdo=!/북한\s*도\s*경계\s*(?:없이|빼)/.test(text);
+  if(map.area==='kor'||map.area==='nk'){ if(/해방\s*(?:기준|당시|직후|전후)|광복\s*(?:기준|당시)|1945|옛\s*(?:행정\s*구역|도\s*경계)/.test(text)) map.nkEra='lib'; else if(/현재\s*(?:행정\s*구역|도\s*경계|기준)|지금\s*(?:행정\s*구역|도\s*경계)|최근\s*행정\s*구역/.test(text)) map.nkEra='now'; }
+  if(map.area==='nk'){ if(/남한\s*(?:은|도|을|를)?\s*(?:빼|없이|지우|제외)/.test(text)) map.skShow=false; else if(/남한\s*(?:도|을|를)?\s*(?:함께|같이|넣|표시|포함)/.test(text)) map.skShow=true; }
   /* 보기 */
   if(/독도/.test(text)) map.dokdo=!/독도\s*(?:는|은|를|을)?\s*(?:빼|없이|지우)/.test(text);
   if(/테두리|틀\s*(?:을|를)?\s*(?:넣|두르|그려)/.test(text)) map.frame=!/테두리\s*(?:는|를|을)?\s*(?:빼|없이|지우)/.test(text);
@@ -7596,10 +7623,10 @@ function nameSpots(L,map){ const lv=map.level; const out=[]; const v=verOf(map);
     const fs=L.feats.filter(f=>p.k==='sido'?f.p.s===p.c&&!isUl(f.p):p.k==='grp'?p.codes.includes(f.p.c):f.p.c===p.c); if(!fs.length) continue;
     const [x,y]=toPage(L,p.lx,p.ly); let n=p.n; if(p.k==='sido') n=sidoName(p.c); else if(p.k==='sgg'&&/[시군]$/.test(n)&&n.length>2) n=n.slice(0,-1);
     out.push(Object.assign({n,x,y},box(fs))); }
-  if(map.area==='kor'||map.area==='nk') for(const p of D.places) if(p.k==='nkdo'){ const [x,y]=toPage(L,p.x,p.y); out.push({n:p.n,x,y,w:30,h:30}); }
+  if(map.area==='kor'||map.area==='nk') for(const p of places(map)) if(p.k==='nkdo'){ const [x,y]=toPage(L,p.x,p.y); out.push({n:p.n,x,y,w:30,h:30}); }
   return out; }
 return {setData,data,lookupEx,boxOf,roadPoint,legendItems,legendEntries,roadLabel,ROAD_KO,roadStyleOf,seaOn,seaSegs,SEA_KO,mergeOn,unitKey,unitCodes,metroIn,REGIONS,nameSpots,SIDO_WORDS,TONES,TONE_ORDER,freshMap,normalizeMap,layout,render,scaleBarItems,locatorSVG,featuresAt,lookup,parse,spotOf,toPage,inv,
-  places,sidoName,sidoList,areaLabel,incFn,niceKm,M};
+  places,sidoName,sidoList,areaLabel,incFn,niceKm,nkName,nkGroup,M};
 })();
 
 </script>
@@ -11176,7 +11203,7 @@ wrap.addEventListener('pointerdown',e=>{
 function capture(e){ try{ wrap.setPointerCapture(e.pointerId); }catch(err){} }
 function startPan(e){ drag={mode:'pan',cx:e.clientX,cy:e.clientY,vx:view.x,vy:view.y}; wrap.classList.add('panning'); capture(e); }
 const tag=$('#hoverTag'), TAG0='지도 위에 마우스를 올리면 시·군 이름이 나와요';
-const setTag=f=>{ tag.textContent=f?(f.p.s==='NK'?`북한 ${f.p.n}`:`${KM.sidoName(f.p.s)} ${f.p.n}`):TAG0; };
+const setTag=f=>{ tag.textContent=f?(f.p.s==='NK'?`북한 ${KM.nkName(doc.map,f.p)}`:`${KM.sidoName(f.p.s)} ${f.p.n}`):TAG0; };
 wrap.addEventListener('pointermove',e=>{
   if(!drag){ setTag(featAt(toMM(e))); return; }
   const p=toMM(e);
@@ -11269,6 +11296,8 @@ function renderLeft(){
   if(hasUl){ V.append(row('울릉도',seg([['box','상자로'],['true','제자리'],['off','빼기']],()=>m.ulleung,v=>m.ulleung=v,()=>{ mapChanged(); fit(); })));
     if(m.ulleung!=='off') V.append(row('',chk('독도 넣기',()=>m.dokdo,v=>m.dokdo=v,()=>{ mapChanged(); fit(); }))); }
   if(m.area==='kor'||m.area==='nk') V.append(row('',chk('북한 도 경계',()=>m.nkdo!==false,v=>m.nkdo=v,()=>mapChanged())));
+  if(m.area==='kor'||m.area==='nk') V.append(row('북한 도',seg([['lib','해방(1945) 기준'],['now','현재']],()=>m.nkEra==='now'?'now':'lib',v=>m.nkEra=v,()=>{ mapChanged(); }),h('span',{class:'unit',title:'현재의 양강도는 함경남도에, 자강도는 평안북도에, 나선은 함경북도에, 평양은 평안남도에, 황해남·북도는 황해도에 묶은 근사예요. 군 단위로는 옛 경계와 어긋날 수 있어요.'},'근사(양강→함남, 자강→평북 등)')));
+  if(m.area==='nk') V.append(row('',chk('남한 땅 함께 표시(휴전선 아래, 윤곽만)',()=>m.skShow!==false,v=>m.skShow=v,()=>{ mapChanged(); fit(); })));
   const rv=h('div',{class:'kriv'}); for(const r of Object.keys(KM.data().rivers||{})) rv.append(chk(r,()=>(m.rivers||[]).includes(r),v=>{ m.rivers=(m.rivers||[]).filter(x=>x!==r); if(v) m.rivers.push(r); },()=>mapChanged()));
   V.append(row('하천',rv));
   /* 고속 국도(모식적인 선) */
