@@ -2158,6 +2158,12 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-item .idata .fignote{font-size:.85em;margin-top:4px}
 .t-item .iapp .btn[disabled]{opacity:.45;cursor:not-allowed}
 .t-item .ifig-btns{display:flex;gap:4px;flex-wrap:wrap}
+.t-item .igfilt{margin-top:6px;gap:6px;flex-wrap:wrap}
+.t-item .igfilt select,.t-item .igfilt input{font:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line,#ccc);border-radius:6px;background:var(--bg,#fff);color:inherit}
+.t-item .igfilt input{flex:1;min-width:140px}
+.t-item .gtag{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--chip,#eef1f4);color:var(--muted)}
+.t-item .igtags{gap:4px;flex-wrap:wrap}
+.t-item .igich details ol li{margin:2px 0}
 </style>
 </head>
 <body>
@@ -3080,7 +3086,7 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 
   <aside class="pane opts iside" aria-label="점검과 기출">
     <div class="sec iside-head">
-      <div class="seg" id="iSideSeg" role="group" aria-label="오른쪽 보기"><button type="button" data-v="check">점검</button><button type="button" data-v="gichul">같은 성취기준 기출</button></div>
+      <div class="seg" id="iSideSeg" role="group" aria-label="오른쪽 보기"><button type="button" data-v="check">점검</button><button type="button" data-v="gichul">기출 참고</button></div>
     </div>
     <div id="iSideBody" class="iside-body"></div>
   </aside>
@@ -14511,6 +14517,7 @@ const KN={1:'한',2:'두',3:'세',4:'네',5:'다섯',6:'여섯'};
 const TOOLS=[['climate','기후 그래프'],['energy','에너지 그래프'],['religion','종교 그래프'],['population','인구 그래프'],['agriculture','농업 그래프'],['mapquick','백지도 자동 생성'],['mapedit','백지도 편집기'],['landform','지형 모식도'],['kmap','한국지리 백지도']];
 const TOOL_OF={climate:'climate',energy:'energy',religion:'religion',population:'population',agriculture:'agriculture',map:'mapquick',landform:'landform'};
 const TARGETS=['지역','국가','도시','종교','에너지 자원','작물','가축','지형','산맥','지역(대륙)','경제 블록','국제 환경 협약'];
+let gF={scope:'',data:'all',form:'all',q:'',more:false};
 let step=0, side='check', candTab='data', candF={kind:'all',m:'all',ox:'all',tier:'all'};
 let it=fresh(); let toastT=0;
 /* 다른 탭에서 불러온 자료 그림: 크기가 커서 작업 파일·자동 저장에는 넣지 않고 이 화면에만 둔다 */
@@ -14545,6 +14552,8 @@ const curC=()=>D().curr[it.curr];
 const stdObj=()=>it.std?curC().std.find(s=>s.code===it.std):null;
 const g0=()=>it.groups[0]||{labels:[],names:[]};
 const toolExists=id=>!!document.getElementById('hub-tab-'+id);
+function openGichul(){ side='gichul'; gF.scope=''; renderSide(); const e=$('#iSideBody'); if(e&&e.scrollIntoView) e.scrollIntoView({block:'nearest'}); }
+function gBtn(t){ const b=h('button',{type:'button',class:'btn small'},t||'기출 참고 열기 →'); b.addEventListener('click',openGichul); return h('div',{class:'ichips'},b); }
 function relatedGichul(){ if(!it.std) return []; return IT.gichulBy(IT.related(it.curr,it.std)); }
 function unitName(u){ const x=curC().units.find(x=>x.u===u); return x?x.name:''; }
 function stdShort(code){ return code.replace('12세지',''); }
@@ -14840,7 +14849,7 @@ function stepStem(S){
     h('p',{class:'sub'},'그림·표·그래프 앞에는 ‘다음’을 쓰지 않고, 글상자 자료에만 ‘다음 글은’을 써요. 자료를 가리킬 때는 ‘이에 대한’, ‘이 자료에 대한’이라고 써요.')));
   /* 기출 발문 참고 */
   if(IT.hasKice){ const G=relatedGichul().slice(0,8); if(G.length){ const ul=h('ul',{class:'ilist'}); for(const g of G){ const k=IT.kiceOf(g.id); if(!k) continue; ul.append(h('li',null,h('div',{class:'grow'},h('div',{class:'stem'},k.stem+(k.cond?' '+k.cond:'')),h('div',{class:'meta'},`${g.name} ${g.no}번 · ${g.form}`)))); }
-    S.append(sec('같은 성취기준 기출 발문(개인판에만 보여요)',ul)); } }
+    S.append(sec('같은 성취기준 기출 발문(개인판에만 보여요)',ul,gBtn())); } }
 }
 
 /* 5. 선지 */
@@ -14870,7 +14879,7 @@ function stepStmt(S){
   /* 후보 */
   const tabs=[['data','자료로 판정'],['tpl','진술 틀'],['me','직접 쓰기']]; if(IT.hasKice) tabs.splice(2,0,['gichul','기출 선지']);
   const box=h('div',{class:'ifld'});
-  S.append(sec('후보',seg(tabs,()=>candTab,v=>{ candTab=v; renderStep(); },'wrap'),box));
+  S.append(sec('후보',seg(tabs,()=>candTab,v=>{ candTab=v; renderStep(); },'wrap'),box,gBtn('기출에서 어떻게 나왔는지 보기 →')));
   if(candTab==='data') candData(box); else if(candTab==='tpl') candTpl(box); else if(candTab==='gichul') candGichul(box); else candMe(box);
 }
 function addStmt(o){ const N=need(); if(it.stmts.length>=N&&!confirm(`이미 ${N}개예요. 그래도 넣을까요?`)) return; it.stmts.push({id:uid(),text:o.text,truth:o.truth==null?null:o.truth,kind:o.kind||IT.kindOf(o.text),why:o.why||'',warn:o.warn||'',note:o.note||'',src:o.src||'me'}); changed('step'); }
@@ -15020,17 +15029,58 @@ function renderSide(){
   const B=$('#iSideBody'); B.textContent='';
   [...$('#iSideSeg').children].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===side)));
   if(side==='check'){ B.append(sec('자동 점검',checkList(IT.checks(it,ans()))),sec('',h('p',{class:'isrc'},'규칙 출처: 경기도교육청 「2024 평가문항 제작 방법(지리)」. ‘사람이 볼 것’은 6단계에 있어요.'))); return; }
-  const G=relatedGichul();
-  if(!it.std){ B.append(sec('',h('p',{class:'empty'},'성취기준을 고르면 같은 성취기준의 기출이 여기에 나와요.'))); return; }
+  gichulPanel(B);
+}
+const TABNAME={climate:'기후',energy:'에너지',religion:'종교',population:'인구',agriculture:'농업',landform:'지형',map:'백지도'};
+function myTab(){ return it.dataSrc==='table'&&it.table?it.table.tab:(it.climate&&it.climate.length?'climate':''); }
+function gScore(g){ let n=0; const rel=it.std?IT.related(it.curr,it.std):[]; if(rel.includes(g.std)) n+=4; const t=myTab(); if(t&&g.tool===t) n+=3;
+  const words=[it.eval,...it.groups.flatMap(x=>x.names)].join(' ').split(/[\s·,()]+/).filter(w=>w.length>=2); const hay=g.topic+' '+g.eval; for(const w of words) if(hay.includes(w)) n+=1; return n; }
+function gichulPanel(B){
+  const all=D().gichul, tab=myTab();
+  if(!gF.scope) gF.scope=it.std?'std':tab?'tab':'all';
+  if(gF.scope==='std'&&!it.std) gF.scope=tab?'tab':'all';
+  if(gF.scope==='tab'&&!tab) gF.scope=it.std?'std':'all';
+  const sc=seg([['std','같은 성취기준','고른 성취기준과 같은 기출'],['tab',tab?`같은 자료(${TABNAME[tab]})`:'같은 자료 탭','기후·에너지 등 같은 탭에서 만든 기출'],['all','전체 220문항']],()=>gF.scope,v=>{ gF.scope=v; gF.more=false; renderSide(); });
+  const sel=(opts,get,set)=>{ const e=h('select',null,...opts.map(([v,t])=>h('option',{value:v},t))); e.value=get(); e.addEventListener('change',()=>{ set(e.value); gF.more=false; renderSide(); }); return e; };
+  const dset=[...new Set(all.flatMap(g=>g.data))], fset=[...new Set(all.map(g=>g.form))];
+  const q=h('input',{type:'text',placeholder:'주제·평가 요소·선지 검색(예: 난류, 쌀, 이슬람)',value:gF.q}); q.addEventListener('change',()=>{ gF.q=q.value.trim(); gF.more=false; renderSide(); });
+  B.append(sec('기출 참고',h('p',{class:'sub'},'기출에서 이 내용이 어떤 자료·형식·선지로 나왔는지 보고, 발문과 선지 꼴을 가져와 고쳐 쓸 수 있어요.'),sc,
+    h('div',{class:'ichips igfilt'},sel([['all','자료 전체'],...dset.map(x=>[x,x])],()=>gF.data,v=>gF.data=v),sel([['all','형식 전체'],...fset.map(x=>[x,x])],()=>gF.form,v=>gF.form=v),q)));
+  let G=all.filter(g=>{
+    if(gF.scope==='std'){ if(!IT.related(it.curr,it.std).includes(g.std)) return false; }
+    else if(gF.scope==='tab'){ if(g.tool!==tab) return false; }
+    if(gF.data!=='all'&&!g.data.includes(gF.data)) return false;
+    if(gF.form!=='all'&&g.form!==gF.form) return false;
+    if(gF.q){ const k=IT.kiceOf(g.id); const hay=[g.topic,g.eval,g.scene,k?k.stem+' '+k.stmts.join(' '):''].join(' '); if(!hay.includes(gF.q)) return false; }
+    return true; });
+  G=G.map(g=>[g,gScore(g)]).sort((x,y)=>y[1]-x[1]||(y[0].id<x[0].id?-1:1)).map(x=>x[0]);
+  if(gF.scope==='std'&&!it.std){ B.append(sec('',h('p',{class:'empty'},'성취기준을 고르면 같은 성취기준의 기출이 나와요. ‘전체’로 둘러볼 수도 있어요.'))); return; }
   const st=IT.stats(G);
-  B.append(sec(`같은 성취기준 기출 ${G.length}문항`,h('p',{class:'sub'},G.length?`선지 진술 꼴: ${st.kinds.map(([k,v])=>`${k} ${v}`).join(', ')}`:'11회 안에는 없어요.')));
-  const ul=h('ul',{class:'ilist igich'});
-  for(const g of G){ const k=IT.kiceOf(g.id);
-    const li=h('li',null,h('div',null,h('b',null,`${g.name} ${g.no}번`),g.pts===3?' [3점]':'',' · ',g.topic),h('div',{class:'meta'},`${g.eval} · ${g.data.join('·')} · ${g.form} · ${g.act}`));
-    if(k){ li.append(h('div',{class:'stem'},k.stem+(k.cond?' '+k.cond:''))); if(k.stmts.length) li.append(h('details',null,h('summary',null,`선지 ${k.stmts.length}개`),h('ol',null,...k.stmts.map(s=>h('li',null,s))))); }
-    ul.append(li); }
+  B.append(sec(`기출 ${G.length}문항`,G.length?h('div',{class:'sub'},
+    `선지 진술 꼴: ${st.kinds.length?st.kinds.map(([k,v])=>`${k} ${v}`).join(', '):'—'}`,h('br'),
+    `자료: ${st.data.slice(0,5).map(([k,v])=>`${k} ${v}`).join(', ')} · 형식: ${st.form.slice(0,4).map(([k,v])=>`${k} ${v}`).join(', ')}`,h('br'),
+    `문제 장면: ${st.scene.slice(0,4).map(([k,v])=>`${k} ${v}`).join(', ')}`):h('p',{class:'empty'},'조건에 맞는 기출이 없어요. 범위를 ‘전체’로 넓혀 보세요.')));
+  const lim=gF.more?G.length:20; const ul=h('ul',{class:'ilist igich'});
+  for(const g of G.slice(0,lim)) ul.append(gCard(g));
   B.append(ul);
-  if(!IT.hasKice) B.append(sec('',h('p',{class:'isrc'},'공개판에는 평가원 기출 문장을 싣지 않아요(구조 태그만).')));
+  if(G.length>lim){ const m=h('button',{type:'button',class:'btn small'},`더 보기(${G.length-lim})`); m.addEventListener('click',()=>{ gF.more=true; renderSide(); }); B.append(m); }
+  if(!IT.hasKice) B.append(sec('',h('p',{class:'isrc'},'공개판에는 평가원 기출 문장과 그림을 싣지 않아요(출제 구조 태그만). 원문과 그림은 해당 연도 평가원 PDF에서 확인해 주세요.')));
+  else B.append(sec('',h('p',{class:'isrc'},'발문·선지 글은 개인판에만 있고 그림·정답은 싣지 않았어요. 그림과 정답은 해당 연도 평가원 PDF에서 확인해 주세요. 가져온 문장은 그대로 쓰지 말고 고쳐 써 주세요.')));
+}
+function gCard(g){
+  const k=IT.kiceOf(g.id);
+  const li=h('li',null,h('div',null,h('b',null,`${g.name} ${g.no}번`),g.pts===3?' [3점]':'',' · ',g.topic),
+    h('div',{class:'meta'},`${g.eval}`),
+    h('div',{class:'ichips igtags'},...[g.form,...g.data,g.scene&&g.scene,g.tool&&TABNAME[g.tool],g.act].filter(Boolean).map(t=>h('span',{class:'gtag'},t))));
+  if(k){
+    li.append(h('div',{class:'stem'},k.stem+(k.cond?' '+k.cond:'')));
+    const use=h('button',{type:'button',class:'btn small'},'발문 참고로 넣기'); use.addEventListener('click',()=>{ if(it.dirEdit&&!confirm('직접 발문을 이 기출 발문으로 바꿀까요?')) return; it.dirEdit=k.stem; if(k.cond&&!it.condExtra) it.condExtra=k.cond; changed('step'); toast('발문을 넣었어요. 내 자료에 맞게 고쳐 주세요.'); });
+    li.append(h('div',{class:'ichips'},use));
+    if(k.stmts.length){ const ol=h('ol'); const d=h('details',null,h('summary',null,`선지 ${k.stmts.length}개 · ${Object.entries(g.kinds||{}).map(([a,b])=>a+' '+b).join(', ')}`),ol);
+      for(const t of k.stmts){ const add=h('button',{type:'button',class:'btn small'},'가져오기'); add.addEventListener('click',()=>addStmt({text:t,truth:null,src:'gichul'})); ol.append(h('li',null,h('span',null,t),' ',add)); }
+      li.append(d); }
+  }
+  return li;
 }
 
 /* ───────── 복사·저장 ───────── */
