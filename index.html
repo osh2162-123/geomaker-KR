@@ -516,6 +516,14 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-kmap .mapsend select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);color:inherit;border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
 .t-kmap .mapsend .ms-chk{flex:1;display:flex;align-items:center;gap:6px;font-size:13px}
 .t-kmap .mapsend a.btn{text-decoration:none;white-space:nowrap}
+.t-kmap .kophd{margin:8px 0 3px}
+.t-kmap .kop{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.t-kmap .kop .chip{font-size:11.5px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--pane);color:inherit;cursor:pointer}
+.t-kmap .kop .chip[aria-pressed=true]{background:var(--omr-soft);border-color:var(--omr,#b3203a);font-weight:600}
+.t-kmap .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.t-kmap .results{max-height:280px;overflow:auto}
+.t-kmap .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,#b3203a)}
+.t-kmap .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
 .t-kmap .lapp .ltools button{padding:6px 11px;font-size:13.5px}
 .t-kmap .gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .t-kmap .gal{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 4px 3px;cursor:pointer;display:flex;flex-direction:column;gap:3px;text-align:left;color:#1b1d20}
@@ -785,6 +793,14 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-landform .mapsend select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);color:inherit;border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
 .t-landform .mapsend .ms-chk{flex:1;display:flex;align-items:center;gap:6px;font-size:13px}
 .t-landform .mapsend a.btn{text-decoration:none;white-space:nowrap}
+.t-landform .kophd{margin:8px 0 3px}
+.t-landform .kop{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.t-landform .kop .chip{font-size:11.5px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--pane);color:inherit;cursor:pointer}
+.t-landform .kop .chip[aria-pressed=true]{background:var(--omr-soft);border-color:var(--omr,#b3203a);font-weight:600}
+.t-landform .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.t-landform .results{max-height:280px;overflow:auto}
+.t-landform .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,#b3203a)}
+.t-landform .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
 .t-landform .lapp .ltools button{padding:6px 11px;font-size:13.5px}
 .t-landform .gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .t-landform .gal{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 4px 3px;cursor:pointer;display:flex;flex-direction:column;gap:3px;text-align:left;color:#1b1d20}
@@ -996,6 +1012,14 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-climate .mapsend select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);color:inherit;border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
 .t-climate .mapsend .ms-chk{flex:1;display:flex;align-items:center;gap:6px;font-size:13px}
 .t-climate .mapsend a.btn{text-decoration:none;white-space:nowrap}
+.t-climate .kophd{margin:8px 0 3px}
+.t-climate .kop{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.t-climate .kop .chip{font-size:11.5px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--pane);color:inherit;cursor:pointer}
+.t-climate .kop .chip[aria-pressed=true]{background:var(--omr-soft);border-color:var(--omr,#b3203a);font-weight:600}
+.t-climate .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.t-climate .results{max-height:280px;overflow:auto}
+.t-climate .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,#b3203a)}
+.t-climate .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
 .t-energy{--bg:#e8e9e6; --pane:#f8f8f6; --pane-2:#efefeb; --desk:#c7ccd2;
   --ink:#1b1d20; --muted:#5d636a; --line:#d8d9d4; --line-2:#b7babd;
   --omr:#c3193f; --omr-soft:#f7e0e6; --on-omr:#ffffff;
@@ -1160,6 +1184,14 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-energy .mapsend select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);color:inherit;border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
 .t-energy .mapsend .ms-chk{flex:1;display:flex;align-items:center;gap:6px;font-size:13px}
 .t-energy .mapsend a.btn{text-decoration:none;white-space:nowrap}
+.t-energy .kophd{margin:8px 0 3px}
+.t-energy .kop{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.t-energy .kop .chip{font-size:11.5px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--pane);color:inherit;cursor:pointer}
+.t-energy .kop .chip[aria-pressed=true]{background:var(--omr-soft);border-color:var(--omr,#b3203a);font-weight:600}
+.t-energy .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.t-energy .results{max-height:280px;overflow:auto}
+.t-energy .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,#b3203a)}
+.t-energy .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
 .t-energy .eapp{grid-template-columns:minmax(0,380px) minmax(0,1fr) minmax(0,310px)}
 .t-energy .pbseg{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line)}
 .t-energy .pbseg button{padding:5px 4px;font-size:12.5px;border-right:0;white-space:normal;word-break:keep-all;line-height:1.25;min-width:0}
@@ -1373,6 +1405,14 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-religion .mapsend select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);color:inherit;border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
 .t-religion .mapsend .ms-chk{flex:1;display:flex;align-items:center;gap:6px;font-size:13px}
 .t-religion .mapsend a.btn{text-decoration:none;white-space:nowrap}
+.t-religion .kophd{margin:8px 0 3px}
+.t-religion .kop{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.t-religion .kop .chip{font-size:11.5px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--pane);color:inherit;cursor:pointer}
+.t-religion .kop .chip[aria-pressed=true]{background:var(--omr-soft);border-color:var(--omr,#b3203a);font-weight:600}
+.t-religion .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.t-religion .results{max-height:280px;overflow:auto}
+.t-religion .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,#b3203a)}
+.t-religion .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
 .t-religion .eapp{grid-template-columns:minmax(0,380px) minmax(0,1fr) minmax(0,310px)}
 .t-religion .pbseg{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line)}
 .t-religion .pbseg button{padding:5px 4px;font-size:12.5px;border-right:0;white-space:normal;word-break:keep-all;line-height:1.25;min-width:0}
@@ -1586,6 +1626,14 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-population .mapsend select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);color:inherit;border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
 .t-population .mapsend .ms-chk{flex:1;display:flex;align-items:center;gap:6px;font-size:13px}
 .t-population .mapsend a.btn{text-decoration:none;white-space:nowrap}
+.t-population .kophd{margin:8px 0 3px}
+.t-population .kop{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.t-population .kop .chip{font-size:11.5px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--pane);color:inherit;cursor:pointer}
+.t-population .kop .chip[aria-pressed=true]{background:var(--omr-soft);border-color:var(--omr,#b3203a);font-weight:600}
+.t-population .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.t-population .results{max-height:280px;overflow:auto}
+.t-population .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,#b3203a)}
+.t-population .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
 .t-population .eapp{grid-template-columns:minmax(0,380px) minmax(0,1fr) minmax(0,310px)}
 .t-population .pbseg{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line)}
 .t-population .pbseg button{padding:5px 4px;font-size:12.5px;border-right:0;white-space:normal;word-break:keep-all;line-height:1.25;min-width:0}
@@ -1799,6 +1847,14 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-agriculture .mapsend select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);color:inherit;border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
 .t-agriculture .mapsend .ms-chk{flex:1;display:flex;align-items:center;gap:6px;font-size:13px}
 .t-agriculture .mapsend a.btn{text-decoration:none;white-space:nowrap}
+.t-agriculture .kophd{margin:8px 0 3px}
+.t-agriculture .kop{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.t-agriculture .kop .chip{font-size:11.5px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--pane);color:inherit;cursor:pointer}
+.t-agriculture .kop .chip[aria-pressed=true]{background:var(--omr-soft);border-color:var(--omr,#b3203a);font-weight:600}
+.t-agriculture .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.t-agriculture .results{max-height:280px;overflow:auto}
+.t-agriculture .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,#b3203a)}
+.t-agriculture .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
 .t-agriculture .eapp{grid-template-columns:minmax(0,380px) minmax(0,1fr) minmax(0,310px)}
 .t-agriculture .pbseg{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line)}
 .t-agriculture .pbseg button{padding:5px 4px;font-size:12.5px;border-right:0;white-space:normal;word-break:keep-all;line-height:1.25;min-width:0}
@@ -2012,6 +2068,14 @@ body{background:var(--h-bg);color:var(--h-ink);font:14px/1.5 var(--h-font);-webk
 .t-item .mapsend select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);color:inherit;border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
 .t-item .mapsend .ms-chk{flex:1;display:flex;align-items:center;gap:6px;font-size:13px}
 .t-item .mapsend a.btn{text-decoration:none;white-space:nowrap}
+.t-item .kophd{margin:8px 0 3px}
+.t-item .kop{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.t-item .kop .chip{font-size:11.5px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--pane);color:inherit;cursor:pointer}
+.t-item .kop .chip[aria-pressed=true]{background:var(--omr-soft);border-color:var(--omr,#b3203a);font-weight:600}
+.t-item .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.t-item .results{max-height:280px;overflow:auto}
+.t-item .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,#b3203a)}
+.t-item .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
 .t-item .iapp{grid-template-columns:minmax(0,380px) minmax(0,1fr) minmax(0,330px)}
 .t-item .iapp .top{row-gap:8px}
 .t-item .isteps{display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-width:0}
@@ -3425,6 +3489,36 @@ function fromBundle(r,i){ return {id:'b'+i,name:r.n,aliases:r.a||[],en:r.e||'',c
 function setStationDict(d){ STN=(Array.isArray(d)?d:[]).map((r,i)=>r.n?fromBundle(r,i):r); }
 try{ const el=document.getElementById('gg-stations'); if(el) setStationDict(JSON.parse(el.textContent)); }catch(e){}
 function stationList(){ return STN; }
+/* ───────── 쾨펜 기후 구분 ─────────
+   교과서 기준: 최한월 18℃(A), -3℃(C/D), 최난월 10℃(E). 건조 한계는 연평균 기온과 강수 계절성으로 계산(Peel 외 2007 방식).
+   고산 기후(H)는 판별하지 않는다(해발이 높은 지점은 ‘고지대’ 표시만 한다) */
+const KOP_NAME={Af:'열대 우림 기후',Am:'열대 몬순 기후',Aw:'사바나 기후',As:'사바나 기후',BW:'사막 기후',BS:'스텝 기후',Cfa:'온난 습윤 기후',Cfb:'서안 해양성 기후',Cfc:'서안 해양성 기후',
+  Cs:'지중해성 기후',Cw:'온대 겨울 건조 기후',Df:'냉대 습윤 기후',Dw:'냉대 겨울 건조 기후',Ds:'냉대 습윤 기후',ET:'툰드라 기후',EF:'빙설 기후'};
+const KOP_TYPES=['열대 우림 기후','열대 몬순 기후','사바나 기후','사막 기후','스텝 기후','지중해성 기후','온난 습윤 기후','서안 해양성 기후','온대 겨울 건조 기후','냉대 습윤 기후','냉대 겨울 건조 기후','툰드라 기후','빙설 기후'];
+function koppenOf(s){
+  const t=s&&s.t, p=s&&s.p; if(!t||!p||t.length!==12||p.length!==12||!t.every(fin)||!p.every(fin)) return null;
+  const Tmin=Math.min(...t), Tmax=Math.max(...t), Tann=avg(t), Pann=sum(p); const nh=!(s.lat<0);
+  const S=nh?[3,4,5,6,7,8]:[9,10,11,0,1,2], Wi=nh?[9,10,11,0,1,2]:[3,4,5,6,7,8]; const Ps=sum(S.map(i=>p[i])), Pw=sum(Wi.map(i=>p[i]));
+  const Pth=20*Tann+(Ps>=0.7*Pann?280:Pw>=0.7*Pann?0:140); let code;
+  if(Tmax<10) code=Tmax>0?'ET':'EF';
+  else if(Pann<Pth) code=Pann<Pth/2?'BW':'BS';
+  else if(Tmin>=18){ const Pd=Math.min(...p); code=Pd>=60?'Af':Pd>=100-Pann/25?'Am':'Aw'; }
+  else { const C=Tmin>-3; const sp=S.map(i=>p[i]), wp=Wi.map(i=>p[i]);
+    const second=(Math.min(...sp)<40&&Math.min(...sp)<Math.max(...wp)/3)?'s':(Math.min(...wp)<Math.max(...sp)/10)?'w':'f';
+    if(C) code=second==='f'?(Tmax>=22?'Cfa':(t.filter(x=>x>=10).length>=4?'Cfb':'Cfc')):'C'+second; else code='D'+second; }
+  const key=KOP_NAME[code]?code:code.slice(0,2);
+  /* 건조 기후의 3차 구분: 연평균 기온 18℃ 이상이면 h(고온), 아니면 k(저온) */
+  const sub=(code==='BW'||code==='BS')?code+(Tann>=18?'h':'k'):code;
+  return {code:sub,name:KOP_NAME[key]||KOP_NAME[code]||code,group:code[0]};
+}
+/* 같은 구분 지점을 ‘대표성’ 순으로: 그 구분 지점들의 가운데(중앙값)에 가까운 순. 해발 1,500 m 넘는 지점은 뒤로 */
+function koppenStations(name){
+  const L=STN.filter(s=>{ const k=koppenOf(s); return k&&k.name===name; }); if(!L.length) return [];
+  const feat=s=>{ const Pann=sum(s.p), nh=!(s.lat<0), S=nh?[3,4,5,6,7,8]:[9,10,11,0,1,2]; return [avg(s.t)/8, Math.log(Pann+30), (Math.max(...s.t)-Math.min(...s.t))/8, sum(S.map(i=>s.p[i]))/Math.max(1,Pann)*2]; };
+  const F=L.map(feat); const med=[0,1,2,3].map(i=>{ const a=F.map(f=>f[i]).sort((x,y)=>x-y); return a[a.length>>1]; });
+  return L.map((s,i)=>({s,d:Math.hypot(...F[i].map((v,j)=>v-med[j]))+(s.elev>1500?5:0)})).sort((a,b)=>a.d-b.d).map(o=>o.s);
+}
+
 function koName(en){
   if(!en) return '';
   const k=String(en).toUpperCase().replace(/\s+/g,' ').trim();
@@ -4422,7 +4516,7 @@ function sizeOf(doc){ const R=compose(doc); return R?{w:R.W+2*M,h:R.H+2*M}:null;
 
 return {clean,MMPT,M,clamp,uid,esc,fin,fmt,fmtVal,MINUS,KN,FONTS,userFonts,fontDef,fontAvailable,needsWeb,registerUserFont,
   METRICS,METRIC_GROUPS,metricOf,metricLabel,unitText,SEQS,FILLS,MARKS,LINE_STY,KINDS,LINE_V,fmtNum,freshDoc,normalizeDoc,normStation,plotted,refStation,relabel,nextLabel,addStation,
-  clearMetrics:()=>mCache.clear(),valueOf,monthlyOf,parseClimate,lastAxes:()=>Object.assign({},LAST),hintOf,setStationDict,stationList,searchStations,stationData,parseRequest,specToDoc,buildPrompt,autoAxis,axisOf,climoAxes,compose,autoNotes,noteLines,paintSheet,paintOps,renderPng,svgString,saveFile,copyPng,sizeOf,readyForExport,ensureFonts,lineStyle,
+  clearMetrics:()=>mCache.clear(),valueOf,monthlyOf,parseClimate,lastAxes:()=>Object.assign({},LAST),hintOf,setStationDict,stationList,searchStations,koppenOf,koppenStations,KOP_TYPES,stationData,parseRequest,specToDoc,buildPrompt,autoAxis,axisOf,climoAxes,compose,autoNotes,noteLines,paintSheet,paintOps,renderPng,svgString,saveFile,copyPng,sizeOf,readyForExport,ensureFonts,lineStyle,
   mapRows,mapSend,register,Ops,PATS,patOf,fillColor,fontOf,metrics,W,gray,legendOps,ticksOf,niceStep,decOf,yAxis,drawMark,overlap,splitTitle,wave,sum,avg,
   GRID_DASH,LINE_DASH,ZERO_DASH,fontStack};
 })();
@@ -10077,7 +10171,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "822d7568ad", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "5b008d0d5e", "edata": "27d88225b0", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d", "idata": "f93e3437aa"}; const oldFiles=[];
+const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "f77e2744ea", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "16f30541aa", "edata": "27d88225b0", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d", "idata": "f93e3437aa"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
@@ -12254,14 +12348,26 @@ function renderExamples(){
 function setupSearch(){
   const L=GG.stationList(); if(!L.length) return;
   $('#searchBox').hidden=false; $('#bundleNote').textContent=`JMA ClimatView 평년값(1991~2020) ${L.length}곳을 미리 담아 두었어요.`;
-  const inp=$('#stSearch'), ul=$('#stResults');
-  const show=()=>{ ul.textContent=''; const q=inp.value.trim(); if(!q) return;
-    for(const s of GG.searchStations(q,8)){ const tY=GG.metricOf(s,'tY'), pY=GG.metricOf(s,'pY');
-      const b=h('button',{type:'button'},h('span',null,s.name),h('small',null,`${s.country||''} · ${GG.fmt(tY,1)}${deg()} · ${Math.round(pY).toLocaleString('ko-KR')}mm`));
-      b.addEventListener('click',()=>{ GG.addStation(doc,GG.stationData(s)); relabelIfAuto(); inp.value=''; ul.textContent=''; changed('all'); toast(`${s.name}을(를) 넣었어요.`); inp.focus(); });
-      ul.append(h('li',null,b)); }
-    if(!ul.children.length) ul.append(h('li',null,h('button',{type:'button',disabled:true},`‘${q}’${eun(q).slice(String(q).length)} 미리 담은 지점에 없어요. 아래에 표를 붙여 넣어 주세요.`)));
+  const inp=$('#stSearch'), ul=$('#stResults'); let kop='';
+  const add=s=>{ GG.addStation(doc,GG.stationData(s)); relabelIfAuto(); changed('all'); };
+  const kopBox=h('div',{class:'kop',role:'group','aria-label':'쾨펜 기후 구분으로 찾기'}); const act=h('div',{class:'kopact'}); act.hidden=true;
+  const show=()=>{ ul.textContent=''; const q=inp.value.trim(); let list;
+    if(kop){ list=GG.koppenStations(kop); if(q){ const hit=new Set(GG.searchStations(q,400)); list=list.filter(s=>hit.has(s)); } }
+    else { if(!q) return; list=GG.searchStations(q,8); }
+    list.forEach((s,i)=>{ const tY=GG.metricOf(s,'tY'), pY=GG.metricOf(s,'pY'); const k=GG.koppenOf(s);
+      const b=h('button',{type:'button'},h('span',null,s.name,kop&&!q&&i<3&&!(s.elev>1500)?h('em',{class:'rep'},'대표'):null,s.elev>1500?h('em',{class:'hi'},'고지대'):null),
+        h('small',null,`${s.country||''} · ${k?k.code:''} · ${GG.fmt(tY,1)}${deg()} · ${Math.round(pY).toLocaleString('ko-KR')}mm`));
+      b.addEventListener('click',()=>{ add(s); if(!kop){ inp.value=''; ul.textContent=''; } toast(`${s.name}을(를) 넣었어요.`); inp.focus(); });
+      ul.append(h('li',null,b)); });
+    if(!ul.children.length) ul.append(h('li',null,h('button',{type:'button',disabled:true},kop?`‘${kop}’ 지점 가운데 ‘${q}’에 맞는 곳이 없어요.`:`‘${q}’${eun(q).slice(String(q).length)} 미리 담은 지점에 없어요. 아래에 표를 붙여 넣어 주세요.`)));
   };
+  const setKop=n=>{ kop=kop===n?'':n; [...kopBox.querySelectorAll('button')].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===kop))); act.textContent=''; act.hidden=!kop;
+    if(kop){ const list=GG.koppenStations(kop); const pick=[]; const used=new Set(); for(const s of list){ if(s.elev>1500||used.has(s.country)) continue; used.add(s.country); pick.push(s); if(pick.length>=4) break; }
+      const go=h('button',{type:'button',class:'btn small'},`대표 ${pick.length}곳 넣기`); go.addEventListener('click',()=>{ pick.forEach(add); toast(`${pick.map(s=>s.name).join(', ')}을(를) 넣었어요.`); });
+      act.append(h('span',{class:'sub'},`${kop} ${list.length}곳 · 대표 순(가운데 값에 가까운 순)`),go,h('span',{class:'sub'},`→ ${pick.map(s=>s.name).join(', ')}`)); }
+    show(); };
+  for(const n of GG.KOP_TYPES){ const c=GG.koppenStations(n).length; if(!c) continue; const b=h('button',{type:'button',class:'chip','aria-pressed':'false','data-k':n,title:`${n} 지점 ${c}곳`},`${n.replace(' 기후','')} ${c}`); b.addEventListener('click',()=>setKop(n)); kopBox.append(b); }
+  inp.after(h('p',{class:'sub kophd'},'기후 구분으로 찾기(쾨펜 계산값 · 경계에 가까운 지점은 교과서와 다를 수 있고, 고산 기후는 판별하지 않아요)'),kopBox,act);
   inp.addEventListener('input',show);
   inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const b=ul.querySelector('button:not([disabled])'); if(b){ e.preventDefault(); b.click(); } } });
 }
