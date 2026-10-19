@@ -14692,7 +14692,7 @@ function groupEditor(g,gi){
   return wrap;
 }
 function importClimate(){
-  const api=HUB.apis.climate; if(!api||!api.getDoc){ toast('기후 탭을 먼저 열어 지점을 넣어 주세요.'); HUB.show('climate').catch(()=>{}); return; }
+  const api=HUB.apis.climate; if(!api||!api.getDoc){ toast('기후 탭을 불러오는 중이에요…'); HUB.show('climate').then(()=>{ if(HUB.apis.climate&&HUB.apis.climate.getDoc){ importClimate(); HUB.show('item').catch(()=>{}); } }).catch(()=>{}); return; }
   const d=api.getDoc(); if(d.seq==='name'){ toast('기후 탭의 라벨이 ‘지명’이에요. (가)·A·㉠ 중 하나로 바꾼 뒤 가져와 주세요.'); return; }
   const S=GG.plotted(d).filter(s=>s.lbl); if(!S.length){ toast('기후 탭에 기호가 붙은 지점이 없어요.'); return; }
   it.climate=S.map(s=>({l:s.lbl,name:s.name,country:s.country||'',t:s.t.slice(),p:s.p.slice(),lat:s.lat,elev:s.elev})); it.table=null; it.dataSrc='climate';
@@ -14725,9 +14725,11 @@ function tableOf(doc,tab){
     v:rI.map(i=>cI.map(j=>val(i,j)))};
 }
 function importTable(tab){
-  const api=HUB.apis[tab]; if(!api||!api.getDoc){ toast(`${TABTAB[tab]} 탭을 먼저 열어 표를 만들어 주세요.`); HUB.show(tab).catch(()=>{}); return; }
+  const api=HUB.apis[tab]; if(!api||!api.getDoc){ toast(`${TABTAB[tab]} 탭을 불러오는 중이에요…`); HUB.show(tab).then(()=>{ if(HUB.apis[tab]&&HUB.apis[tab].getDoc){ importTable(tab); HUB.show('item').catch(()=>{}); } }).catch(()=>{}); return; }
   const doc=api.getDoc(); const T=tableOf(doc,tab); if(!T){ toast(`${TABTAB[tab]} 탭에 아직 표가 없어요.`); return; }
-  const labelled=T.rows.filter(r=>r.l); if(!labelled.length){ T.rows.forEach((r,i)=>{ r.l=(IT.SEQ.gana?IT.seqList('gana',T.rows.length)[i]:'')||''; }); }
+  const labelled=T.rows.filter(r=>r.l);
+  if(labelled.length>=2&&labelled.length<T.rows.length){ const keep=T.rows.map((r,i)=>r.l?i:-1).filter(i=>i>=0); T.v=keep.map(i=>T.v[i]); T.rows=keep.map(i=>T.rows[i]); }
+  if(!labelled.length){ T.rows.forEach((r,i)=>{ r.l=(IT.SEQ.gana?IT.seqList('gana',T.rows.length)[i]:'')||''; }); }
   it.table=T; it.climate=null; it.dataSrc='table';
   const labels=T.rows.map(r=>r.l); const seq=IT.seqOf(labels[0])||'gana';
   it.groups[0]={seq,labels,names:T.rows.map(r=>r.name),target:'',cond:false}; it.dk=doc.kind==='tb'||doc.kind==='table'?'table':'graph';
