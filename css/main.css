@@ -1,0 +1,5 @@
+/* 도구가 들어가는 가운데 칸 */
+.hub-main{flex:1;min-height:0;position:relative;overflow:auto}
+.tool{height:100%}
+.tool .brand{display:none!important}
+.hub-main .tool .gapp{padding-left:20px;padding-right:20px}

@@ -1,0 +1,20 @@
+/* 도구 안쪽의 공통 부품(단추·칸·패널·갈래)을 한 가지 모양으로 */
+.tool .pane{border:0;border-radius:var(--r-l);box-shadow:var(--shadow)}
+.tool .sec{padding:16px 18px;border-bottom:1px solid var(--c-blue-line);gap:10px}
+.tool .sec-title{font-size:var(--fs-cap);font-weight:var(--fw-strong);letter-spacing:0;color:var(--c-tx-1)}
+.tool .btn{border:0;background:var(--c-blue-soft);color:var(--c-blue);border-radius:var(--r-s);padding:8px 14px;font-weight:var(--fw-strong);font-size:var(--fs-cap);transition:background .15s}
+.tool .btn:hover{background:var(--c-blue-line)}
+.tool .btn.primary{background:var(--c-blue);color:var(--c-white)}
+.tool .btn.primary:hover{background:var(--c-blue-dark);filter:none}
+.tool .btn.small{padding:5px 10px;font-size:12px}
+.tool .seg{border:0;background:var(--c-blue-wash);border-radius:var(--r-s);padding:3px;gap:2px}
+.tool .seg button{border:0;border-radius:6px;background:transparent;color:var(--c-tx-3);font-weight:500;padding:5px 11px}
+.tool .seg button:hover{color:var(--c-tx-1)}
+.tool .seg button[aria-pressed="true"]{background:var(--c-white);color:var(--c-blue);font-weight:var(--fw-strong);box-shadow:0 1px 3px rgba(6,63,142,.12)}
+.tool input[type=text],.tool input[type=number],.tool input[type=search],.tool select,.tool textarea{border:1px solid var(--c-blue-line)!important;background:var(--c-white)!important;border-radius:var(--r-s)!important;color:var(--c-tx-1)}
+.tool input:focus,.tool select:focus,.tool textarea:focus{border-color:var(--c-blue)!important;box-shadow:var(--focus);outline:none}
+.tool .msg{border-radius:var(--r-s)}
+.tool .hint,.tool .empty{border-radius:var(--r-m);background:var(--c-blue-wash);border:1px solid var(--c-blue-line)}
+.tool .stlist,.tool .results{border-radius:var(--r-m);border-color:var(--c-blue-line)}
+.tool a{color:var(--c-blue)}
+.tool .ico:hover{background:var(--c-blue-soft)}

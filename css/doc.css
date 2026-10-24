@@ -1,0 +1,5 @@
+/* 사용 안내·출처 페이지 공통 모양 (tokens.css 와 fonts.css 를 먼저 읽는다) */
+:root{--bg:var(--c-white);--ink:var(--c-tx-1);--muted:var(--c-tx-3);--line:var(--c-blue-line);--acc:var(--c-blue);--chip:var(--c-blue-soft);--card:var(--c-blue-wash)}
+body{margin:0;background:var(--bg);color:var(--c-tx-2);font:var(--fw-body) 15px/1.7 var(--font-sans);-webkit-font-smoothing:antialiased}
+h1{font:var(--fw-title) var(--fs-title)/var(--lh-title) var(--font-sans);color:var(--c-tx-1);margin:0 0 6px;letter-spacing:-.02em}
+h2{font:var(--fw-title) 19px/1.4 var(--font-sans);color:var(--c-tx-1);margin:44px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line);scroll-margin-top:12px}

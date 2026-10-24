@@ -1,0 +1,206 @@
+.t-religion{height:100%}
+.t-religion{background:var(--bg);color:var(--ink);font:14px/1.5 var(--font-ui);-webkit-font-smoothing:antialiased}
+.t-religion *{box-sizing:border-box}
+.t-religion button,.t-religion input,.t-religion select,.t-religion textarea{font:inherit;color:inherit}
+.t-religion :focus-visible{outline:2px solid var(--omr);outline-offset:1px}
+.t-religion [hidden]{display:none!important}
+.t-religion .gapp{height:100%;display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr) minmax(0,310px);grid-template-rows:auto minmax(0,1fr);gap:10px;padding:0 14px 14px}
+.t-religion .top{grid-column:1/-1;display:flex;align-items:center;gap:14px;min-width:0;padding:10px 0 0;flex-wrap:wrap}
+.t-religion .brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.t-religion .brand h1{margin:0;font:700 18px/1.2 var(--font-exam);letter-spacing:-.01em;white-space:nowrap}
+.t-religion .brand small{color:var(--muted);font-size:12px;white-space:nowrap}
+.t-religion .top-actions{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.t-religion .btn{border:1px solid var(--line-2);background:var(--pane);border-radius:var(--r);padding:6px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;line-height:1.2;text-decoration:none}
+.t-religion .btn:hover{background:var(--pane-2)}
+.t-religion .btn:disabled{opacity:.45;cursor:default}
+.t-religion .btn.primary{background:var(--omr);border-color:var(--omr);color:var(--on-omr);font-weight:600}
+.t-religion .btn.primary:hover{filter:brightness(1.05)}
+.t-religion .btn.small{padding:3px 9px;font-size:12px}
+.t-religion .filebtn{position:relative;overflow:hidden}
+.t-religion .filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.t-religion .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:6px;overflow:hidden;flex-wrap:nowrap;max-width:100%}
+.t-religion .seg button{border:0;background:var(--pane);padding:4px 10px;cursor:pointer;font-size:13px;border-right:1px solid var(--line);white-space:nowrap}
+.t-religion .seg button:last-child{border-right:0}
+.t-religion .seg button[aria-pressed="true"]{background:var(--omr-soft);color:var(--omr);font-weight:600}
+.t-religion .kinds button{padding:6px 12px;font-size:14px}
+.t-religion .pane{background:var(--pane);border:1px solid var(--line);border-radius:10px;overflow:auto;min-height:0;display:flex;flex-direction:column}
+.t-religion .sec{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.t-religion .sec:last-child{border-bottom:0}
+.t-religion .sec-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.t-religion .sec-title{margin:0;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted)}
+.t-religion .sec-head .seg{margin-left:auto}
+.t-religion details.sec>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px}
+.t-religion details.sec>summary::-webkit-details-marker{display:none}
+.t-religion details.sec>summary::before{content:"▸";font-size:10px;color:var(--muted);transition:transform .15s}
+.t-religion details.sec[open]>summary::before{transform:rotate(90deg)}
+@media (prefers-reduced-motion: reduce){.t-religion details.sec>summary::before{transition:none}}
+.t-religion .stlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.t-religion .st{border-bottom:1px solid var(--line);background:var(--pane)}
+.t-religion .st:last-child{border-bottom:0}
+.t-religion .st.is-ref{background:var(--pane-2)}
+.t-religion .st-row{display:grid;grid-template-columns:46px minmax(0,1fr) auto;column-gap:6px;row-gap:1px;align-items:center;padding:7px 8px 6px}
+.t-religion .st-sum{grid-column:2/4}
+.t-religion .st .lbl{width:46px;border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:3px 2px;text-align:center;font:600 13px/1.3 var(--font-exam)}
+.t-religion .st .lbl:disabled{opacity:.6}
+.t-religion .st .name{width:100%;border:1px solid transparent;background:transparent;border-radius:5px;padding:2px 4px;font-weight:600;min-width:0}
+.t-religion .st .name:hover{border-color:var(--line)}
+.t-religion .st .name:focus{border-color:var(--omr);background:var(--bg)}
+.t-religion .st small{display:block;color:var(--muted);font-size:11px;padding:0 4px;font-variant-numeric:tabular-nums;line-height:1.45}
+.t-religion .st-tools{display:flex;gap:2px;align-items:center}
+.t-religion .ico{border:0;background:none;color:var(--muted);cursor:pointer;width:26px;height:26px;border-radius:5px;font-size:14px;line-height:1;display:inline-grid;place-items:center}
+.t-religion .ico:hover{color:var(--ink);background:var(--pane-2)}
+.t-religion .ico.x:hover{color:var(--omr)}
+.t-religion .refbtn{border:1px solid var(--line-2);background:var(--pane);border-radius:999px;font-size:11px;padding:1px 8px;cursor:pointer;color:var(--muted);white-space:nowrap}
+.t-religion .refbtn[aria-pressed="true"]{background:var(--omr-soft);border-color:var(--omr);color:var(--omr);font-weight:600}
+.t-religion .st details{padding:0 8px 8px 60px}
+.t-religion .st details summary{cursor:pointer;font-size:12px;color:var(--muted)}
+.t-religion .mtab{width:100%;border-collapse:collapse;margin-top:6px;font-size:12px;font-variant-numeric:tabular-nums}
+.t-religion .mtab th{font-weight:500;color:var(--muted);text-align:right;padding:1px 4px}
+.t-religion .mtab th:first-child{text-align:left}
+.t-religion .mtab td{padding:1px 2px}
+.t-religion .mtab input{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:4px;padding:1px 4px;text-align:right;font-size:12px}
+.t-religion .mtab input.bad{border-color:var(--err);background:var(--err-soft)}
+.t-religion .empty{color:var(--muted);font-size:13px;margin:0;padding:10px;border:1px dashed var(--line-2);border-radius:8px;line-height:1.55}
+.t-religion .paste textarea{width:100%;min-height:96px;resize:vertical;border:1px solid var(--line-2);border-radius:8px;background:var(--bg);padding:8px 10px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.t-religion .paste textarea:focus{border-color:var(--omr)}
+.t-religion .paste-row{display:flex;gap:6px;align-items:center}
+.t-religion .paste-row input{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);border-radius:6px;padding:6px 8px}
+.t-religion .msg{margin:0;font-size:12.5px;padding:7px 9px;border-radius:7px;line-height:1.5}
+.t-religion .msg.ok{color:var(--ok);background:var(--ok-soft)}
+.t-religion .msg.err{color:var(--err);background:var(--err-soft)}
+.t-religion .msg.warn{color:var(--warn);background:var(--warn-soft)}
+.t-religion .kbd-hint{margin-left:auto;color:var(--muted);font-size:11px;white-space:nowrap}
+.t-religion .ask textarea{width:100%;min-height:70px;resize:vertical;border:1px solid var(--line-2);border-radius:8px;background:var(--bg);padding:8px 10px;line-height:1.5}
+.t-religion .ask textarea:focus,.t-religion .search input:focus{border-color:var(--omr)}
+.t-religion .examples{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.t-religion .ex{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:7px;padding:6px 9px;cursor:pointer;font-size:12.5px;line-height:1.45;color:var(--ink)}
+.t-religion .ex:hover{border-color:var(--line-2);background:var(--pane-2)}
+.t-religion .search{display:flex;flex-direction:column;gap:5px}
+.t-religion .search input{width:100%;border:1px solid var(--line-2);background:var(--bg);border-radius:6px;padding:6px 8px}
+.t-religion .results{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.t-religion .results:empty{display:none}
+.t-religion .results button{display:flex;width:100%;gap:8px;align-items:baseline;text-align:left;border:0;border-bottom:1px solid var(--line);background:var(--pane);padding:6px 9px;cursor:pointer;font-size:13px}
+.t-religion .results li:last-child button{border-bottom:0}
+.t-religion .results button:hover,.t-religion .results button:focus-visible{background:var(--omr-soft)}
+.t-religion .results small{color:var(--muted);font-size:11px;margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.t-religion .help{font-size:12.5px;color:var(--muted);line-height:1.6}
+.t-religion .help summary{cursor:pointer;color:var(--ink);font-weight:500}
+.t-religion .help ol{margin:6px 0 0;padding-left:18px}
+.t-religion .help a{color:var(--omr)}
+.t-religion .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:28px}
+.t-religion .row>.lab{width:74px;flex:none;color:var(--muted);font-size:13px}
+.t-religion .row select,.t-religion .row input[type=number],.t-religion .row input[type=text]{border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:4px 6px;min-width:0}
+.t-religion .row select{flex:1}
+.t-religion .row input[type=text]{flex:1}
+.t-religion .row input[type=number]{width:62px}
+.t-religion .row input[type=range]{flex:1;min-width:80px;accent-color:var(--omr)}
+.t-religion .row .val{min-width:40px;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}
+.t-religion .row .unit{color:var(--muted);font-size:12px}
+.t-religion .check{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
+.t-religion .check input{accent-color:var(--omr);width:15px;height:15px;margin:0}
+.t-religion .axis{display:grid;grid-template-columns:52px auto minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:5px;align-items:center}
+.t-religion input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.t-religion input[type=number]::-webkit-outer-spin-button,.t-religion input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.t-religion .axis .lab{color:var(--muted);font-size:13px}
+.t-religion .axis input[type=number]{width:100%;border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:4px 5px;font-variant-numeric:tabular-nums}
+.t-religion .axis input:disabled{opacity:.55}
+.t-religion .axis-head{display:grid;grid-template-columns:52px 50px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:5px;font-size:11px;color:var(--muted)}
+.t-religion .axis-head span:nth-child(n+3){padding-left:4px}
+.t-religion .series{border:1px solid var(--line);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.t-religion .series-head{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.t-religion .series-head .ico{margin-left:auto}
+.t-religion .hint{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.55;background:var(--pane-2)}
+.t-religion .hint b{font-weight:600}
+.t-religion .hint .copy{margin-top:6px}
+.t-religion .note-area{width:100%;min-height:52px;resize:vertical;border:1px solid var(--line-2);border-radius:6px;background:var(--bg);padding:6px 8px;font-size:12.5px}
+.t-religion .sub{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
+.t-religion .lsty{display:grid;grid-template-columns:46px 1fr 1fr 1fr;gap:5px;align-items:center;font-size:12px}
+.t-religion .lsty b{font:600 13px var(--font-exam)}
+.t-religion .lsty select{border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:3px 4px;min-width:0;font-size:12px}
+.t-religion .desk{position:relative;background:var(--desk);border-radius:10px;overflow:hidden;min-height:0;min-width:0;display:flex;flex-direction:column}
+.t-religion .desk-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 12px;background:color-mix(in srgb,var(--pane) 88%,transparent);border-bottom:1px solid var(--line)}
+.t-religion .desk-bar .info{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.t-religion .canvas-wrap{position:relative;flex:1;min-height:0}
+.t-religion .canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.t-religion .desk-empty{position:absolute;inset:0;display:grid;place-items:center;padding:24px;pointer-events:none}
+.t-religion .desk-empty div{max-width:340px;text-align:center;color:var(--ink);background:color-mix(in srgb,var(--pane) 92%,transparent);border:1px solid var(--line);border-radius:10px;padding:16px 18px;font-size:13.5px;line-height:1.6}
+.t-religion .desk-empty b{display:block;font:600 16px/1.4 var(--font-exam);margin-bottom:4px}
+.t-religion .desk-warn{margin:0;padding:7px 12px;font-size:12.5px;color:var(--warn);background:var(--warn-soft);border-bottom:1px solid var(--line)}
+.t-religion .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--pane);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:calc(100% - 32px);z-index:20}
+.t-religion .toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){.t-religion .toast{transition:none}}
+@media (max-width: 1180px){.t-religion{height:auto}
+.t-religion .gapp{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-rows:auto minmax(440px,calc(100vh - 120px)) auto;height:auto;min-height:100%}
+.t-religion .opts{grid-column:1/-1;max-height:none;overflow:visible}}
+@media (max-width: 760px){.t-religion{height:auto}
+.t-religion .gapp{display:flex;flex-direction:column;height:auto;padding:0 16px 16px}
+.t-religion .top{gap:10px}
+.t-religion .brand small{display:none}
+.t-religion .kinds{width:100%;overflow-x:auto}
+.t-religion .kinds button{flex:1;padding:6px 8px;font-size:13px}
+.t-religion .desk{order:1;height:58vh;min-height:320px}
+.t-religion .data{order:2}
+.t-religion .opts{order:3}
+.t-religion .pane{overflow:visible}}
+.t-religion .mapsend{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line-2);display:flex;flex-direction:column;gap:6px}
+.t-religion .mapsend .ms-title{margin:0;font-size:13px;font-weight:600}
+.t-religion .mapsend select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);color:inherit;border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
+.t-religion .mapsend .ms-chk{flex:1;display:flex;align-items:center;gap:6px;font-size:13px}
+.t-religion .mapsend a.btn{text-decoration:none;white-space:nowrap}
+.t-religion .kophd{margin:8px 0 3px}
+.t-religion .kop{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.t-religion .kop .chip{font-size:11.5px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--pane);color:inherit;cursor:pointer}
+.t-religion .kop .chip[aria-pressed=true]{background:var(--omr-soft);border-color:var(--omr,var(--c-blue-dark));font-weight:600}
+.t-religion .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.t-religion .results{max-height:280px;overflow:auto}
+.t-religion .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark))}
+.t-religion .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
+.t-religion .eapp{grid-template-columns:minmax(0,380px) minmax(0,1fr) minmax(0,310px)}
+.t-religion .pbseg{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line)}
+.t-religion .pbseg button{padding:5px 4px;font-size:12.5px;border-right:0;white-space:normal;word-break:keep-all;line-height:1.25;min-width:0}
+.t-religion .pb{display:flex;flex-direction:column;gap:8px}
+.t-religion .pb .row>.lab{width:58px}
+.t-religion .chips{display:flex;flex-wrap:wrap;gap:4px}
+.t-religion .chip{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line-2);background:var(--bg);border-radius:999px;padding:1px 3px 1px 9px;font-size:12.5px}
+.t-religion .chip button{border:0;background:none;color:var(--muted);cursor:pointer;width:20px;height:20px;border-radius:50%;line-height:1;font-size:13px}
+.t-religion .chip button:hover{color:var(--omr);background:var(--pane-2)}
+.t-religion .ckgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:2px 8px}
+.t-religion .ckgrid .check{font-size:12.5px}
+.t-religion .ckgroup{font-size:11px;color:var(--muted);margin-top:4px;grid-column:1/-1}
+.t-religion .pb textarea{width:100%;min-height:90px;resize:vertical;border:1px solid var(--line-2);border-radius:8px;background:var(--bg);padding:8px 10px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.t-religion .pb textarea:focus,.t-religion .pb input:focus{border-color:var(--omr)}
+.t-religion .pb .search{position:relative}
+.t-religion .tbtools{display:flex;flex-direction:column;gap:5px}
+.t-religion .tbtools .row>.lab{width:58px}
+.t-religion .dtab-wrap{overflow:auto;max-height:52vh;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.t-religion .dtab{border-collapse:separate;border-spacing:0;font-size:12px;font-variant-numeric:tabular-nums;min-width:100%}
+.t-religion .dtab th,.t-religion .dtab td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:2px 3px;vertical-align:middle;background:var(--pane)}
+.t-religion .dtab thead th{position:sticky;top:0;z-index:2;background:var(--pane-2)}
+.t-religion .dtab .rh{position:sticky;left:0;z-index:1;background:var(--pane-2)}
+.t-religion .dtab thead .rh{z-index:3}
+.t-religion .dtab input,.t-religion .dtab select{border:1px solid var(--line);background:var(--bg);border-radius:4px;padding:1px 4px;font-size:12px;min-width:0}
+.t-religion .dtab input.v{width:64px;text-align:right}
+.t-religion .dtab input.v.bad{border-color:var(--warn);background:var(--warn-soft)}
+.t-religion .dtab input.nm{width:100%;min-width:86px;font-weight:600}
+.t-religion .dtab input.lb{width:40px;text-align:center;font:600 12px var(--font-exam)}
+.t-religion .dtab select{width:86px;font-size:11.5px}
+.t-religion .dtab .colh{display:flex;flex-direction:column;gap:3px;align-items:stretch;min-width:132px}
+.t-religion .dtab .colh .tools{display:flex;gap:0;justify-content:flex-end}
+.t-religion .dtab .colh .ico{width:20px;height:20px;font-size:12px}
+.t-religion .dtab .rowh{display:grid;grid-template-columns:40px 84px auto;gap:3px;align-items:center}
+.t-religion .dtab .rowh input.nm{min-width:0}
+.t-religion .dtab .rowh .tools{display:flex}
+.t-religion .dtab .rowh .ico{width:20px;height:20px;font-size:12px}
+.t-religion .dtab .tag{font-size:10.5px;color:var(--muted);display:flex;gap:6px;align-items:center;justify-content:space-between}
+.t-religion .dtab .tag label{display:inline-flex;gap:3px;align-items:center;cursor:pointer;white-space:nowrap}
+.t-religion .dtab .tag input[type=checkbox]{width:12px;height:12px;margin:0;accent-color:var(--omr)}
+.t-religion .dtab .tag input.lb{flex:none}
+.t-religion .dtab tr.hid td,.t-religion .dtab th.hid{opacity:.5}
+.t-religion .dtab .corner{font-size:11px;color:var(--muted);text-align:left;line-height:1.35}
+.t-religion .mini{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.t-religion .mini .sub{margin-right:2px}
+.t-religion .ctext{display:grid;grid-template-columns:auto 1fr;gap:4px 6px;align-items:center;font-size:12px}
+.t-religion .ctext input{border:1px solid var(--line-2);background:var(--bg);border-radius:5px;padding:3px 6px;min-width:0}
+.t-religion .src-note{font-size:11.5px;color:var(--muted);line-height:1.5;margin:0}
+@media (max-width: 1180px){.t-religion .eapp{grid-template-columns:minmax(0,360px) minmax(0,1fr)}}
+@media (max-width: 760px){.t-religion .dtab-wrap{max-height:none}}

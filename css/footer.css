@@ -1,0 +1,5 @@
+/* 아래쪽 줄 */
+.hub-foot{flex:none;display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:4px 16px;padding:6px 20px;background:var(--c-white);border-top:1px solid var(--c-blue-line);color:var(--c-tx-3);font-size:var(--fs-cap);line-height:var(--lh-cap);text-align:right}
+.hub-foot a{color:inherit;text-underline-offset:2px}
+.hub-foot a:hover{color:var(--c-blue)}
+@media (max-width:700px){ .hub-foot{justify-content:center;text-align:center} .hub-link{margin-right:0} }

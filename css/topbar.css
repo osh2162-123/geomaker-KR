@@ -1,0 +1,19 @@
+/* 위쪽 막대: 이름 · 도구 탭 · 작업 파일 열기 */
+.hub{height:100%;display:flex;flex-direction:column;min-height:0}
+.hub-top{flex:none;display:flex;align-items:center;gap:20px;padding:10px 20px;background:var(--c-white);border-bottom:1px solid var(--c-blue-line);min-width:0}
+.hub-brand{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.hub-brand h1{margin:0;font:var(--fw-title) 18px/1.2 var(--font-sans);color:var(--c-tx-1);letter-spacing:-.02em}
+.hub-mark{width:22px;height:22px;border-radius:7px;background:var(--c-blue);position:relative;flex:none}
+.hub-mark::after{content:"";position:absolute;left:6px;right:6px;bottom:6px;height:8px;border-top:2px solid var(--c-white);border-left:2px solid var(--c-white)}
+.hub-tabs{display:flex;align-items:center;gap:16px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.hub-tabs::-webkit-scrollbar{display:none}
+.hub-group{display:flex;align-items:center;gap:2px;flex:none}
+.hub-gl{font-size:12px;font-weight:var(--fw-strong);color:var(--c-tx-3);padding:0 8px 0 0;white-space:nowrap}
+.hub-tab{border:0;background:none;font:inherit;font-size:var(--fs-body);font-weight:500;color:var(--c-tx-3);padding:7px 12px;cursor:pointer;white-space:nowrap;border-radius:var(--r-s);transition:background .15s,color .15s}
+.hub-tab:hover{background:var(--c-blue-wash);color:var(--c-tx-1)}
+.hub-tab[aria-selected="true"]{background:var(--c-blue-soft);color:var(--c-blue);font-weight:var(--fw-strong)}
+.hub-actions{margin-left:auto;display:flex;gap:6px;flex:none}
+@media (max-width:900px){
+  .hub-top{flex-wrap:wrap;gap:6px 14px;padding:8px 14px}
+  .hub-tabs{order:3;flex-basis:100%;gap:10px}
+}

@@ -1,0 +1,12 @@
+/* 도구 안쪽 옛 변수 이름을 새 토큰으로 이어 주는 다리.
+   도구 쪽 CSS 의 :root 색 정의는 빌드 때 지워지고, 값은 여기서만 정한다. */
+.tool{
+  --bg:var(--c-blue-wash); --pane:var(--c-white); --pane-2:var(--c-blue-soft); --desk:#DCE8FB;
+  --ink:var(--c-tx-1); --muted:var(--c-tx-3); --line:var(--c-blue-line); --line-2:#B9D3FA;
+  --omr:var(--c-blue); --omr-soft:var(--c-blue-soft); --on-omr:var(--c-white);
+  --ok:var(--c-blue-dark); --ok-soft:var(--c-blue-soft);
+  --warn:var(--c-tx-2); --warn-soft:var(--c-blue-soft);
+  --err:var(--c-blue-deep); --err-soft:var(--c-blue-line);
+  --font-ui:var(--font-sans); --r:var(--r-s);
+  color:var(--c-tx-2); font-family:var(--font-sans); font-size:var(--fs-body); line-height:var(--lh-body);
+}
