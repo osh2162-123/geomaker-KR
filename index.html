@@ -34,6 +34,8 @@
 <link rel="stylesheet" href="css/tools/item.css">
 <link rel="stylesheet" href="css/compat/vars.css">
 <link rel="stylesheet" href="css/compat/controls.css">
+<link rel="stylesheet" href="css/compat/drawer.css">
+<link rel="stylesheet" href="css/compat/chooser.css">
 </head>
 <body>
 <div class="hub">
@@ -60,7 +62,7 @@
   <div class="hub-toast" id="hubToast" role="status" aria-live="polite"></div>
 </div>
 <template id="hub-tpl-home">
-<div class="home"><div class="home-in"><h2>무엇을 만들까요?</h2><p class="home-sub">시험지 양식의 지도·그래프·모식도를 문장 한 줄로 만들고, 문항으로 이어서 설계해요.</p><div class="bento"><button type="button" class="bc" data-go="mapquick"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><circle class="f1 s" cx="30" cy="34" r="20"/><ellipse class="s nf" cx="30" cy="34" rx="8" ry="20"/><path class="s nf" d="M10 34h40M13 24h34M13 44h34"/><path class="fb" d="M50 6l2.8 6.8L60 15.6l-7.2 2.8L50 25.2l-2.8-6.8L40 15.6l7.2-2.8z"/></svg><b>백지도 자동 생성</b><small>문장 한 줄로 세계 백지도를 만들어요</small></button><button type="button" class="bc" data-go="mapedit"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><path class="f1 s" d="M6 16l17-7 18 7 17-7v37l-17 7-18-7-17 7z"/><path class="s nf" d="M23 9v37M41 16v37"/><g transform="rotate(40 46 42)"><rect class="fb" x="42" y="22" width="8" height="26" rx="1.5"/><path class="f2 s" d="M42 48h8l-4 9z"/></g></svg><b>백지도 편집기</b><small>점·글자·도형을 손으로 다듬어요</small></button><button type="button" class="bc" data-go="kmap"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><path class="f1 s" d="M25 5l9 3 5 7-3 6 6 8 1 10-5 9-7 6-6-1-4-6 3-8-5-8 3-8-3-8z"/><ellipse class="f2 s" cx="24" cy="60" rx="6" ry="2.6"/><circle class="fb" cx="32" cy="30" r="3.2"/></svg><b>한국지리 백지도</b><small>시·도·시군구 백지도에 색과 기호를 달아요</small></button><button type="button" class="bc" data-go="landform"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><path class="f1 s" d="M5 46L21 18l10 15 8-11 20 24z"/><path class="fb" d="M21 18l5.5 9.2-5-2.6-3.6 2.4z"/><path class="s nf" d="M5 55c7-4 12 4 19 0s12-4 19 0 10 3 16 0"/></svg><b>지형 모식도</b><small>지형 모식도에 기호와 지시선을 달아요</small></button><div class="bc c-graph" data-pick><button type="button" class="bc-main" data-open aria-expanded="false"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><path class="s nf" d="M9 7v47h47"/><rect class="f1 s" x="15" y="34" width="9" height="20" rx="1.5"/><rect class="f2 s" x="29" y="24" width="9" height="30" rx="1.5"/><rect class="fb s" x="43" y="13" width="9" height="41" rx="1.5"/></svg><b>그래프</b><small>기후·에너지·종교·인구·농업 중에 골라요</small></button><div class="bc-pick" hidden><small>어떤 그래프를 만들까요?</small><div><button type="button" data-go="climate" style="--i:0">기후</button><button type="button" data-go="energy" style="--i:1">에너지</button><button type="button" data-go="religion" style="--i:2">종교</button><button type="button" data-go="population" style="--i:3">인구</button><button type="button" data-go="agriculture" style="--i:4">농업</button></div></div></div><button type="button" class="bc c-item" data-go="item"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><rect class="f1 s" x="13" y="5" width="36" height="48" rx="4"/><path class="s nf" d="M21 17h20M21 27h20M21 37h10"/><circle class="fb" cx="46" cy="46" r="12"/><path class="sw nf" d="M40 46l4.8 4.8L53 42"/></svg><b>문항 설계</b><small>경기도교육청 방식 6단계로 문항을 설계해요</small></button></div><section class="now" id="homeNow" hidden aria-label="지금 작업 중인 것"><h3>지금 작업 중인 것</h3><ul></ul></section><p class="home-foot"><a href="guide.html" target="_blank" rel="noopener">사용 안내 보기</a><button type="button" id="homeResume" data-go="" hidden>이어서 하기 · <b></b></button></p></div></div>
+<div class="home"><div class="home-in"><h2>무엇을 만들까요?</h2><p class="home-sub">시험지 양식의 지도·그래프·모식도를 문장 한 줄로 만들고, 문항으로 이어서 설계해요.</p><div class="bento"><button type="button" class="bc" data-go="mapquick"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><circle class="f1 s" cx="30" cy="34" r="20"/><ellipse class="s nf" cx="30" cy="34" rx="8" ry="20"/><path class="s nf" d="M10 34h40M13 24h34M13 44h34"/><path class="fb" d="M50 6l2.8 6.8L60 15.6l-7.2 2.8L50 25.2l-2.8-6.8L40 15.6l7.2-2.8z"/></svg><b>백지도 자동 생성</b><small>문장 한 줄로 세계 백지도를 만들어요</small></button><button type="button" class="bc" data-go="mapedit"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><path class="f1 s" d="M6 16l17-7 18 7 17-7v37l-17 7-18-7-17 7z"/><path class="s nf" d="M23 9v37M41 16v37"/><g transform="rotate(40 46 42)"><rect class="fb" x="42" y="22" width="8" height="26" rx="1.5"/><path class="f2 s" d="M42 48h8l-4 9z"/></g></svg><b>백지도 편집기</b><small>점·글자·도형을 손으로 다듬어요</small></button><button type="button" class="bc" data-go="kmap"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><path class="f1 s kk" d="M44.8 36.0 44.6 35.5 45.0 35.5zM13.0 20.9 13.3 20.3 13.2 19.8 15.8 17.4 18.2 16.4 20.0 15.0 21.3 14.6 21.7 13.8 22.4 13.4 23.5 12.0 23.9 10.5 24.4 9.8 25.0 9.8 25.6 9.4 26.5 10.5 27.5 11.2 29.4 11.6 30.8 11.4 31.6 11.9 32.2 10.7 31.1 9.0 31.0 8.2 35.2 8.0 36.5 7.0 36.6 6.2 37.3 5.5 38.2 5.7 39.0 5.4 39.9 2.1 41.1 2.2 41.7 2.7 41.8 3.9 42.4 4.4 43.0 4.5 43.9 6.4 43.4 6.6 42.8 6.2 42.1 7.0 41.6 7.1 39.0 10.3 38.9 11.4 39.6 12.0 39.1 13.5 39.4 14.6 39.1 15.3 38.5 15.3 37.4 15.9 37.1 16.3 36.7 16.4 36.0 17.5 34.1 18.4 34.0 19.2 32.6 19.9 32.4 20.2 30.9 20.2 30.2 21.1 28.8 21.7 28.4 22.2 28.7 22.9 28.5 23.4 28.7 24.6 28.1 24.5 27.8 24.9 28.0 25.3 29.6 25.8 30.8 27.3 32.5 28.4 33.9 31.8 36.0 34.6 37.8 38.4 38.0 40.4 37.5 43.6 37.8 44.4 38.4 44.4 38.5 44.8 37.9 47.8 36.3 50.4 35.7 50.7 34.4 50.6 34.4 52.3 34.1 52.7 33.6 52.8 33.2 52.0 32.0 51.5 31.3 51.8 31.1 52.8 30.1 52.8 29.8 53.5 28.6 53.2 27.6 54.4 26.7 54.5 26.6 53.8 26.1 53.6 24.9 54.8 24.8 55.3 23.6 55.3 23.2 54.4 22.1 54.9 21.6 54.6 22.4 53.4 22.4 53.0 21.3 52.4 20.7 52.7 20.6 52.4 21.5 51.4 21.5 52.3 22.2 52.6 22.6 52.5 22.2 51.9 22.6 50.8 22.2 50.4 21.6 50.7 21.4 50.4 21.7 50.1 22.6 50.0 23.5 47.7 23.4 47.1 24.4 45.9 23.7 45.2 24.3 44.6 24.0 44.1 23.5 44.1 23.8 43.2 23.6 42.6 22.9 42.3 22.5 40.9 21.9 40.7 21.7 40.2 22.0 39.4 22.8 38.8 23.6 38.4 24.2 38.8 24.7 38.7 24.7 38.2 24.3 37.7 24.5 36.8 23.9 36.0 22.9 36.0 23.3 35.5 23.2 35.2 22.3 34.2 21.6 34.2 20.3 33.0 19.5 33.3 19.2 34.1 18.8 34.1 17.9 34.6 17.9 33.9 16.2 33.1 16.5 32.7 16.4 32.3 14.7 31.9 15.5 31.4 16.3 29.6 16.2 29.0 16.7 29.0 17.1 28.4 17.0 27.2 18.3 24.6 17.9 23.5 17.4 23.1 16.2 22.8 15.4 23.5 15.7 22.3 15.2 22.2 14.5 22.9 14.1 21.7 13.4 21.5zM14.7 33.1 14.4 32.8 15.0 32.8zM25.7 60.3 25.2 61.3 24.1 61.7 22.7 61.8 22.4 62.0 21.9 61.6 22.0 61.1 22.4 60.5 23.5 60.0 25.0 59.8z"/><path class="fb" d="M44.9 36.9 44.8 36.7 44.7 36.7 44.6 36.7 44.5 36.6 44.3 36.6 44.2 36.6 44.1 36.6 44.0 36.4 43.8 36.4 43.7 36.3 43.7 36.2 43.5 36.1 43.5 36.0 43.6 35.6 43.5 35.6 43.3 35.3 43.4 35.1 43.5 35.1 43.5 35.2 43.8 35.2 44.0 35.0 44.1 35.1 44.1 35.0 44.4 34.9 44.5 34.9 44.7 34.9 44.8 34.8 45.0 34.7 45.1 34.7 45.3 34.7 45.4 34.7 45.4 34.6 45.5 34.6 45.6 34.6 45.7 34.7 45.7 34.9 45.6 35.0 45.7 35.2 45.8 35.3 45.8 35.4 45.7 35.9 45.7 36.1 45.8 36.1 45.9 36.1 45.7 36.2 45.7 36.2 45.6 36.3 45.5 36.4 45.4 36.3 45.1 36.5 45.0 36.6 45.0 36.7 45.0 36.9z"/><circle class="fb" cx="49.6" cy="37.3" r="1.1"/></svg><b>한국지리 백지도</b><small>시·도·시군구 백지도에 색과 기호를 달아요</small></button><button type="button" class="bc" data-go="landform"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><path class="f1 s" d="M5 46L21 18l10 15 8-11 20 24z"/><path class="fb" d="M21 18l5.5 9.2-5-2.6-3.6 2.4z"/><path class="s nf" d="M5 55c7-4 12 4 19 0s12-4 19 0 10 3 16 0"/></svg><b>지형 모식도</b><small>지형 모식도에 기호와 지시선을 달아요</small></button><div class="bc c-graph" data-pick><button type="button" class="bc-main" data-open aria-expanded="false"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><path class="s nf" d="M9 7v47h47"/><rect class="f1 s" x="15" y="34" width="9" height="20" rx="1.5"/><rect class="f2 s" x="29" y="24" width="9" height="30" rx="1.5"/><rect class="fb s" x="43" y="13" width="9" height="41" rx="1.5"/></svg><b>그래프</b><small>기후·에너지·종교·인구·농업 중에 골라요</small></button><div class="bc-pick" hidden><small>어떤 그래프를 만들까요?</small><div><button type="button" data-go="climate" style="--i:0">기후</button><button type="button" data-go="energy" style="--i:1">에너지</button><button type="button" data-go="religion" style="--i:2">종교</button><button type="button" data-go="population" style="--i:3">인구</button><button type="button" data-go="agriculture" style="--i:4">농업</button></div></div></div><button type="button" class="bc c-item" data-go="item"><svg class="ic" viewBox="0 0 64 64" aria-hidden="true"><rect class="f1 s" x="13" y="5" width="36" height="48" rx="4"/><path class="s nf" d="M21 17h20M21 27h20M21 37h10"/><circle class="fb" cx="46" cy="46" r="12"/><path class="sw nf" d="M40 46l4.8 4.8L53 42"/></svg><b>문항 설계</b><small>경기도교육청 방식 6단계로 문항을 설계해요</small></button></div><section class="now" id="homeNow" hidden aria-label="지금 작업 중인 것"><h3>지금 작업 중인 것</h3><ul></ul></section><p class="home-foot"><a href="guide.html" target="_blank" rel="noopener">사용 안내 보기</a><button type="button" id="homeResume" data-go="" hidden>이어서 하기 · <b></b></button></p></div></div>
 </template>
 <template id="hub-tpl-mapquick">
 <div class="qapp">
@@ -140,18 +142,18 @@
   </header>
 
   <nav class="rail" aria-label="도구">
-    <button class="tool" data-tool="select" title="선택·이동 (V)" aria-label="선택·이동"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5 3v13l3.6-3.4L11 18l2.3-1-2.4-5.3H16z"/></svg><kbd>V</kbd></button>
-    <button class="tool" data-tool="dot" title="점 찍기 (D)" aria-label="점 찍기"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="4.2" fill="currentColor"/></svg><kbd>D</kbd></button>
-    <button class="tool" data-tool="ring" title="빈 원 찍기 (O)" aria-label="빈 원 찍기"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="4.4" fill="none" stroke="currentColor" stroke-width="2"/></svg><kbd>O</kbd></button>
-    <button class="tool" data-tool="text" title="글자 놓기 (T)" aria-label="글자 놓기"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5h12M10 5v11"/></svg><kbd>T</kbd></button>
-    <button class="tool" data-tool="shade" title="국가 음영 (S)" aria-label="국가 음영"><svg viewBox="0 0 20 20"><path d="M3 7l5-3 5 2 4-1v10l-5 2-5-2-4 1z" fill="currentColor" opacity=".45" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><kbd>S</kbd></button>
-    <button class="tool" data-tool="leader" title="지시선 추가 (L)" aria-label="지시선 추가"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 15 15 5M4 15l12 1M4 15l6-11"/></svg><kbd>L</kbd></button>
-    <button class="tool" data-tool="ellipse" title="점선 영역 (E)" aria-label="점선 영역"><svg viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.2 1.6"/></svg><kbd>E</kbd></button>
+    <button class="tool" data-tool="select" title="선택·이동 (V)" aria-label="선택·이동"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5 3v13l3.6-3.4L11 18l2.3-1-2.4-5.3H16z"/></svg><span class="tl">선택</span><kbd>V</kbd></button>
+    <button class="tool" data-tool="dot" title="점 찍기 (D)" aria-label="점 찍기"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="4.2" fill="currentColor"/></svg><span class="tl">점</span><kbd>D</kbd></button>
+    <button class="tool" data-tool="ring" title="빈 원 찍기 (O)" aria-label="빈 원 찍기"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="4.4" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="tl">빈 원</span><kbd>O</kbd></button>
+    <button class="tool" data-tool="text" title="글자 놓기 (T)" aria-label="글자 놓기"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5h12M10 5v11"/></svg><span class="tl">글자</span><kbd>T</kbd></button>
+    <button class="tool" data-tool="shade" title="국가 음영 (S)" aria-label="국가 음영"><svg viewBox="0 0 20 20"><path d="M3 7l5-3 5 2 4-1v10l-5 2-5-2-4 1z" fill="currentColor" opacity=".45" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span class="tl">음영</span><kbd>S</kbd></button>
+    <button class="tool" data-tool="leader" title="지시선 추가 (L)" aria-label="지시선 추가"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 15 15 5M4 15l12 1M4 15l6-11"/></svg><span class="tl">지시선</span><kbd>L</kbd></button>
+    <button class="tool" data-tool="ellipse" title="점선 영역 (E)" aria-label="점선 영역"><svg viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.2 1.6"/></svg><span class="tl">점선 영역</span><kbd>E</kbd></button>
     <hr>
-    <button class="tool" id="zoomIn" title="확대" aria-label="확대"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 5v10M5 10h10"/></svg></button>
-    <button class="tool" id="zoomOut" title="축소" aria-label="축소"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 10h10"/></svg></button>
-    <button class="tool" id="fitItems" title="항목에 맞추기 (틀 크기는 그대로)" aria-label="항목에 맞추기"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V3h4M17 7V3h-4M3 13v4h4M17 13v4h-4"/><circle cx="8" cy="9" r="1.3" fill="currentColor"/><circle cx="12.5" cy="11.5" r="1.3" fill="currentColor"/></svg></button>
-    <button class="tool" id="zoomFit" title="지역 범위로 되돌리기" aria-label="지역 범위로 되돌리기"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V4h4M16 8V4h-4M4 12v4h4M16 12v4h-4"/></svg></button>
+    <button class="tool" id="zoomIn" title="확대" aria-label="확대"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 5v10M5 10h10"/></svg><span class="tl">확대</span></button>
+    <button class="tool" id="zoomOut" title="축소" aria-label="축소"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 10h10"/></svg><span class="tl">축소</span></button>
+    <button class="tool" id="fitItems" title="항목에 맞추기 (틀 크기는 그대로)" aria-label="항목에 맞추기"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V3h4M17 7V3h-4M3 13v4h4M17 13v4h-4"/><circle cx="8" cy="9" r="1.3" fill="currentColor"/><circle cx="12.5" cy="11.5" r="1.3" fill="currentColor"/></svg><span class="tl">항목에 맞춤</span></button>
+    <button class="tool" id="zoomFit" title="지역 범위로 되돌리기" aria-label="지역 범위로 되돌리기"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V4h4M16 8V4h-4M4 12v4h4M16 12v4h-4"/></svg><span class="tl">범위로</span></button>
   </nav>
 
   <main class="desk" id="desk">
@@ -166,24 +168,22 @@
       <input id="q" type="search" autocomplete="off" placeholder="지명·국가·좌표 검색 (예: 로테르담, 이란, 37.5 127)" aria-label="지명, 국가, 좌표 검색">
       <div class="results" id="results" hidden></div>
     </div>
+    <div class="selcard" id="selCard" hidden><div id="selBox"></div></div>
     <div class="tabs" role="tablist">
       <button role="tab" id="tab-map" aria-selected="true" data-tab="map">지도</button>
       <button role="tab" id="tab-style" aria-selected="false" data-tab="style">꾸미기</button>
-      <button role="tab" id="tab-sel" aria-selected="false" data-tab="sel">항목<span class="dot" id="selDot" hidden></span></button>
       <button role="tab" id="tab-out" aria-selected="false" data-tab="out">내보내기</button>
     </div>
 
     <div class="pane" id="pane-map">
       <section class="grp"><h3>지역</h3><div class="chips" id="presets"></div></section>
-      <section class="grp"><h3>도법 · 틀</h3>
+      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a7 7 0 1 0 14 0 7 7 0 0 0-14 0M10 3c-3 3-3 11 0 14M10 3c3 3 3 11 0 14M3 10h14"/></svg><span class="dw-t"><b>도법 · 틀</b><small>도법, 중앙 경선, 틀 크기, 해안선 자세히</small></span></summary><div class="dw-b">
         <div class="row"><label for="proj">도법</label><select id="proj" class="grow"></select></div>
         <div class="row"><label for="rot">중앙 경선</label><input id="rot" type="number" step="1"><span class="unit">° (동경 +, 서경 −)</span></div>
         <div class="row"><span class="lab">틀 크기</span><input id="fw" type="number" min="20" max="190" step="1" aria-label="틀 가로 mm"><span class="unit">×</span><input id="fh" type="number" min="15" max="270" step="1" aria-label="틀 세로 mm"><span class="unit">mm</span></div>
         <div class="row"><span class="lab">지도 데이터</span><div class="seg" id="detail"><button data-v="auto">자동</button><button data-v="xlo">간략</button><button data-v="lo">보통</button><button data-v="hi">자세히</button></div></div>
-        <p class="note">틀 오른쪽 아래 모서리를 끌어도 크기가 바뀌어요. 시험지 지도는 보통 가로 45~70 mm예요. 해안선은 ‘자동’이면 넓은 지도일수록 단순하게 그려요.</p>
-      </section>
-      <section class="grp"><h3>표시 요소</h3>
-        <div class="checks">
+        <p class="note">틀 오른쪽 아래 모서리를 끌어도 크기가 바뀌어요. 시험지 지도는 보통 가로 45~70 mm예요. 해안선은 ‘자동’이면 넓은 지도일수록 단순하게 그려요.</p></div></details>
+      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="14" height="12" rx="2"/><path d="M6 8h8M6 12h5"/></svg><span class="dw-t"><b>표시 요소</b><small>국경·호수·울릉도 독도·적도·회귀선·극권</small></span></summary><div class="dw-b"><div class="checks">
           <label class="check"><input type="checkbox" id="lyBorders">국경선(점선)</label>
           <label class="check"><input type="checkbox" id="lyLakes">호수</label>
           <label class="check" title="실제 해안선으로 그리고, 지도에서 너무 작으면 시험지 지도처럼 작은 점으로 찍어요(Natural Earth에는 독도가 없어서 SGIS 경계로 따로 그림)"><input type="checkbox" id="lyDokdo">울릉도·독도</label>
@@ -192,10 +192,18 @@
           <label class="check"><input type="checkbox" id="lnAc">극권</label>
           <label class="check"><input type="checkbox" id="lyMajor">주요 하천 전부</label>
         </div>
-        <p class="sub-h">기후 지역(쾨펜)</p>
+        </div></details>
+      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h14M3 13h14M7 3v14M13 3v14"/></svg><span class="dw-t"><b>경위선망 · 축척</b><small>경위선망, 축척 막대</small></span></summary><div class="dw-b"><div class="row"><label for="grat">경위선망</label><select id="grat"><option value="0">없음</option><option value="10">10° 간격</option><option value="15">15° 간격</option><option value="20">20° 간격</option><option value="30">30° 간격</option></select></div>
+        <div class="row"><label for="scaleSel">축척 막대</label><select id="scaleSel"><option value="none">없음</option><option value="auto">자동 위치</option><option value="bl">왼쪽 아래</option><option value="br">오른쪽 아래</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option></select></div>
+        <p class="seqwarn" id="scaleWarn" role="note" hidden></p>
+        <div class="checks"><label class="check" title="경위선망을 켠 북극 중심 지도에서 30°N·60°N을 경선을 따라 적고, 0° 경선 끝에 0°를 적어요"><input type="checkbox" id="lyPolarLbl">북극 중심 지도에 위도·0° 글자</label></div></div></details>
+      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6c4-2 10 2 14 0M3 11c4-2 10 2 14 0M3 16c4-2 10 2 14 0"/></svg><span class="dw-t"><b>기후 지역</b><small>쾨펜 기후 구분 무늬</small></span></summary><div class="dw-b">
         <div id="zoneBelts" class="zone-belts"></div>
         <div id="zoneTones" class="zone-tones"></div>
-        <div class="checks">
+        <div class="row" id="zoneLegRow" hidden><label for="zoneLeg">범례</label><select id="zoneLeg"><option value="bl">왼쪽 아래</option><option value="br">오른쪽 아래</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option><option value="outR">지도 밖 오른쪽</option><option value="outB">지도 밖 아래</option><option value="none">없음</option></select></div>
+        <p class="note" id="zoneNote" hidden>쾨펜 기후 구분(Beck 외 2023, 1991~2020년 평년) 지도를 단순화한 것이라 시험지 지도와 가장자리가 조금 다를 수 있어요. 무늬가 7가지라 여러 기후를 함께 켜면 겹치는 무늬가 생길 수 있으니 이름 옆 칸에서 바꿔 주세요. 아주 좁은 지역(Csc·Cwc 등)은 단순화 과정에서 빠졌어요.</p>
+        </div></details>
+      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14l4-6 3 4 3-7 4 9"/></svg><span class="dw-t"><b>판 · 산지</b><small>판의 경계, 습곡 산지, 안정 육괴</small></span></summary><div class="dw-b"><div class="checks">
           <label class="check"><input type="checkbox" id="plOn">판의 경계</label>
           <label class="check"><input type="checkbox" id="plTyped">수렴·발산·보존 구분</label>
           <label class="check"><input type="checkbox" id="plNames">판 이름</label>
@@ -209,20 +217,14 @@
           <details class="rl-pick"><summary>산맥·순상지 고르기</summary><div id="rlList" class="checks"></div></details>
           <p class="note">교과서 분류에 따른 시험 지도 수준의 모식 경계예요(산맥: Natural Earth, 발트·아프리카·아라비아는 직접 그린 모식 경계).</p>
         </div>
-        <div class="row" id="zoneLegRow" hidden><label for="zoneLeg">범례</label><select id="zoneLeg"><option value="bl">왼쪽 아래</option><option value="br">오른쪽 아래</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option><option value="outR">지도 밖 오른쪽</option><option value="outB">지도 밖 아래</option><option value="none">없음</option></select></div>
-        <p class="note" id="zoneNote" hidden>쾨펜 기후 구분(Beck 외 2023, 1991~2020년 평년) 지도를 단순화한 것이라 시험지 지도와 가장자리가 조금 다를 수 있어요. 무늬가 7가지라 여러 기후를 함께 켜면 겹치는 무늬가 생길 수 있으니 이름 옆 칸에서 바꿔 주세요. 아주 좁은 지역(Csc·Cwc 등)은 단순화 과정에서 빠졌어요.</p>
-        <details class="rl-pick" id="seaBox"><summary>바다 이름</summary>
+        </div></details>
+      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8c2-2 3 2 5 0s3 2 5 0 3 2 5 0M2 13c2-2 3 2 5 0s3 2 5 0 3 2 5 0"/></svg><span class="dw-t"><b>바다 이름</b><small>대양·바다 이름 넣기</small></span></summary><div class="dw-b"><div id="seaBox">
           <div class="checks"><label class="check"><input type="checkbox" id="seaSpace">글자 사이 띄우기(태 평 양)</label></div>
           <div class="row"><label for="seaK">글자 크기</label><select id="seaK"><option value="1">기호 글자와 같게</option><option value="0.8">조금 작게</option><option value="0.65">작게</option></select></div>
           <div id="seaList" class="checks"></div>
           <p class="note">지금 지도에서 바다 위 빈자리를 찾아 넣어요. 넣은 뒤에는 끌어서 옮길 수 있어요.</p>
-        </details>
-        <div class="row"><label for="grat">경위선망</label><select id="grat"><option value="0">없음</option><option value="10">10° 간격</option><option value="15">15° 간격</option><option value="20">20° 간격</option><option value="30">30° 간격</option></select></div>
-        <div class="row"><label for="scaleSel">축척 막대</label><select id="scaleSel"><option value="none">없음</option><option value="auto">자동 위치</option><option value="bl">왼쪽 아래</option><option value="br">오른쪽 아래</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option></select></div>
-        <p class="seqwarn" id="scaleWarn" role="note" hidden></p>
-        <div class="checks"><label class="check" title="경위선망을 켠 북극 중심 지도에서 30°N·60°N을 경선을 따라 적고, 0° 경선 끝에 0°를 적어요"><input type="checkbox" id="lyPolarLbl">북극 중심 지도에 위도·0° 글자</label></div>
-      </section>
-      <section class="grp"><h3>가장자리 눈금</h3>
+        </div></div></details>
+      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16V4M4 16h12M7 16v-2M10 16v-2M13 16v-2M4 7h2M4 10h2M4 13h2"/></svg><span class="dw-t"><b>가장자리 눈금</b><small>위도·경도 눈금</small></span></summary><div class="dw-b">
         <div class="list" id="tickList"></div>
         <div class="row">
           <select id="tkKind" aria-label="눈금 종류"><option value="lat">위도</option><option value="lon">경도</option></select>
@@ -230,51 +232,41 @@
           <select id="tkSide" aria-label="눈금 위치"></select>
           <button class="btn" id="tkAdd">추가</button>
         </div>
-        <p class="note">값은 북위·동경을 +, 남위·서경을 −로 적어요. 0은 “0°”로 표시돼요.</p>
-      </section>
-      <section class="grp"><h3>하천</h3>
+        <p class="note">값은 북위·동경을 +, 남위·서경을 −로 적어요. 0은 “0°”로 표시돼요.</p></div></details>
+      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3c4 3-2 5 2 8s-1 4 3 6M11 3c3 2 1 4 4 6"/></svg><span class="dw-t"><b>하천</b><small>이름으로 찾아 그리기</small></span></summary><div class="dw-b">
         <input id="riverQ" class="field" type="search" placeholder="하천 이름 (예: 라인, 메콩)" aria-label="하천 검색">
-        <div class="riverlist" id="riverList"></div>
-      </section>
+        <div class="riverlist" id="riverList"></div></div></details>
     </div>
 
     <div class="pane" id="pane-style" hidden>
-      <section class="grp"><h3>글꼴</h3>
-        <div class="row"><label for="fontSel">라벨 글꼴</label><select id="fontSel" class="grow"></select></div>
-        <div id="fontStatus"></div>
-        <div class="row"><label for="latinSel">영문·숫자</label><select id="latinSel" class="grow"><option value="same">라벨 글꼴 그대로</option><option value="times">Times New Roman</option></select></div>
-        <div class="btnrow"><label class="btn filebtn">글꼴 파일 불러오기 (.ttf .otf)<input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2"></label></div>
-        <p class="note">시험지는 한양신명조(HY신명조) 계열을 써요. 목록에서 ‘없음’으로 나오면 C:\Windows\Fonts에 있는 글꼴 파일을 직접 불러오면 돼요. 파일은 이 창 안에서만 쓰이고 어디로도 올라가지 않아요.</p>
-      </section>
-      <section class="grp"><h3>크기</h3>
-        <div class="row"><label for="fsz">라벨 글자</label><input type="range" id="fsz" min="6" max="14" step="0.5"><span class="val" id="fszV"></span></div>
-        <div class="row"><label for="dsz">점 지름</label><input type="range" id="dsz" min="0.6" max="3" step="0.1"><span class="val" id="dszV"></span></div>
-        <div class="row"><label for="rsz">빈 원 지름</label><input type="range" id="rsz" min="0.8" max="4" step="0.1"><span class="val" id="rszV"></span></div>
-        <div class="row"><label for="lsc">선 굵기</label><input type="range" id="lsc" min="0.6" max="2" step="0.05"><span class="val" id="lscV"></span></div>
-      </section>
-      <section class="grp"><h3>명암</h3>
-        <div class="row"><label for="seaG">바다</label><input type="range" id="seaG" min="190" max="255" step="1"><span class="val" id="seaGV"></span></div>
-        <div class="row"><label for="shG">국가 음영</label><input type="range" id="shG" min="110" max="215" step="1"><span class="val" id="shGV"></span></div>
-        <p class="note">기본값은 시험지 이미지에서 잰 값이에요 (바다 229, 음영 178 / 255).</p>
-      </section>
-      <section class="grp"><h3>새 라벨</h3>
+      <details class="dw" name="s" open><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h10l4 4-4 4H3z"/></svg><span class="dw-t"><b>새 라벨</b><small>순서, 놓는 위치, 음영 라벨</small></span></summary><div class="dw-b">
         <div class="row"><label for="seqSel">순서</label><select id="seqSel" class="grow">
           <option value="latin">A, B, C …</option><option value="gana">(가), (나), (다) …</option><option value="circ">㉠, ㉡, ㉢ …</option><option value="mk">㉮, ㉯, ㉰ …</option>
           <option value="jamo">ㄱ, ㄴ, ㄷ …</option><option value="num">1, 2, 3 …</option><option value="lower">a, b, c …</option></select></div>
         <p class="seqwarn" id="seqWarn" role="note" hidden></p>
         <div class="row"><span class="lab">놓는 위치</span><div class="grid9" id="placeGrid" aria-label="새 라벨 위치"></div><span class="unit" id="placeName"></span></div>
-        <label class="check"><input type="checkbox" id="shadeAuto">음영 국가에도 라벨 자동으로 붙이기</label>
-      </section>
-    </div>
-
-    <div class="pane" id="pane-sel" hidden>
-      <div id="selBox"></div>
-      <section class="grp"><h3>기호 · 정답</h3>
+        <label class="check"><input type="checkbox" id="shadeAuto">음영 국가에도 라벨 자동으로 붙이기</label></div></details>
+      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10l4 4 8-8"/></svg><span class="dw-t"><b>기호 · 정답</b><small>기호 다시 매기기, 정답 지명</small></span></summary><div class="dw-b">
         <div class="row"><label for="relabelMode">기호 순서</label><select id="relabelMode" class="grow"><option value="cw">12시부터 시계 방향</option><option value="ccw">12시부터 시계 반대 방향</option><option value="we">서쪽부터(왼쪽 → 오른쪽)</option><option value="ns">북쪽부터(위 → 아래)</option><option value="shuffle">섞기</option><option value="none">기호 지우기(점만)</option></select><button class="btn" id="relabelBtn" type="button">다시 매기기</button></div>
         <div class="ans" id="ansBox"><p class="note">기호를 붙인 항목이 없어요.</p></div>
-        <a class="btn" id="itemSendBtn" href="#open:item" hidden title="기호와 정답 지명을 ‘문항 설계’ 탭으로 넘겨요">이 기호로 문항 설계</a>
-      </section>
-      <section class="grp"><h3>모든 항목</h3><div class="list" id="itemList"></div></section>
+        <a class="btn" id="itemSendBtn" href="#open:item" hidden title="기호와 정답 지명을 ‘문항 설계’ 탭으로 넘겨요">이 기호로 문항 설계</a></div></details>
+      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5h10M7 10h10M7 15h10M3 5h1M3 10h1M3 15h1"/></svg><span class="dw-t"><b>모든 항목</b><small>지금 지도에 놓은 항목 목록</small></span></summary><div class="dw-b"><div class="list" id="itemList"></div></div></details>
+      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16 9 4l5 12M6 12h6"/></svg><span class="dw-t"><b>글꼴</b><small>시험지 글꼴, 영문·숫자</small></span></summary><div class="dw-b">
+        <div class="row"><label for="fontSel">라벨 글꼴</label><select id="fontSel" class="grow"></select></div>
+        <div id="fontStatus"></div>
+        <div class="row"><label for="latinSel">영문·숫자</label><select id="latinSel" class="grow"><option value="same">라벨 글꼴 그대로</option><option value="times">Times New Roman</option></select></div>
+        <div class="btnrow"><label class="btn filebtn">글꼴 파일 불러오기 (.ttf .otf)<input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2"></label></div>
+        <p class="note">시험지는 한양신명조(HY신명조) 계열을 써요. 목록에서 ‘없음’으로 나오면 C:\Windows\Fonts에 있는 글꼴 파일을 직접 불러오면 돼요. 파일은 이 창 안에서만 쓰이고 어디로도 올라가지 않아요.</p></div></details>
+      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15h6M12 15h5M6 15V9M14.5 15V6"/></svg><span class="dw-t"><b>크기</b><small>라벨 글자, 점, 선 굵기</small></span></summary><div class="dw-b">
+        <div class="row"><label for="fsz">라벨 글자</label><input type="range" id="fsz" min="6" max="14" step="0.5"><span class="val" id="fszV"></span></div>
+        <div class="row"><label for="dsz">점 지름</label><input type="range" id="dsz" min="0.6" max="3" step="0.1"><span class="val" id="dszV"></span></div>
+        <div class="row"><label for="rsz">빈 원 지름</label><input type="range" id="rsz" min="0.8" max="4" step="0.1"><span class="val" id="rszV"></span></div>
+        <div class="row"><label for="lsc">선 굵기</label><input type="range" id="lsc" min="0.6" max="2" step="0.05"><span class="val" id="lscV"></span></div></div></details>
+      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></svg><span class="dw-t"><b>명암</b><small>바다·국가 음영 농도</small></span></summary><div class="dw-b">
+        <div class="row"><label for="seaG">바다</label><input type="range" id="seaG" min="190" max="255" step="1"><span class="val" id="seaGV"></span></div>
+        <div class="row"><label for="shG">국가 음영</label><input type="range" id="shG" min="110" max="215" step="1"><span class="val" id="shGV"></span></div>
+        <p class="note">기본값은 시험지 이미지에서 잰 값이에요 (바다 229, 음영 178 / 255).</p></div></details>
+      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="14" height="9" rx="2"/><path d="M6 9h1M9 9h1M12 9h1M6 12h8"/></svg><span class="dw-t"><b>단축키</b><small>V·D·O·T·S·L·E 와 방향키</small></span></summary><div class="dw-b"><div class="keys"><kbd>V</kbd><span>선택·이동</span><kbd>D</kbd><span>점</span><kbd>O</kbd><span>빈 원</span><kbd>T</kbd><span>글자</span><kbd>S</kbd><span>국가 음영</span><kbd>L</kbd><span>지시선 추가</span><kbd>E</kbd><span>점선 영역</span><kbd>Delete</kbd><span>선택 항목 지우기</span><kbd>방향키</kbd><span>라벨 0.2 mm씩 (Shift: 1 mm)</span><kbd>Ctrl+Z</kbd><span>되돌리기</span><kbd>더블클릭</kbd><span>라벨 글자 바로 고치기</span></div></div></details>
     </div>
 
     <div class="pane" id="pane-out" hidden>
@@ -295,7 +287,6 @@
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-
 </template>
 <template id="hub-tpl-kmap">
 <div class="gapp lapp kapp">
@@ -314,22 +305,22 @@
 
   <nav class="krail" aria-label="도구">
     <div class="ktools" id="toolSeg" role="group" aria-label="도구">
-      <button type="button" class="ktool" data-v="select" title="고르기·옮기기 (V). 빈 곳을 끌면 화면이 움직여요." aria-label="고르기"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5 3v13l3.6-3.4L11 18l2.3-1-2.4-5.3H16z"/></svg><kbd>V</kbd></button>
-      <button type="button" class="ktool" data-v="paint" title="색칠 (P): 시·군을 누르면 칠하고, 다시 누르면 지워요." aria-label="색칠"><svg viewBox="0 0 20 20"><path d="M3 7l5-3 5 2 4-1v10l-5 2-5-2-4 1z" fill="currentColor" opacity=".45" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><kbd>P</kbd></button>
-      <button type="button" class="ktool" data-v="dot" title="점 (D): 누른 자리에 점을 찍어요." aria-label="점"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="4.2" fill="currentColor"/></svg><kbd>D</kbd></button>
-      <button type="button" class="ktool" data-v="sym" title="기호 (S): 누른 자리에 다음 기호를 놓아요." aria-label="기호"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M5.5 16 10 4l4.5 12M7.2 11.6h5.6"/></svg><kbd>S</kbd></button>
-      <button type="button" class="ktool" data-v="leader" title="지시선 기호 (L): 지점을 누른 채 기호 자리까지 끌어요." aria-label="지시선"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="5" cy="15" r="1.8" fill="currentColor" stroke="none"/><path d="M6.3 13.7 12 8"/><path d="M12.6 7.5 15 3l2.4 4.5M13.4 6h3.2"/></svg><kbd>L</kbd></button>
-      <button type="button" class="ktool" data-v="num" title="번호 자동 (N): 시·군을 누르면 다음 번호를 안쪽 또는 지시선으로 알아서 놓아요." aria-label="번호 자동"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16 8 11"/><circle cx="3" cy="16" r="1" fill="currentColor"/><path d="M11 5l2-1.2V10M11.2 10h4"/></svg><kbd>N</kbd></button>
-      <button type="button" class="ktool" data-v="ell" title="점선 원 (E)" aria-label="점선 원"><svg viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.2 1.6"/></svg><kbd>E</kbd></button>
-      <button type="button" class="ktool" data-v="arrow" title="화살표 (A)" aria-label="화살표"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16 15 5M9 5h6v6"/></svg><kbd>A</kbd></button>
-      <button type="button" class="ktool" data-v="line" title="선 (I)" aria-label="선"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 15 16 5"/></svg><kbd>I</kbd></button>
-      <button type="button" class="ktool" data-v="rect" title="가림 상자 (R): 지도 일부를 흰 상자로 가려요." aria-label="가림 상자"><svg viewBox="0 0 20 20"><rect x="3.5" y="5.5" width="13" height="9" rx="1" fill="currentColor" opacity=".25" stroke="currentColor" stroke-width="1.4"/></svg><kbd>R</kbd></button>
-      <button type="button" class="ktool" data-v="text" title="글상자 (T)" aria-label="글상자"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5h12M10 5v11"/></svg><kbd>T</kbd></button>
+      <button type="button" class="ktool" data-v="select" title="고르기·옮기기 (V). 빈 곳을 끌면 화면이 움직여요." aria-label="고르기"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5 3v13l3.6-3.4L11 18l2.3-1-2.4-5.3H16z"/></svg><span class="tl">선택</span><kbd>V</kbd></button>
+      <button type="button" class="ktool" data-v="paint" title="색칠 (P): 시·군을 누르면 칠하고, 다시 누르면 지워요." aria-label="색칠"><svg viewBox="0 0 20 20"><path d="M3 7l5-3 5 2 4-1v10l-5 2-5-2-4 1z" fill="currentColor" opacity=".45" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span class="tl">색칠</span><kbd>P</kbd></button>
+      <button type="button" class="ktool" data-v="dot" title="점 (D): 누른 자리에 점을 찍어요." aria-label="점"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="4.2" fill="currentColor"/></svg><span class="tl">점</span><kbd>D</kbd></button>
+      <button type="button" class="ktool" data-v="sym" title="기호 (S): 누른 자리에 다음 기호를 놓아요." aria-label="기호"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M5.5 16 10 4l4.5 12M7.2 11.6h5.6"/></svg><span class="tl">기호</span><kbd>S</kbd></button>
+      <button type="button" class="ktool" data-v="leader" title="지시선 기호 (L): 지점을 누른 채 기호 자리까지 끌어요." aria-label="지시선"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="5" cy="15" r="1.8" fill="currentColor" stroke="none"/><path d="M6.3 13.7 12 8"/><path d="M12.6 7.5 15 3l2.4 4.5M13.4 6h3.2"/></svg><span class="tl">지시선</span><kbd>L</kbd></button>
+      <button type="button" class="ktool" data-v="num" title="번호 자동 (N): 시·군을 누르면 다음 번호를 안쪽 또는 지시선으로 알아서 놓아요." aria-label="번호 자동"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16 8 11"/><circle cx="3" cy="16" r="1" fill="currentColor"/><path d="M11 5l2-1.2V10M11.2 10h4"/></svg><span class="tl">번호</span><kbd>N</kbd></button>
+      <button type="button" class="ktool" data-v="ell" title="점선 원 (E)" aria-label="점선 원"><svg viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.2 1.6"/></svg><span class="tl">점선 원</span><kbd>E</kbd></button>
+      <button type="button" class="ktool" data-v="arrow" title="화살표 (A)" aria-label="화살표"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16 15 5M9 5h6v6"/></svg><span class="tl">화살표</span><kbd>A</kbd></button>
+      <button type="button" class="ktool" data-v="line" title="선 (I)" aria-label="선"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 15 16 5"/></svg><span class="tl">선</span><kbd>I</kbd></button>
+      <button type="button" class="ktool" data-v="rect" title="가림 상자 (R): 지도 일부를 흰 상자로 가려요." aria-label="가림 상자"><svg viewBox="0 0 20 20"><rect x="3.5" y="5.5" width="13" height="9" rx="1" fill="currentColor" opacity=".25" stroke="currentColor" stroke-width="1.4"/></svg><span class="tl">가림</span><kbd>R</kbd></button>
+      <button type="button" class="ktool" data-v="text" title="글상자 (T)" aria-label="글상자"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5h12M10 5v11"/></svg><span class="tl">글상자</span><kbd>T</kbd></button>
     </div>
     <hr>
-    <button type="button" class="ktool" id="zIn" title="크게 (+)" aria-label="크게"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 5v10M5 10h10"/></svg></button>
-    <button type="button" class="ktool" id="zOut" title="작게 (−)" aria-label="작게"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 10h10"/></svg></button>
-    <button type="button" class="ktool" id="zFit" title="화면에 맞추기 (0)" aria-label="화면에 맞추기"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V4h4M16 8V4h-4M4 12v4h4M16 12v4h-4"/></svg></button>
+    <button type="button" class="ktool" id="zIn" title="크게 (+)" aria-label="크게"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 5v10M5 10h10"/></svg><span class="tl">확대</span></button>
+    <button type="button" class="ktool" id="zOut" title="작게 (−)" aria-label="작게"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 10h10"/></svg><span class="tl">축소</span></button>
+    <button type="button" class="ktool" id="zFit" title="화면에 맞추기 (0)" aria-label="화면에 맞추기"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V4h4M16 8V4h-4M4 12v4h4M16 12v4h-4"/></svg><span class="tl">맞추기</span></button>
   </nav>
 
   <main class="desk kdesk" aria-label="백지도 화면">
@@ -350,34 +341,23 @@
       <details class="help"><summary>이렇게 써 보세요</summary><div class="examples" id="exList"></div></details>
       <div id="hintSec" hidden></div>
     </section>
+    <div class="selcard" id="selCard" hidden><div id="opts"></div></div>
     <div class="ktabs" role="tablist" aria-label="설정 갈래">
       <button type="button" role="tab" data-tab="map" aria-selected="true">지도</button>
       <button type="button" role="tab" data-tab="style" aria-selected="false">꾸미기</button>
-      <button type="button" role="tab" data-tab="sel" aria-selected="false">항목<span class="kdot" id="selDot" hidden></span></button>
       <button type="button" role="tab" data-tab="out" aria-selected="false">내보내기</button>
     </div>
     <div class="kpane" data-pane="map">
-      <section class="sec" aria-labelledby="kmap-areaTitle">
-        <h2 class="sec-title" id="kmap-areaTitle">지도 범위</h2>
-        <div class="kareas" id="areaBox"></div>
+      <details class="dw" name="m" open><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l5-2 4 2 5-2v10l-5 2-4-2-5 2z"/></svg><span class="dw-t"><b>지도 범위</b><small>전국·권역·시도 고르기</small></span></summary><div class="dw-b"><div class="kareas" id="areaBox"></div>
         <div class="ksido" id="sidoBox" role="group" aria-label="시·도 고르기"></div>
-        <p class="sub">시·도는 여러 개 고를 수 있어요.</p>
-      </section>
-      <section class="sec" aria-labelledby="kmap-lineTitle">
-        <h2 class="sec-title" id="kmap-lineTitle">경계와 보기</h2>
-        <div id="viewBox"></div>
-      </section>
-      <section class="sec"><p class="sub" id="srcNote"></p></section>
+        <p class="sub">시·도는 여러 개 고를 수 있어요.</p></div></details>
+      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15c3-8 6-2 9-8 1-2 3-3 5-3M3 10h3M8 10h2"/></svg><span class="dw-t"><b>경계와 보기</b><small>시·군·구 경계, 고속 국도, 영해 등</small></span></summary><div class="dw-b"><div id="viewBox"></div></div></details>
+      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h8l3 3v11H5zM13 3v3h3M8 10h5M8 13h5"/></svg><span class="dw-t"><b>자료 출처</b><small>경계 자료와 기준 시점</small></span></summary><div class="dw-b"><p class="sub" id="srcNote"></p></div></details>
     </div>
     <div class="kpane" data-pane="style" hidden>
-      <section class="sec" aria-labelledby="kmap-shadeTitle">
-        <h2 class="sec-title" id="kmap-shadeTitle">색칠</h2>
-        <div id="shadeBox"></div>
-      </section>
-      <div id="styleBox"></div>
-    </div>
-    <div class="kpane" data-pane="sel" hidden>
-      <div id="opts"></div>
+      <details class="dw" name="s" open><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-3 5 2 4-1v10l-5 2-5-2-4 1z"/></svg><span class="dw-t"><b>색칠</b><small>시·군 색과 무늬</small></span></summary><div class="dw-b"><div id="shadeBox"></div></div></details>
+      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16 9 4l5 12M6 12h6"/></svg><span class="dw-t"><b>글자 · 선 모양</b><small>기호 글자, 선 굵기, 점선 모양</small></span></summary><div class="dw-b"><div id="styleBox"></div></div></details>
+      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="14" height="9" rx="2"/><path d="M6 9h1M9 9h1M12 9h1M6 12h8"/></svg><span class="dw-t"><b>단축키</b><small>V·P·D·S·L·E·A·I·R·T</small></span></summary><div class="dw-b"><p class="sub">V 고르기 · P 색칠 · D 점 · S 기호 · L 지시선 · E 점선 원 · A 화살표 · I 선 · R 가림 상자 · T 글상자 · Delete 지우기 · Ctrl+D 복제 · Ctrl+Z 되돌리기 · 휠로 확대 · 빈 곳을 끌면 화면 이동 · 0 화면에 맞추기</p></div></details>
     </div>
     <div class="kpane" data-pane="out" hidden>
       <section class="sec">
@@ -391,10 +371,6 @@
         <h2 class="sec-title">작업 파일</h2>
         <div class="btnrow"><button class="btn" id="saveJson" type="button">작업 저장 (.json)</button><label class="btn filebtn">작업 불러오기<input type="file" id="loadJson" accept=".json,application/json"></label></div>
         <p class="sub">지도 범위·색칠·기호·선을 파일로 저장해 두었다가 다시 불러와 고칠 수 있어요. 이 브라우저에는 마지막 작업이 자동으로 남아요.</p>
-      </section>
-      <section class="sec">
-        <h2 class="sec-title">단축키</h2>
-        <p class="sub">V 고르기 · P 색칠 · D 점 · S 기호 · L 지시선 · E 점선 원 · A 화살표 · I 선 · R 가림 상자 · T 글상자 · Delete 지우기 · Ctrl+D 복제 · Ctrl+Z 되돌리기 · 휠로 확대 · 빈 곳을 끌면 화면 이동 · 0 화면에 맞추기</p>
       </section>
     </div>
   </aside>
@@ -979,6 +955,7 @@
 <script src="js/engines/engine.js"></script>
 <script src="js/engines/iengine.js"></script>
 <script src="js/shell.js"></script>
+<script src="js/ui.js"></script>
 <script src="js/tools/home.js"></script>
 <script src="js/tools/mapquick.js"></script>
 <script src="js/tools/mapedit.js"></script>

@@ -168,6 +168,14 @@ function num(get,set,o){ o=o||{}; const el=h('input',{type:'number',min:o.min,ma
 function chk(label,get,set,rebuild){ const i=h('input',{type:'checkbox'}); i.checked=!!get(); i.addEventListener('change',()=>{ set(i.checked); changed(rebuild); }); return h('label',{class:'check'},i,label); }
 function sel(opts,get,set,rebuild,aria){ const s=h('select',{'aria-label':aria||''}); for(const [v,t] of opts) s.append(h('option',{value:v},t)); s.value=String(get()); s.addEventListener('change',()=>{ set(s.value); changed(rebuild); }); return s; }
 function sec(title,...kids){ return h('section',{class:'sec'},h('h2',{class:'sec-title'},title),...kids); }
+/* 접을 수 있는 묶음: 제목 단추를 누르면 내용이 접힌다(접은 상태는 이번 접속 동안 기억). 기본은 접어 둠 */
+const FOLD={seq:true,base:true,page:true,keys:true};
+function csec(key,title,peek,...kids){
+  const closed=!!FOLD[key]; const hd=h('button',{type:'button',class:'fold-h','aria-expanded':String(!closed)},h('span',{class:'fold-t'},title),peek?h('small',null,peek):null,h('i',{class:'fold-c','aria-hidden':'true'}));
+  const body=h('div',{class:'fold-b'},...kids); body.hidden=closed;
+  const s=h('section',{class:'sec fold'+(closed?'':' open')},hd,body);
+  hd.addEventListener('click',()=>{ FOLD[key]=!FOLD[key]; const c=FOLD[key]; body.hidden=c; s.classList.toggle('open',!c); hd.setAttribute('aria-expanded',String(!c)); });
+  return s; }
 
 /* ───────── 오른쪽: 설정 ───────── */
 const BOX=[['halo','흰 테두리'],['none','없음'],['white','흰 상자'],['circle','원'],['wcircle','흰 원']];
@@ -201,22 +209,22 @@ function renderOpts(){
   const nx=h('input',{type:'text',class:'seqnext',value:LG.nextSym(doc),'aria-label':'다음 기호'});
   nx.addEventListener('change',()=>{ const S=LG.SEQS[doc.seq.set]; const i=S.indexOf(nx.value.trim()); if(i>=0){ doc.seq.next=i; changed(); } else nx.value=LG.nextSym(doc); });
   const rs=h('button',{class:'btn small',type:'button'},'처음부터'); rs.addEventListener('click',()=>{ doc.seq.next=0; changed('opts'); });
-  P.append(sec('기호 차례',row('종류',sel(Object.entries(LG.SEQ_KO),()=>doc.seq.set,v=>{ doc.seq.set=v; },'opts','기호 종류')),doc.seq.set==='num'?h('p',{class:'sub seqwarn'},'숫자 기호는 답지 번호 ①~⑤와 헷갈릴 수 있어요. 시험지에는 A, B나 (가), (나)를 권해요.'):'',row('다음 기호',nx,rs),
+  P.append(csec('seq','기호 차례',LG.SEQ_KO[doc.seq.set]||'',row('종류',sel(Object.entries(LG.SEQ_KO),()=>doc.seq.set,v=>{ doc.seq.set=v; },'opts','기호 종류')),doc.seq.set==='num'?h('p',{class:'sub seqwarn'},'숫자 기호는 답지 번호 ①~⑤와 헷갈릴 수 있어요. 시험지에는 A, B나 (가), (나)를 권해요.'):'',row('다음 기호',nx,rs),
     row('기호 바탕',sel(BOX,()=>ui.box||'halo',v=>{ ui.box=v; },null,'새 기호 바탕')),h('p',{class:'sub'},'‘기호’나 ‘지시선’ 도구로 누를 때마다 다음 기호가 차례로 들어가요.')));
   /* 기본 모양 */
   const fontOpts=fam=>GG.FONTS[fam].filter(f=>f.key!=='user').map(f=>[f.key,f.label+(f.web||GG.fontAvailable(f,fam)?'':' — 없음')]);
-  P.append(sec('글자·선 기본값',row('글자 크기',num(()=>doc.style.size,v=>doc.style.size=v,{min:5,max:30,step:0.5,aria:'기본 글자 크기(pt)'}),h('span',{class:'unit'},'pt')),
+  P.append(csec('base','글자·선 기본값',`${doc.style.size}pt · ${doc.style.lw}mm`,row('글자 크기',num(()=>doc.style.size,v=>doc.style.size=v,{min:5,max:30,step:0.5,aria:'기본 글자 크기(pt)'}),h('span',{class:'unit'},'pt')),
     row('선 굵기',num(()=>doc.style.lw,v=>doc.style.lw=v,{min:0.05,max:1.5,step:0.05,aria:'기본 선 굵기(mm)'}),h('span',{class:'unit'},'mm')),
     row('명조',sel(fontOpts('serif'),()=>doc.style.serif,v=>{ doc.style.serif=v; LG.clearMetrics(); loadFonts(); },null,'명조 글꼴')),
     row('고딕',sel(fontOpts('gothic'),()=>doc.style.gothic,v=>{ doc.style.gothic=v; LG.clearMetrics(); loadFonts(); },null,'고딕 글꼴')),
     row('로마자',seg([['times','Times'],['same','명조와 같게']],()=>doc.style.latin==='times'?'times':'same',v=>{ doc.style.latin=v; LG.clearMetrics(); })),
     h('p',{class:'sub'},'시험지 글꼴(HY신명조 등)이 이 컴퓨터에 없으면 Noto Serif KR로 그려요.')));
-  P.append(sec('그림 크기',row('',chk('바탕과 주기에 맞춰 저절로',()=>doc.page.auto,v=>{ if(!v){ const pb=LG.pageBox(doc); Object.assign(doc.page,{x:pb.x,y:pb.y,w:pb.w,h:pb.h}); } doc.page.auto=v; },'opts')),
+  P.append(csec('page','그림 크기',doc.page.auto?'저절로':'직접',row('',chk('바탕과 주기에 맞춰 저절로',()=>doc.page.auto,v=>{ if(!v){ const pb=LG.pageBox(doc); Object.assign(doc.page,{x:pb.x,y:pb.y,w:pb.w,h:pb.h}); } doc.page.auto=v; },'opts')),
     doc.page.auto?row('여백',num(()=>doc.page.margin,v=>doc.page.margin=v,{min:0,max:20,step:0.5,aria:'여백(mm)'}),h('span',{class:'unit'},'mm')):
       row('크기',num(()=>doc.page.w,v=>doc.page.w=v,{min:10,max:400,step:1,aria:'너비(mm)'}),h('span',{class:'unit'},'×'),num(()=>doc.page.h,v=>doc.page.h=v,{min:10,max:400,step:1,aria:'높이(mm)'}),h('span',{class:'unit'},'mm')),
     !doc.page.auto?row('왼쪽 위',num(()=>doc.page.x,v=>doc.page.x=v,{step:1,aria:'왼쪽(mm)'}),num(()=>doc.page.y,v=>doc.page.y=v,{step:1,aria:'위(mm)'}),h('span',{class:'unit'},'mm')):null));
   const hint=h('section',{class:'sec',id:'hintSec'}); P.append(hint); refreshHint();
-  P.append(sec('단축키',h('p',{class:'sub'},'V 고르기 · L 지시선 · S 기호 · E 점선 원 · A 화살표 · I 선 · R 가림 상자 · T 글상자 · Delete 지우기 · Ctrl+D 복제 · Ctrl+Z 되돌리기 · 화살표 키로 조금씩 옮기기 · 휠로 확대 · 빈 곳을 끌면 화면 이동 · Esc 고르기로')));
+  P.append(csec('keys','단축키','',h('p',{class:'sub'},'V 고르기 · L 지시선 · S 기호 · E 점선 원 · A 화살표 · I 선 · R 가림 상자 · T 글상자 · Delete 지우기 · Ctrl+D 복제 · Ctrl+Z 되돌리기 · 화살표 키로 조금씩 옮기기 · 휠로 확대 · 빈 곳을 끌면 화면 이동 · Esc 고르기로')));
 }
 function refreshHint(){
   const el=$('#hintSec'); if(!el) return; el.textContent=''; const H=LG.hintOf(doc); if(!H){ el.hidden=true; return; } el.hidden=false;

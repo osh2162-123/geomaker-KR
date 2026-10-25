@@ -1,0 +1,28 @@
+/* 서랍(details.dw): 도구 오른쪽 패널의 기능을 묶음별로 접어 두었다가 펼침. name 이 같은 서랍은 하나만 열림 */
+.tool .dw{border-bottom:1px solid var(--c-blue-line)}
+.tool .dw:last-of-type{border-bottom:0}
+.tool .dw>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 4px;cursor:pointer;border-radius:var(--r-s)}
+.tool .dw>summary::-webkit-details-marker{display:none}
+.tool .dw>summary:hover{background:var(--c-blue-wash)}
+.tool .dw>summary:focus-visible{box-shadow:var(--focus);outline:none}
+.tool .dw>summary>svg{flex:none;width:34px;height:34px;padding:8px;border-radius:12px;background:var(--c-blue-soft);color:var(--c-blue)}
+.tool .dw-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.tool .dw-t b{font-size:var(--fs-body);font-weight:var(--fw-strong);color:var(--c-tx-1)}
+.tool .dw-t small{font-size:var(--fs-cap);color:var(--c-tx-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tool .dw>summary::after{content:"";flex:none;width:8px;height:8px;border-right:2px solid var(--c-tx-3);border-bottom:2px solid var(--c-tx-3);transform:rotate(45deg);margin:0 6px 3px 0;transition:transform .15s}
+.tool .dw[open]>summary::after{transform:rotate(-135deg);margin-bottom:-3px}
+.tool .dw[open]>summary>svg{background:var(--c-blue);color:var(--c-white)}
+.tool .dw-b{display:flex;flex-direction:column;gap:10px;padding:4px 4px 16px}
+@media (prefers-reduced-motion: reduce){.tool .dw>summary::after{transition:none}}
+
+/* 접는 묶음(지형 모식도 오른쪽 패널): 제목 단추를 누르면 내용이 접힘 */
+.tool .fold-h{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;width:100%;cursor:pointer;padding:2px 0;border-radius:var(--r-s)}
+.tool .fold-h:focus-visible{box-shadow:var(--focus)}
+.tool .fold-t{font-size:var(--fs-cap);font-weight:var(--fw-strong);color:var(--c-tx-1)}
+.tool .fold-h small{margin-left:auto;color:var(--c-tx-3);font-size:12px;max-width:50%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tool .fold-c{flex:none;width:7px;height:7px;border-right:2px solid var(--c-tx-3);border-bottom:2px solid var(--c-tx-3);transform:rotate(45deg);margin:0 4px 3px 4px}
+.tool .fold-h small+.fold-c{margin-left:6px}
+.tool .fold-h .fold-t+.fold-c{margin-left:auto}
+.tool .fold.open>.fold-h .fold-c{transform:rotate(-135deg);margin-bottom:-3px}
+.tool .fold-b{display:flex;flex-direction:column;gap:8px;padding-top:6px}
+.tool .fold-b[hidden]{display:none}

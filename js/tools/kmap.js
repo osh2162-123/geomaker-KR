@@ -281,7 +281,7 @@ function renderLeft(){
 const BOX=[['halo','흰 테두리'],['none','없음'],['white','흰 상자'],['circle','원'],['wcircle','흰 원']];
 const DASHES=[['dot','점선'],['dash','파선'],['fine','잔 파선'],['solid','실선']];
 function renderOpts(){
-  const P=$('#opts'); P.textContent=''; const it=selItem(); const sd=$('#selDot'); if(sd) sd.hidden=!it;
+  const P=$('#opts'); P.textContent=''; const it=selItem(); const sc=$('#selCard'); if(sc) sc.hidden=!it;
   if(it){ const s=sec(`고른 것: ${LG.ITEM_KO[it.t]}`); const p=h('div',{class:'props'});
     const lw=()=>row('선 굵기',num(()=>it.lw,v=>it.lw=v,{min:0.05,max:2,step:0.05,aria:'선 굵기(mm)',empty:true,ph:String(doc.style.lw)}),h('span',{class:'unit'},'mm (비우면 기본)'));
     if(['sym','leader','text'].includes(it.t)){
@@ -506,10 +506,10 @@ const savePng=async()=>{ try{ const b=await exportPng(); const r=await GG.saveFi
 $('#pngBtn').addEventListener('click',savePng); $('#pngBtn2').addEventListener('click',savePng);
 $('#undoBtn').addEventListener('click',()=>doUndo()); $('#redoBtn').addEventListener('click',()=>doRedo());
 /* 오른쪽 갈래: 지도 · 꾸미기 · 항목 · 내보내기 */
-function showTab(t,auto){ if(auto&&window.innerWidth<=900) return; ROOT.querySelectorAll('.ktabs [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
+function showTab(t,auto){ if(t==='sel') return; if(auto&&window.innerWidth<=900) return; ROOT.querySelectorAll('.ktabs [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
   ROOT.querySelectorAll('.kpane').forEach(p=>p.hidden=p.dataset.pane!==t); ui.tab=t; saveLocal(); }
 ROOT.querySelectorAll('.ktabs [data-tab]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
-showTab(['map','style','sel','out'].includes(ui.tab)?ui.tab:'map');
+showTab(['map','style','out'].includes(ui.tab)?ui.tab:'map');
 $('#svgBtn').addEventListener('click',async()=>{ await loadFonts(); const r=await GG.saveFile(nameOf()+'.svg',LG.svgString(doc,{inline:true}),'image/svg+xml'); toast(r==='saved'?'SVG로 저장했어요.':'저장하지 못했어요.'); });
 const copyPng=async()=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':exportPng()})]); toast('그림을 복사했어요. 한글·워드에 붙여 넣으세요.'); }catch(e){ toast('이 브라우저에서는 복사가 막혀 있어요. PNG로 저장해 주세요.'); } };
 $('#copyBtn').addEventListener('click',copyPng); $('#copyBtn2').addEventListener('click',copyPng);

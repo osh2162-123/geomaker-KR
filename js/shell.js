@@ -100,6 +100,7 @@ function mount(id,opt){
       if(current===id) wait('이 도구를 여는 중에 문제가 생겼어요. 새로고침해 주세요.');
       throw e;
     }
+    try{ document.dispatchEvent(new CustomEvent('hub:mounted',{detail:{id,box,opt:opt||null}})); }catch(e){ console.error(e); }
     if(current===id) unwait();
     return apis[id];
   })();

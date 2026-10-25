@@ -152,7 +152,7 @@ function hit(m){
   return null;
 }
 function findItem(id){ return doc.items.find(i=>i.id===id); }
-function setSel(s,opts){ sel=s; requestRender(); syncSel(); if(s&&!(opts&&opts.noTab)) { if(window.innerWidth>900) showTab('sel'); } $('#selDot').hidden=!s; }
+function setSel(s,opts){ sel=s; requestRender(); syncSel(); if(s&&!(opts&&opts.noTab)) { if(window.innerWidth>900) showTab('sel'); } }
 
 cv.addEventListener('pointerdown',e=>{
   if(e.button===2) return;
@@ -305,10 +305,10 @@ $('#zoomFit').onclick=()=>{ const p=PRESETS.find(p=>p.id===doc.preset);
   rebuild(); endInteract(); };
 
 /* ───────── 패널: 지도 ───────── */
-function showTab(t){ $$('.tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t))); ['map','style','sel','out'].forEach(k=>$('#pane-'+k).hidden=k!==t); if(t==='out') syncOut(); }
+function showTab(t){ if(t==='sel') return; $$('.tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t))); ['map','style','out'].forEach(k=>$('#pane-'+k).hidden=k!==t); if(t==='out') syncOut(); }
 $$('.tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 function buildPresets(){
-  $('#presets').innerHTML=PRESETS.map(p=>`<button class="chip" data-id="${p.id}">${esc(p.name)}<small>${p.w} × ${p.h} mm</small></button>`).join('');
+  $('#presets').innerHTML=PRESETS.map(p=>`<button class="chip" data-id="${p.id}" title="${p.w} × ${p.h} mm">${esc(p.name)}<small>${p.w} × ${p.h} mm</small></button>`).join('');
   $$('#presets .chip').forEach(b=>b.onclick=()=>{ const p=PRESETS.find(x=>x.id===b.dataset.id); applyPreset(doc,p); rebuild(); layout(); commit(); });
 }
 $('#proj').innerHTML=Object.entries(PROJS).map(([k,v])=>`<option value="${k}">${esc(v.name)}</option>`).join('');
@@ -449,14 +449,12 @@ function itemDesc(it){
 }
 function syncSel(){
   const it=sel&&findItem(sel.id);
-  $('#selDot').hidden=!it;
+  $('#selCard').hidden=!it;
   const list=$('#itemList');
   list.innerHTML=doc.items.length?doc.items.map(i=>`<button class="li" data-id="${esc(i.id)}" aria-current="${!!(it&&it.id===i.id)}"><span class="k">${esc(i.lbl||'—')}</span><span class="t">${esc(itemDesc(i))}</span></button>`).join(''):'<div class="li"><span class="t">아직 항목이 없어요</span></div>';
   $$('#itemList .li[data-id]').forEach(b=>b.onclick=()=>setSel({id:b.dataset.id,part:'label'}));
   const box=$('#selBox');
-  if(!it){ box.innerHTML=`<p class="empty-sel">지도에서 점·라벨·음영을 누르면 여기서 고칠 수 있어요.</p>
-    <div class="keys"><kbd>V</kbd><span>선택·이동</span><kbd>D</kbd><span>점</span><kbd>O</kbd><span>빈 원</span><kbd>T</kbd><span>글자</span><kbd>S</kbd><span>국가 음영</span><kbd>L</kbd><span>지시선 추가</span><kbd>E</kbd><span>점선 영역</span>
-    <kbd>Delete</kbd><span>선택 항목 지우기</span><kbd>방향키</kbd><span>라벨 0.2 mm씩 (Shift: 1 mm)</span><kbd>Ctrl+Z</kbd><span>되돌리기</span><kbd>더블클릭</kbd><span>라벨 글자 바로 고치기</span></div>`; return; }
+  if(!it){ box.innerHTML=''; return; }
   const seg=(id,opts,val)=>`<div class="seg" id="${id}">${opts.map(([v,n])=>`<button data-v="${v}" aria-pressed="${v===val}">${n}</button>`).join('')}</div>`;
   let h=`<section class="grp"><h3>${esc(TYPE[it.t])}${it.t==='shade'?' · '+esc(it.name||it.cid):''}</h3>
     <div class="row"><label for="sLbl">라벨</label><input id="sLbl" type="text" class="grow" value="${esc(it.lbl||'')}" placeholder="비우면 라벨 없음"></div>

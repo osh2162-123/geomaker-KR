@@ -10,6 +10,7 @@
 .t-home .bc:hover .ic{transform:rotate(-4deg) scale(1.05)}
 .t-home .ic .s{stroke:var(--c-blue);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .t-home .ic .sw{stroke:var(--c-white);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.t-home .ic .kk{stroke-width:1.6}
 .t-home .ic .nf{fill:none}
 .t-home .ic .f1{fill:var(--c-white)}
 .t-home .ic .f2{fill:var(--c-blue-line)}
