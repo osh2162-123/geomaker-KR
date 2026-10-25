@@ -154,7 +154,9 @@
 .t-energy .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
 .t-energy .results{max-height:280px;overflow:auto}
 .t-energy .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark))}
+.t-energy .results .gc{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark));font-weight:600}
 .t-energy .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
+.t-energy .mini .btn.on{background:var(--omr-soft);color:var(--omr)}
 .t-energy .eapp{grid-template-columns:minmax(0,380px) minmax(0,1fr) minmax(0,310px)}
 .t-energy .pbseg{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line)}
 .t-energy .pbseg button{padding:5px 4px;font-size:12.5px;border-right:0;white-space:normal;word-break:keep-all;line-height:1.25;min-width:0}

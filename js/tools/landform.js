@@ -65,6 +65,7 @@ function draw(){
   drawSel();
   $('#deskEmpty').hidden=!!(B||doc.items.length);
   const dpi=ui.dpi; $('#sizeInfo').textContent=`${pb.w.toFixed(1)} × ${pb.h.toFixed(1)} mm · ${Math.round(pb.w/25.4*dpi)} × ${Math.round(pb.h/25.4*dpi)} px`;
+  { const ib=$('#itemSendBtn'); if(ib) ib.hidden=!document.getElementById('hub-tab-item')||!doc.items.some(i=>i.t==='sym'||i.t==='leader'); }
   ['pngBtn','svgBtn','copyBtn'].forEach(id=>$('#'+id).disabled=!(B||doc.items.length));
   wrap.dataset.tool=ui.tool;
 }

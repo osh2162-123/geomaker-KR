@@ -154,7 +154,9 @@
 .t-agriculture .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
 .t-agriculture .results{max-height:280px;overflow:auto}
 .t-agriculture .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark))}
+.t-agriculture .results .gc{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark));font-weight:600}
 .t-agriculture .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
+.t-agriculture .mini .btn.on{background:var(--omr-soft);color:var(--omr)}
 .t-agriculture .eapp{grid-template-columns:minmax(0,380px) minmax(0,1fr) minmax(0,310px)}
 .t-agriculture .pbseg{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line)}
 .t-agriculture .pbseg button{padding:5px 4px;font-size:12.5px;border-right:0;white-space:normal;word-break:keep-all;line-height:1.25;min-width:0}

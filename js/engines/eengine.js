@@ -775,8 +775,13 @@ function parseRequest(q){
   if(spec.src==='mix'&&spec.ds==='pe'&&!/종전|구\s*방식|대체법|TES|새\s*방식|공급/.test(text)) notes.push('1차 에너지는 EI 종전 방식(대체법)으로 그렸어요. 새 방식(TES)은 오른쪽 자료 설정에서 바꿀 수 있어요.');
   return {understood,spec,notes};
 }
-const SEQ={latin:['A','B','C','D','E','F','G','H','I','J'],gana:['(가)','(나)','(다)','(라)','(마)','(바)','(사)','(아)','(자)','(차)']};
+const SEQ={latin:['A','B','C','D','E','F','G','H','I','J'],gana:['(가)','(나)','(다)','(라)','(마)','(바)','(사)','(아)','(자)','(차)'],circ:['㉠','㉡','㉢','㉣','㉤','㉥','㉦','㉧','㉨','㉩']};
 function mask(list,seq,filter){ let k=0; for(const x of list){ if(filter&&!filter(x)){ x.lbl=''; continue; } x.lbl=seq?SEQ[seq][k++]||'':''; } }
+/* 기호 이어 달기: 목록에 이미 붙은 기호의 종류를 알아내어, 순서를 바꾸거나 행·열을 더하고 지울 때 기호가 자리를 따라가게 한다 */
+function seqOfList(list,filter){ let k=null; for(const x of list){ if(filter&&!filter(x)) continue; if(!x.lbl) continue; const q=Object.keys(SEQ).find(n=>SEQ[n].includes(x.lbl)); if(!q||(k&&q!==k)) return null; k=q; } return k; }
+function relabelKeep(list,filter){ const k=seqOfList(list,filter); if(!k) return; let i=0; for(const x of list){ if(filter&&!filter(x)) continue; if(x.lbl) x.lbl=SEQ[k][i++]||''; } }
+function labelNew(list,x,filter){ const rest=list.filter(y=>y!==x&&(!filter||filter(y))); const k=seqOfList(list,filter); if(k&&rest.length&&rest.every(y=>y.lbl)) x.lbl=SEQ[k][rest.length]||''; }
+function swapKeep(a,b){ if(a.other||b.other) return; const t=a.lbl; a.lbl=b.lbl; b.lbl=t; }
 function shuffleArr(a){ const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; }
 function specToDoc(spec,cur){
   const d=freshDoc(spec.kind||'stack'); if(cur&&cur.style) d.style=Object.assign({},cur.style);
@@ -834,7 +839,7 @@ function cleanSpec(o){
 
 return {KINDS,KIND_KO,FILL_KEYS,FILL_KO,PALETTE,MIX,FUEL,REGIONS,AGG,shareTxt,cellName,trimM,applyFills,symbolsIn,applySymbols,RAMP_UP,tableUnits,labelWarn,distinctFills,setData,data,mixYears,mixEntities,prodKeys,prodOf,fuelName,
   freshDoc,normalizeDoc,derive,setTable,autoFills,lblOf,compose,hintOf,noteLines,autoNotes,presetMix,presetTop,presetCompare,parseTable,
-  parseRequest,specToDoc,buildPrompt,cleanSpec,aliasFind,mask,SEQ,measureOf,baseName,canRank,yearFor,lastAxes:()=>Object.assign({},LAST),
+  parseRequest,specToDoc,buildPrompt,cleanSpec,aliasFind,mask,seqOfList,relabelKeep,labelNew,swapKeep,SEQ,measureOf,baseName,canRank,yearFor,lastAxes:()=>Object.assign({},LAST),
   /* 다른 도표 엔진(종교 등)이 함께 쓰는 조각 */
   finish,legend,block,putBlock,fitLabel,wrapFit,splits,tm,tf,put,roleOf,fillOpts,haloOf,josa,particle,transpose,pctRow,shuffleArr,namesSorted,axisFrom,seqRange,LAST};
 })();

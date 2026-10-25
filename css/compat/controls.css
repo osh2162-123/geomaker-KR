@@ -18,3 +18,4 @@
 .tool .stlist,.tool .results{border-radius:var(--r-m);border-color:var(--c-blue-line)}
 .tool a{color:var(--c-blue)}
 .tool .ico:hover{background:var(--c-blue-soft)}
+.tool .mini .btn.on{background:var(--c-blue);color:var(--c-white)}

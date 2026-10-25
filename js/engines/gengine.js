@@ -324,7 +324,7 @@ function parseClimate(text){
 /* 묶음 형식: {n:한글 이름, a:[다른 이름], e:JMA 지점명, c:나라, la, lo, h, t:[12], p:[12]} */
 let STN=[];
 const nrm=s=>String(s||'').replace(/[\s·.\-()'’]/g,'').toLowerCase();
-function fromBundle(r,i){ return {id:'b'+i,name:r.n,aliases:r.a||[],en:r.e||'',country:r.c||'',lat:r.la,lon:r.lo,elev:r.h,t:r.t,p:r.p,src:r.w?`JMA ClimatView (WMO ${r.w})`:'JMA ClimatView',period:'1991~2020년 평년값'}; }
+function fromBundle(r,i){ return {id:'b'+i,name:r.n,aliases:r.a||[],en:r.e||'',country:r.c||'',lat:r.la,lon:r.lo,elev:r.h,g:r.g||0,t:r.t,p:r.p,src:r.w?`JMA ClimatView (WMO ${r.w})`:'JMA ClimatView',period:'1991~2020년 평년값'}; }
 function setStationDict(d){ STN=(Array.isArray(d)?d:[]).map((r,i)=>r.n?fromBundle(r,i):r); }
 try{ const el=document.getElementById('gg-stations'); if(el) setStationDict(JSON.parse(el.textContent)); }catch(e){}
 function stationList(){ return STN; }

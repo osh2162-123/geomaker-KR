@@ -154,4 +154,6 @@
 .t-climate .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
 .t-climate .results{max-height:280px;overflow:auto}
 .t-climate .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark))}
+.t-climate .results .gc{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark));font-weight:600}
 .t-climate .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
+.t-climate .mini .btn.on{background:var(--omr-soft);color:var(--omr)}

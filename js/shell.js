@@ -2,7 +2,7 @@
 const HUB=(function(){
 'use strict';
 const MODE="web";            /* artifact: 자료 파일을 그때그때 받아 옴 · standalone: 모두 들어 있음 */
-const TOOLS=[{"id": "mapquick", "name": "백지도 자동 생성기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "mapedit", "name": "백지도 편집기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "kmap", "name": "한국지리 백지도", "need": ["topo", "kmdata"], "wait": "우리나라 경계 자료를 불러오는 중…"}, {"id": "landform", "name": "지형 모식도 편집기", "need": ["ldata"], "wait": "모식도 자료를 불러오는 중…"}, {"id": "climate", "name": "기후 그래프 편집기", "need": ["stations"], "wait": "기후 지점 자료를 불러오는 중…"}, {"id": "energy", "name": "에너지 그래프 편집기", "need": ["edata"], "wait": "에너지 자료를 불러오는 중…"}, {"id": "religion", "name": "종교 그래프 편집기", "need": ["rdata"], "wait": "종교 자료를 불러오는 중…"}, {"id": "population", "name": "인구 그래프 편집기", "need": ["pdata"], "wait": "인구 자료(약 8 MB)를 불러오는 중…"}, {"id": "agriculture", "name": "농업 그래프 편집기", "need": ["adata"], "wait": "농업 자료(약 4.5 MB)를 불러오는 중…"}, {"id": "item", "name": "문항 설계", "need": ["idata"], "wait": "성취기준·기출 자료를 불러오는 중…"}];
+const TOOLS=[{"id": "home", "name": "홈", "need": [], "wait": ""}, {"id": "mapquick", "name": "백지도 자동 생성기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "mapedit", "name": "백지도 편집기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "kmap", "name": "한국지리 백지도", "need": ["topo", "kmdata"], "wait": "우리나라 경계 자료를 불러오는 중…"}, {"id": "landform", "name": "지형 모식도 편집기", "need": ["ldata"], "wait": "모식도 자료를 불러오는 중…"}, {"id": "climate", "name": "기후 그래프 편집기", "need": ["stations"], "wait": "기후 지점 자료를 불러오는 중…"}, {"id": "energy", "name": "에너지 그래프 편집기", "need": ["edata"], "wait": "에너지 자료를 불러오는 중…"}, {"id": "religion", "name": "종교 그래프 편집기", "need": ["rdata"], "wait": "종교 자료를 불러오는 중…"}, {"id": "population", "name": "인구 그래프 편집기", "need": ["pdata"], "wait": "인구 자료(약 8 MB)를 불러오는 중…"}, {"id": "agriculture", "name": "농업 그래프 편집기", "need": ["adata"], "wait": "농업 자료(약 4.5 MB)를 불러오는 중…"}, {"id": "item", "name": "문항 설계", "need": ["idata"], "wait": "성취기준·기출 자료를 불러오는 중…"}];
 const LIBS=['lib/d3.min.js','lib/d3-geo-projection.min.js','lib/topojson-client.min.js'];
 const DATA={
   stations:['data/stations.json',d=>GG.setStationDict(d)],
@@ -50,7 +50,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "f77e2744ea", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "16f30541aa", "edata": "27d88225b0", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d", "idata": "f93e3437aa"}; const oldFiles=[];
+const DATAVER={"xlo": "73043b1742", "lo": "017ad93606", "hi": "6154364310", "places": "f77e2744ea", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "21d0842fbc", "edata": "27d88225b0", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d", "idata": "f93e3437aa"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
@@ -114,23 +114,40 @@ function show(id,opt){
     const on=T.id===id; boxOf(T.id).hidden=!on;
     const tb=tabOf(T.id); tb.setAttribute('aria-selected',on?'true':'false'); tb.tabIndex=on?0:-1;
   }
-  tabOf(id).scrollIntoView({block:'nearest',inline:'nearest'});
-  try{ localStorage.setItem(LAST_KEY,id); }catch(e){}
+  document.querySelectorAll('.hub-group[data-g]').forEach(g=>g.classList.toggle('on',!!g.querySelector('.hub-tab[aria-selected="true"]')));
+  if(id!=='home'){ try{ localStorage.setItem(LAST_KEY,id); }catch(e){} }
+  try{ document.dispatchEvent(new CustomEvent('hub:show',{detail:id})); }catch(e){}
   if(apis[id]){ unwait(); return Promise.resolve(apis[id]); }
   if(pending[id]) wait(toolOf(id).wait||'불러오는 중…');
   return mount(id,opt);
 }
 
+function bindMenus(){
+  const groups=[...document.querySelectorAll('.hub-group[data-g]')];
+  const closeAll=()=>groups.forEach(g=>{ g.classList.remove('open'); g.querySelector('.hub-gl').setAttribute('aria-expanded','false'); });
+  groups.forEach(g=>{
+    const b=g.querySelector('.hub-gl'), items=[...g.querySelectorAll('.hub-mi')];
+    b.addEventListener('click',e=>{ e.stopPropagation(); const was=g.classList.contains('open'); closeAll(); if(!was){ g.classList.add('open'); b.setAttribute('aria-expanded','true'); } });
+    b.addEventListener('keydown',e=>{ if(e.key==='ArrowDown'){ e.preventDefault(); closeAll(); g.classList.add('open'); b.setAttribute('aria-expanded','true'); (items.find(m=>m.dataset.go===current)||items[0]).focus(); } });
+    items.forEach((m,k)=>{
+      m.addEventListener('click',()=>{ closeAll(); show(m.dataset.go).catch(()=>{}); });
+      m.addEventListener('keydown',e=>{ if(e.key==='ArrowDown'){ e.preventDefault(); items[(k+1)%items.length].focus(); } else if(e.key==='ArrowUp'){ e.preventDefault(); items[(k-1+items.length)%items.length].focus(); } else if(e.key==='Escape'){ closeAll(); b.focus(); } });
+    });
+  });
+  document.addEventListener('click',closeAll);
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); });
+  const br=document.querySelector('.hub-brand'); if(br&&tabOf('home')){ br.style.cursor='pointer'; br.addEventListener('click',()=>show('home').catch(()=>{})); }
+}
 function bindTabs(){
   const order=TOOLS.map(t=>t.id);
   for(const T of TOOLS){
     const tb=tabOf(T.id);
     tb.addEventListener('click',()=>{ show(T.id).catch(()=>{}); });
     tb.addEventListener('keydown',e=>{
-      const i=order.indexOf(T.id); let j=null;
-      if(e.key==='ArrowRight') j=(i+1)%order.length; else if(e.key==='ArrowLeft') j=(i-1+order.length)%order.length;
-      else if(e.key==='Home') j=0; else if(e.key==='End') j=order.length-1;
-      if(j==null) return; e.preventDefault(); tabOf(order[j]).focus(); show(order[j]).catch(()=>{});
+      const vis=order.filter(x=>tabOf(x).offsetParent); const i=vis.indexOf(T.id); let j=null; const n=vis.length;
+      if(e.key==='ArrowRight') j=(i+1)%n; else if(e.key==='ArrowLeft') j=(i-1+n)%n;
+      else if(e.key==='Home') j=0; else if(e.key==='End') j=n-1;
+      if(j==null) return; e.preventDefault(); tabOf(vis[j]).focus(); show(vis[j]).catch(()=>{});
     });
   }
 }
@@ -186,10 +203,9 @@ function bindOpen(){
 }
 
 function start(){
-  bindTabs(); bindLinks(); bindOpen();
+  bindTabs(); bindMenus(); bindLinks(); bindOpen();
   let first=null;
   const h=(location.hash||'').replace(/^#/,''); if(toolOf(h)) first=h;
-  if(!first) try{ const s=localStorage.getItem(LAST_KEY); if(toolOf(s)) first=s; }catch(e){}
   show(first||TOOLS[0].id).catch(()=>{});
 }
 

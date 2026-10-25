@@ -100,6 +100,7 @@ function draw(){
   $('#deskEmpty').hidden=HAS;
   const dpi=ui.dpi, sz=`${pb.w.toFixed(1)} × ${pb.h.toFixed(1)} mm · ${dpi} dpi에서 ${Math.round(pb.w/25.4*dpi)} × ${Math.round(pb.h/25.4*dpi)} px`;
   $('#sizeInfo').textContent=sz; const so=$('#sizeOut'); if(so) so.textContent=sz;
+  { const ib=$('#itemSendBtn'); if(ib) ib.hidden=!document.getElementById('hub-tab-item')||!doc.items.some(i=>i.t==='sym'||i.t==='leader'); }
   ['pngBtn','pngBtn2','svgBtn','copyBtn','copyBtn2'].forEach(id=>{ const b=$('#'+id); if(b) b.disabled=!(B||doc.items.length); });
   wrap.dataset.tool=ui.tool;
 }

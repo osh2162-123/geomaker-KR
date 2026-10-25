@@ -83,7 +83,18 @@ function renderStep(){
   const S=$('#iStep'); S.textContent='';
   const k=STEPS[step][0];
   ({std:stepStd,eval:stepEval,scene:stepScene,stem:stepStem,stmt:stepStmt,check:stepCheck})[k](S);
+  const f=FLOW[k], hd=S.querySelector('.ihead');
+  if(f&&hd) hd.after(h('p',{class:'iflow'},h('span',null,'받는 것'),f[0],h('span',null,'다음에 쓰임'),f[1]));
 }
+/* 단계마다 '앞에서 받는 것 / 여기서 정한 것이 쓰이는 곳' 한 줄 */
+const FLOW={
+  std:['처음 단계예요.','고른 성취기준이 2단계의 평가 요소 후보와 기출 참고를 정해요.'],
+  eval:['1단계의 성취기준.','정한 평가 요소·수준이 3단계 자료 종류와 4단계 발문 틀을 좁혀 줘요.'],
+  scene:['2단계의 평가 요소, 다른 도구에서 만든 기호(내 자료 연결).','자료와 기호(A·B·㉠ …)가 4단계 발문과 5단계 선지에서 그대로 쓰여요.'],
+  stem:['3단계의 자료와 기호.','발문이 5단계 선지의 형식과 정답 기준을 정해요.'],
+  stmt:['3단계 기호, 4단계 발문.','선지와 정답이 6단계 점검과 시험지·정답표에 들어가요.'],
+  check:['1~5단계에서 정한 모든 내용.','점검을 마치면 시험지와 정답표로 내보낼 수 있어요.']
+};
 
 /* 1. 교육과정 */
 function stepStd(S){
@@ -226,11 +237,9 @@ function stepScene(S){
   /* 자료 만들기 */
   const rec=new Set(IT.stats(G).tool.slice(0,2).map(([k])=>TOOL_OF[k]).filter(Boolean));
   const links=h('div',{class:'ichips'}); for(const [id,name] of TOOLS) if(toolExists(id)) links.append(h('a',{class:'ichip',href:'#open:'+id,title:rec.has(id)?'같은 성취기준 기출에서 많이 쓴 자료예요':null},name,rec.has(id)?h('small',null,'기출'):null));
-  const imC=h('button',{type:'button',class:'btn small'},'기후 탭 지점 가져오기'); imC.addEventListener('click',importClimate);
-  const imM=h('button',{type:'button',class:'btn small'},'백지도 기호 가져오기'); imM.addEventListener('click',importMap);
-  const imT=Object.keys(TABTAB).filter(toolExists).map(t=>{ const b=h('button',{type:'button',class:'btn small'},`${TABTAB[t]} 탭 표 가져오기`); b.addEventListener('click',()=>importTable(t)); return b; });
-  S.append(sec('자료 만들기',links,h('div',{class:'ichips'},toolExists('climate')?imC:null,...imT,toolExists('mapedit')||toolExists('mapquick')?imM:null),
-    h('p',{class:'sub'},'다른 탭에서 기호를 붙여 자료를 만든 뒤 ‘가져오기’를 누르면 기호와 대상 이름이 아래에 채워져요. 기후 탭 지점이나 에너지·종교·인구·농업 탭 표를 가져오면 5단계에서 수치로 참·거짓을 판정한 선지 후보가 나와요.')));
+  S.append(sec('내 자료 연결',...linkRows(false),
+    h('p',{class:'sub'},'기호를 붙인 탭만 나와요. 가져오면 기호와 대상 이름이 아래에 채워지고, 기후 지점·표는 5단계에서 수치로 참·거짓을 판정해 줘요. 백지도는 자동 생성 뒤 편집기로 넘기면 여기에 나와요.'),
+    h('div',{class:'ilink-open'},h('small',null,'자료 만들러 가기'),links)));
   S.append(figSection());
   /* 기호 묶음 */
   const box=h('div',{class:'ifld'});
@@ -326,9 +335,71 @@ function importMap(from){
   changed('step'); toast(`백지도의 기호 ${labels.length}개를 가져왔어요${d.layers&&d.layers.scale&&d.layers.scale!=='none'?' (축척 있음)':''}.`);
 }
 
+/* ── 내 자료 연결: 탭마다 지금 기호가 있는지 읽고, 가져온 뒤 원본이 바뀌면 알려 준다 ──
+   (연결 기록은 이 화면에만 있고 작업 파일에는 저장되지 않는다) */
+const linked={};
+const hashStr=t=>{ let x=5381; for(let i=0;i<t.length;i++) x=((x<<5)+x+t.charCodeAt(i))|0; return String(x); };
+const symOrd=l=>{ const o=Object.values(IT.SEQ).flat(); const i=o.indexOf(l); return i<0?999:i; };
+function pairsFrom(items,known){ /* items: 기호 글자 목록, known: [이름,기호] 목록 */
+  const ls=[...new Set(items)].sort((a,b)=>symOrd(a)-symOrd(b)); const nm={}; for(const [n,sy] of known) nm[sy]=n;
+  return {labels:ls,names:ls.map(l=>nm[l]||'')}; }
+const READ={
+  climate(d){ if(d.seq==='name') return {warn:'라벨이 ‘지명’이에요. (가)·A·㉠ 중 하나로 바꿔 주세요'}; const S=GG.plotted(d).filter(x=>x.lbl); if(!S.length) return null;
+    return {labels:S.map(x=>x.lbl),names:S.map(x=>x.name),sum:'지점 '+S.length+'곳',sig:hashStr(JSON.stringify(S.map(x=>[x.lbl,x.name,x.t,x.p])))}; },
+  map(d){ const k=WG.answerKey(d); if(!k) return null; const pr=k.key.split(' · ').map(x=>{ const i=x.indexOf(' '); return [x.slice(0,i),x.slice(i+1).replace(/\(부근\)$/,'')]; });
+    return {labels:pr.map(p=>p[0]),names:pr.map(p=>p[1]),sig:hashStr(k.key)}; },
+  kmap(d){ const its=(d.items||[]).filter(i=>(i.t==='sym'||i.t==='leader')&&i.text); if(!its.length) return null;
+    const r=pairsFrom(its.map(i=>i.text),[...((d.kgen&&d.kgen.pairs)||[]),...((d.knum&&d.knum.pairs)||[]).map(a=>[a[0],a[1]])]); r.sig=hashStr(JSON.stringify(r)); return r; },
+  landform(d){ const its=(d.items||[]).filter(i=>(i.t==='sym'||i.t==='leader')&&i.text); if(!its.length) return null;
+    const r=pairsFrom(its.map(i=>i.text),(d.gen&&d.gen.pairs||[]).map(a=>[a[0],a[1]])); r.sig=hashStr(JSON.stringify(r)); return r; }
+};
+function peek(id){
+  const A=HUB.apis[id]; if(!A||!A.getDoc) return {st:'closed'};
+  try{ const d=A.getDoc(); if(!d) return {st:'empty'}; let r;
+    if(TABTAB[id]){ const T=tableOf(d,id); if(!T) return {st:'empty'}; const L=T.rows.filter(x=>x.l).map(x=>x.l), C=T.cols.filter(x=>x.l).map(x=>x.l);
+      r={labels:L.length?L:C,names:(L.length?T.rows:T.cols).filter(x=>x.l).map(x=>x.name),sum:'표 '+T.rows.length+'행 × '+T.cols.length+'열',sig:hashStr(JSON.stringify(T)),auto:!L.length&&!C.length}; }
+    else r=(READ[id]||READ.map)(d);
+    if(!r) return {st:'empty'}; if(r.warn) return {st:'warn',warn:r.warn}; return Object.assign({st:'ok'},r); }
+  catch(e){ return {st:'empty'}; }
+}
+function importSym(id){
+  const P=peek(id); if(P.st!=='ok'){ toast('기호가 붙은 곳이 없어요.'); return; }
+  if(P.labels.length>8){ toast('기호가 '+P.labels.length+'개라 한 문항에는 너무 많아요. 8개 이하로 줄여 주세요.'); return; }
+  const seq=IT.seqOf(P.labels[0])||'latin'; const gi=it.groups.findIndex(g=>g.seq===seq);
+  const ng={seq,labels:P.labels,names:P.names,target:gi>0?it.groups[gi].target:'',cond:false};
+  if(gi>=0) it.groups[gi]=ng; else it.groups.push(ng);
+  if(id==='kmap') it.mapIsWorld=false;
+  const blank=P.names.filter(n=>!n).length;
+  changed('step'); toast((id==='kmap'?'한국지리 백지도':'지형 모식도')+'의 기호 '+P.labels.length+'개를 가져왔어요.'+(blank?' 이름이 없는 '+blank+'개는 ‘자료의 기호와 대상’에서 적어 주세요.':''));
+}
+const IMPORT={climate:()=>importClimate(),mapedit:()=>importMap('mapedit'),mapquick:()=>importMap('mapquick'),kmap:()=>importSym('kmap'),landform:()=>importSym('landform')};
+for(const t of Object.keys(TABTAB)) IMPORT[t]=()=>importTable(t);
+function markLinked(id){ const P=peek(id); if(P.st==='ok') linked[id]=P.sig; }
+function linkRows(compact){
+  const rows=[];
+  for(const [id,name] of TOOLS){ if(!toolExists(id)||id==='mapquick') continue; const P=peek(id); const was=linked[id]!==undefined;   /* 자동 생성기는 편집기로 넘긴 뒤 연결(처음부터 예시 지도가 들어 있어 줄이 늘 떠 버림) */
+    if(P.st!=='ok'&&P.st!=='warn'&&!was) continue;
+    const row=h('div',{class:'ilink'}); const main=h('div',{class:'ilink-main'},h('b',null,name));
+    let chip=null, btn=null;
+    if(P.st==='warn'){ main.append(h('small',null,P.warn)); }
+    else if(P.st==='ok'){
+      main.append(h('small',null,(P.auto?'기호가 없어요 · 가져오면 (가), (나)…를 붙여요':IT.rangeOf(P.labels)+' · '+P.labels.length+'개')+(P.sum?' · '+P.sum:'')));
+      const same=was&&linked[id]===P.sig;
+      chip=was?h('span',{class:'ichip-s '+(same?'ok':'chg')},same?'연결됨':'원본이 바뀜'):null;
+      btn=h('button',{type:'button',class:'btn small'+(was&&same?'':' primary')},was?'다시 가져오기':'가져오기');
+      btn.addEventListener('click',()=>{ IMPORT[id](); markLinked(id); renderStep(); });
+    } else { main.append(h('small',null,'지금은 기호가 없어요')); chip=h('span',{class:'ichip-s chg'},'원본이 바뀜'); }
+    row.append(main,...(chip?[chip]:[]),...(btn?[btn]:[])); rows.push(row);
+  }
+  if(!rows.length&&!compact) rows.push(h('p',{class:'empty'},'아직 기호를 붙인 자료가 없어요. 아래에서 탭을 열어 자료를 만들고 기호를 붙인 뒤 돌아오세요.'));
+  return rows;
+}
+document.addEventListener('hub:show',e=>{ if(e.detail==='item'&&(step===2||step===3)) renderStep(); });
+
 /* 4. 발문 */
 function stepStem(S){
   S.append(head('4. 발문 쓰기','형식을 고르면 경기도 문서 규칙대로 발문을 조립해요. 간접 발문(자료 설명) → 직접 발문(물음) → 단서 조항 → 배점 순이에요.'));
+  { const lr=linkRows(true); if(lr.length) S.append(sec('내 자료 연결',...lr)); }
   const forms=IT.FORMS.map(f=>[f.k,f.name]);
   S.append(sec('형식',seg(forms,()=>it.form,v=>{ it.form=v; it.dirEdit=''; changed('step'); },'wrap'),
     h('p',{class:'sub'},({one:'옳은 선택지 하나. 선택지는 5개.',neg:'옳지 않은 선택지 하나. 부정어에 밑줄을 그어요. ‘가장’을 쓰지 않아요.',bogi:'<보기> ㄱ~ㄹ에서 옳은 것을 고르는 형식. 답지마다 고른 개수가 같을 때 써요.',bogiAny:'답지마다 고른 개수가 다를 때 ‘있는 대로’를 써요. ‘모두 고르면?’은 쓰지 않아요.',find:'기호와 대상을 짝짓는 형식(지도의 A~D에서 고르기 등).',stu:'갑·을·병·정의 대답을 판정하는 형식.',score:'○·× 답변을 채점해 점수를 고르는 형식.',best:'선택지가 부분적으로 모두 맞을 때 ‘가장 적절한’을 써요. 부정형과 함께 쓰지 않아요.'})[it.form]||'')));
@@ -620,6 +691,8 @@ $('#iLoad').addEventListener('change',async e=>{ const f=e.target.files&&e.targe
 $('#iNew').addEventListener('click',()=>{ if(!confirm('지금 설계를 지우고 새 문항을 시작할까요?')) return; const keep={curr:it.curr,unit:it.unit,no:(+it.no||1)+1}; it=Object.assign(fresh(),keep); step=0; save(); renderAll(); });
 [...$('#iSideSeg').children].forEach(b=>b.addEventListener('click',()=>{ side=b.dataset.v; renderSide(); }));
 renderAll();
-function pull(from){ if(from==='climate') importClimate(); else if(TABTAB[from]) importTable(from); else if(from==='mapedit'||from==='mapquick') importMap(from); else return; if(step!==2) go(2); }
-return {load,pull,getDoc:()=>it};
+function pull(from){ if(!IMPORT[from]) return; IMPORT[from](); markLinked(from); if(step!==2) go(2); else renderStep(); }
+/* 홈 '지금 작업 중인 것' 용: 도구별 기호 상태 */
+function status(){ const o={}; for(const [id] of TOOLS){ if(!toolExists(id)||id==='mapquick') continue; const P=peek(id); if(P.st==='ok') o[id]={n:P.labels.length,sum:P.sum||'',chg:linked[id]!==undefined&&linked[id]!==P.sig,linked:linked[id]!==undefined}; } return o; }
+return {load,pull,status,getDoc:()=>it};
 });

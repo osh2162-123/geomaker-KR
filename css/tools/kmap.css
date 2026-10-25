@@ -154,7 +154,9 @@
 .t-kmap .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
 .t-kmap .results{max-height:280px;overflow:auto}
 .t-kmap .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark))}
+.t-kmap .results .gc{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark));font-weight:600}
 .t-kmap .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
+.t-kmap .mini .btn.on{background:var(--omr-soft);color:var(--omr)}
 .t-kmap .lapp .ltools button{padding:6px 11px;font-size:13.5px}
 .t-kmap .gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .t-kmap .gal{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 4px 3px;cursor:pointer;display:flex;flex-direction:column;gap:3px;text-align:left;color:var(--c-tx-1)}

@@ -154,7 +154,9 @@
 .t-item .kopact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
 .t-item .results{max-height:280px;overflow:auto}
 .t-item .results .rep{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark))}
+.t-item .results .gc{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--omr-soft);color:var(--omr,var(--c-blue-dark));font-weight:600}
 .t-item .results .hi{font-style:normal;font-size:10px;margin-left:5px;padding:0 5px;border-radius:8px;background:var(--line);color:var(--muted)}
+.t-item .mini .btn.on{background:var(--omr-soft);color:var(--omr)}
 .t-item .iapp{grid-template-columns:minmax(0,380px) minmax(0,1fr) minmax(0,330px)}
 .t-item .iapp .top{row-gap:8px}
 .t-item .isteps{display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-width:0}
@@ -307,3 +309,17 @@
 .t-item .gtag{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--chip,var(--c-blue-soft));color:var(--muted)}
 .t-item .igtags{gap:4px;flex-wrap:wrap}
 .t-item .igich details ol li{margin:2px 0}
+.t-item .ilink{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.t-item .ilink:last-of-type{border-bottom:0}
+.t-item .ilink-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.t-item .ilink-main b{font-weight:600}
+.t-item .ilink-main small{color:var(--muted);font-size:12.5px;line-height:1.4}
+.t-item .ichip-s{font-size:12px;padding:2px 8px;border-radius:999px;white-space:nowrap;background:var(--pane-2);color:var(--muted)}
+.t-item .ichip-s.ok{background:transparent;color:var(--muted)}
+.t-item .ichip-s.ok::before{content:"✓ "}
+.t-item .ichip-s.chg{background:var(--omr-soft);color:var(--omr);font-weight:600}
+.t-item .ilink-open{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.t-item .ilink-open small{color:var(--muted);font-size:12px}
+.t-item .iflow{margin:-4px 0 14px;padding:8px 12px;border-radius:8px;background:var(--pane-2);color:var(--muted);font-size:12.5px;line-height:1.7}
+.t-item .iflow span{display:inline-block;margin:0 6px 0 0;padding:0 7px;border-radius:999px;background:var(--omr-soft);color:var(--omr);font-weight:600;font-size:12px}
+.t-item .iflow span:not(:first-child){margin-left:10px}

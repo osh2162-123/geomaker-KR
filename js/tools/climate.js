@@ -231,7 +231,7 @@ function setupSearch(){
     if(kop){ list=GG.koppenStations(kop); if(q){ const hit=new Set(GG.searchStations(q,400)); list=list.filter(s=>hit.has(s)); } }
     else { if(!q) return; list=GG.searchStations(q,8); }
     list.forEach((s,i)=>{ const tY=GG.metricOf(s,'tY'), pY=GG.metricOf(s,'pY'); const k=GG.koppenOf(s);
-      const b=h('button',{type:'button'},h('span',null,s.name,kop&&!q&&i<3&&!(s.elev>1500)?h('em',{class:'rep'},'대표'):null,s.elev>1500?h('em',{class:'hi'},'고지대'):null),
+      const b=h('button',{type:'button'},h('span',null,s.name,kop&&!q&&i<3&&!(s.elev>1500)?h('em',{class:'rep'},'대표'):null,s.elev>1500?h('em',{class:'hi'},'고지대'):null,s.g?h('em',{class:'gc',title:'2024~2027학년도 6월·9월·수능 세계지리 11회 문항의 글(발문·단서·선지·평가 요소)에 이 이름이 나온 문항 수'},'기출 '+s.g):null),
         h('small',null,`${s.country||''} · ${k?k.code:''} · ${GG.fmt(tY,1)}${deg()} · ${Math.round(pY).toLocaleString('ko-KR')}mm`));
       b.addEventListener('click',()=>{ add(s); if(!kop){ inp.value=''; ul.textContent=''; } toast(`${s.name}을(를) 넣었어요.`); inp.focus(); });
       ul.append(h('li',null,b)); });
