@@ -296,11 +296,19 @@ function renderOpts(){
   }
   if(k==='tri'){ const o=doc.tri; const C=doc.data.cols.filter(c=>!c.hide);
     P.append(sec('삼각 그래프',
-      h('p',{class:'sub'},C.length>=3?`꼭짓점: 왼쪽 아래 ${EG.lblOf(C[0])}, 오른쪽 아래 ${EG.lblOf(C[1])}, 위 ${EG.lblOf(C[2])}. 보이는 앞의 세 열을 써요. 행(나라)마다 세 값의 합을 100으로 바꿔 점을 찍어요.`:'보이는 열이 세 개 이상 있어야 해요. 자료 불러오기에서 종교 세 개를 고르고 ‘기타로 합치기’를 끄면 돼요.'),
-      row('눈금 간격',seg([['10','10'],['20','20'],['25','25']],()=>String(o.step),v=>o.step=+v)),
+      h('p',{class:'sub'},C.length>=3?`꼭짓점: ${(()=>{ const V=RG.triOrient(o).V; const at=w=>EG.lblOf(C[[0,1,2].find(k=>V[k]===w)]); return `위 ${at('T')}, 왼쪽 아래 ${at('BL')}, 오른쪽 아래 ${at('BR')}`; })()}. 보이는 앞의 세 열을 써요. 행(나라)마다 세 값의 합을 100으로 바꿔 점을 찍어요.`:'보이는 열이 세 개 이상 있어야 해요. 자료 불러오기에서 종교 세 개를 고르고 ‘기타로 합치기’를 끄면 돼요.'),
+      row('눈금 간격',seg([['5','5'],['10','10'],['20','20'],['25','25']],()=>String(o.step),v=>o.step=+v,'opts')),
+      row('보이는 범위',seg([['full','0~100'],['auto','자료에 맞춤'],['manual','직접']],()=>o.range||'full',v=>o.range=v,'opts')),
+      ...(o.range==='manual'&&C.length>=3?C.slice(0,3).map((c,i)=>row(EG.lblOf(c),h('span',{class:'unit'},'최솟값'),(e=>{ e.addEventListener('change',()=>changed('opts')); return e; })(num(()=>(o.min||[0,0,0])[i],v=>{ o.min=(o.min||[0,0,0]).slice(); o.min[i]=v; },{min:0,max:95,step:1,aria:EG.lblOf(c)+' 최솟값'})))):[]),
+      (()=>{ if(C.length<3) return null; const r=RG.triInfo(doc); const rg=r&&r.ranges; const sub=h('p',{class:'sub'},(o.range||'full')==='full'?'세 축 모두 0~100이에요.':rg?'지금 범위: '+C.slice(0,3).map((c,i)=>`${EG.lblOf(c)} ${rg[i][0]}~${rg[i][1]}`).join(' · ')+'. 세 최솟값의 합만큼 작은 삼각형을 크게 보여 줘요(2015 학평처럼 청장년층 50~100).':'세 최솟값의 합만큼 작은 삼각형을 크게 보여 줘요.'); return sub; })(),
+      C.length>=3?row('변 배치',sel([[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]].map(q=>[JSON.stringify(q),`왼쪽 ${EG.lblOf(C[q[0]])} · 오른쪽 ${EG.lblOf(C[q[1]])} · 아래 ${EG.lblOf(C[q[2]])}`]),()=>JSON.stringify(RG.triOrient(o).sd),v=>o.sides=JSON.parse(v),'opts','변 배치')):null,
+      row('아래 변 값',seg([['r','오른쪽으로 커짐'],['l','왼쪽으로 커짐']],()=>o.cw?'l':'r',v=>o.cw=v==='l','opts')),
+      row('단위',txt(()=>o.unit,v=>o.unit=v,'예: (%)','단위'),h('span',{class:'unit'},'자리')),
+      row('',seg([['vertex','꼭짓점'],['title','축 이름 끝'],['none','안 씀']],()=>o.unitPos||'title',v=>o.unitPos=v)),
       row('',chk('점선 격자',()=>o.grid,v=>o.grid=v)),row('',chk('눈금 숫자',()=>o.nums,v=>o.nums=v)),
       row('',chk('축 이름',()=>o.titles,v=>o.titles=v,'opts')),o.titles?row('',chk('값이 커지는 쪽 화살표',()=>o.arrows,v=>o.arrows=v)):null,
-      o.titles?row('축 이름 끝',txt(()=>o.unitWord,v=>o.unitWord=v,'예: (%)','축 이름 뒤 글자')):null,
+      o.titles?row('축 이름 방향',seg([['flat','가로'],['side','변을 따라']],()=>o.tdir||'side',v=>o.tdir=v)):null,
+      o.titles?row('축 이름 끝',txt(()=>o.unitWord,v=>o.unitWord=v,'예: 신자 비율','축 이름 뒤 글자')):null,
       row('점 모양',sel(MK_OPTS,()=>o.mk,v=>o.mk=v,null,'점 모양'),h('span',{class:'unit'},'크기'),num(()=>o.mks,v=>o.mks=v,{min:0.6,max:4,step:0.1,aria:'점 크기(mm)'})),
       row('',chk('점 옆에 행 라벨',()=>o.lbl,v=>o.lbl=v)),
       row('한 변',num(()=>o.size,v=>o.size=v,{min:25,max:140,step:1,aria:'한 변(mm)'}),h('span',{class:'unit'},'mm'))));
@@ -441,7 +449,7 @@ function warnings(){
   if(holes.length&&doc.kind!=='rank') w.push(`빈칸 ${holes.length}개(${holes.slice(0,3).join(', ')}${holes.length>3?' …':''})는 0으로 그려요.`);
   if(['stack','donut','tri'].includes(doc.kind)&&M.flat().some(v=>GG.fin(v)&&v<0)) w.push('음수 값은 비율 그림에서 0으로 처리해요.');
   if(doc.kind==='tri'){ if(C.length<3) w.push('삼각 그래프는 보이는 열이 세 개 있어야 해요.'); else if(C.length>3) w.push(`보이는 열이 ${C.length}개라 앞의 세 열(${C.slice(0,3).map(c=>c.name).join(', ')})만 써요.`);
-    const t=RG.lastAxes().tri; if(t&&t.lost.length) w.push(`${t.lost.join(', ')}은(는) 세 값이 모두 0이라 빠졌어요.`); }
+    const t=RG.lastAxes().tri; if(t&&t.lost.length) w.push(`${t.lost.join(', ')}은(는) 세 값이 모두 0이라 빠졌어요.`); if(t&&t.out&&t.out.length) w.push(`${t.out.join(', ')}은(는) 보이는 범위 밖이라 점을 찍지 않았어요. ‘보이는 범위’를 넓혀 주세요.`); }
   if(doc.kind==='donut'&&doc.donut.center==='total'&&doc.data.unit==='%') w.push('값이 이미 비율(%)이라 가운데 합계가 100이 돼요.');
   if(doc.kind==='stack'&&doc.stack.norm===false){ const tot=Math.max(...M.map(r=>r.filter(GG.fin).reduce((a,b)=>a+Math.max(0,b),0))); const ax=EG.lastAxes().stack; if(ax&&tot>ax.hi+1e-9) w.push('막대가 값 축 최댓값을 넘어가 잘려요. 축 범위를 넓혀 주세요.'); }
   if(doc.kind==='rank'){ const used=new Set(RG.rankInfo(doc).ranks.flat()); const idle=C.filter((c,j)=>!c.other&&!used.has(j)&&c.lbl); if(idle.length) w.push(`${idle.map(c=>c.lbl).join(', ')}(${idle.map(c=>c.name).join(', ')})은(는) 표에 나오지 않아요. 발문 단서가 맞도록 ‘순위에 안 나오는 종교 열 빼기’를 눌러 주세요.`); }

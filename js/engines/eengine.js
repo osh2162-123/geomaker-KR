@@ -105,22 +105,33 @@ function block(doc,lines,role,scale){ const ref=tm(doc,role,'가',scale); const 
 function putBlock(ops,doc,lines,cx,cy,role,o){ o=o||{}; const b=block(doc,lines,role,o.scale); const top=cy-b.h/2;
   lines.forEach((l,i)=>put(ops,doc,l,cx,top+b.ref.A+i*b.lh,role,Object.assign({align:'center'},o))); return b; }
 /* 칸 너비에 맞춰 줄 나누기(띄어쓰기 → 글자 단위) */
+/* 줄 나누기 자리 고르기(어절 단위). '인구 비율', '자연 증가율', '65세 이상', '(%)'처럼 앞말에 붙는 낱말 앞에서는 되도록 끊지 않는다 */
+const GLUE_W=/^(?:[(（\[]|[^가-힣A-Za-z]*$)|^(?:비율|비중|증가율|감소율|변화율|성장률|자급률|보급률|도시화율|지수|성비|밀도|부양비|이상|이하|미만|초과|평균|합계|총량|생산량|소비량|수출량|수입량|매장량|발전량|공급량|순위|구성|규모|면적|당|수|량|율|률|액)(?:\(.*\))?$/;
+function brkPen(a,b){ return /^[(（\[]/.test(b)?9:GLUE_W.test(b)?4:0; }
+function lineSets(words,n){
+  const out=[], W=words.length; if(n<1||n>W) return out;
+  const rec=(start,left,cut)=>{ if(left===1){ const L=[]; let pen=0, prev=0; for(const c of cut.concat([W])){ L.push(words.slice(prev,c).join(' ')); if(c<W) pen+=brkPen(words[c-1],words[c]); prev=c; }
+      const len=L.map(x=>x.length); out.push({L,sc:pen*3+(Math.max(...len)-Math.min(...len))*0.5}); return; }
+    for(let c=start+1;c<=W-left+1;c++) rec(c,left-1,cut.concat([c])); };
+  rec(0,n,[]); return out.sort((a,b)=>a.sc-b.sc);
+}
 function wrapFit(doc,text,role,maxW,maxH,scale){
   const s=String(text); const fit=lines=>{ const b=block(doc,lines,role,scale); return b.w<=maxW&&b.h<=maxH?lines:null; };
   let r=fit([s]); if(r) return r;
   const words=s.split(/\s+/).filter(Boolean);
-  if(words.length>1){ for(let n=2;n<=Math.min(3,words.length);n++){ const per=Math.ceil(words.length/n); const L=[]; for(let i=0;i<words.length;i+=per) L.push(words.slice(i,i+per).join(' ')); r=fit(L); if(r) return r; } }
+  if(words.length>1){ for(let n=2;n<=Math.min(3,words.length);n++){ for(const o of lineSets(words,n)){ r=fit(o.L); if(r) return r; } } }
   const ch=[...s.replace(/\s+/g,'')]; if(ch.length>=4){ for(let n=2;n<=3;n++){ const per=Math.ceil(ch.length/n); const L=[]; for(let i=0;i<ch.length;i+=per) L.push(ch.slice(i,i+per).join('')); r=fit(L); if(r) return r; } }
   return null;
 }
+/* 줄 나누기 후보: 한 줄 → 어절 단위(좋은 자리 먼저) → 글자 단위(.ch 표시: 어절로는 도저히 안 들어갈 때만) */
 function splits(s){ const out=[[s]]; const words=s.split(/\s+/).filter(Boolean);
-  if(words.length>1){ for(let n=2;n<=Math.min(3,words.length);n++){ const per=Math.ceil(words.length/n); const L=[]; for(let i=0;i<words.length;i+=per) L.push(words.slice(i,i+per).join(' ')); out.push(L); } }
-  const ch=[...s.replace(/\s+/g,'')]; if(ch.length>=4){ for(let n=2;n<=3;n++){ const per=Math.ceil(ch.length/n); const L=[]; for(let i=0;i<ch.length;i+=per) L.push(ch.slice(i,i+per).join('')); out.push(L); } }
+  if(words.length>1){ for(let n=2;n<=Math.min(3,words.length);n++) for(const o of lineSets(words,n)) out.push(o.L); }
+  const ch=[...s.replace(/\s+/g,'')]; if(ch.length>=4){ for(let n=2;n<=3;n++){ const per=Math.ceil(ch.length/n); const L=[]; for(let i=0;i<ch.length;i+=per) L.push(ch.slice(i,i+per).join('')); L.ch=true; out.push(L); } }
   return out; }
 function fitLabel(doc,text,role,maxW,maxH,base,minScale){
   base=base||1; const cands=splits(String(text)); const by=n=>cands.filter(L=>L.length===n);
   const tries=[]; for(const sc of [1,0.92,0.85,0.78].filter(x=>x>=(minScale||0.85)-1e-9)){ tries.push([1,sc],[2,sc]); } tries.push([3,1],[3,0.92],[3,0.85]);
-  for(const [n,sc] of tries) for(const L of by(n)){ const b=block(doc,L,role,base*sc); if(b.w<=maxW&&b.h<=maxH) return {lines:L,scale:base*sc}; }
+  for(const pass of [false,true]) for(const [n,sc] of tries) for(const L of by(n)){ if(!!L.ch!==pass) continue; const b=block(doc,L,role,base*sc); if(b.w<=maxW&&b.h<=maxH) return {lines:L,scale:base*sc}; }
   return null; }
 function haloOf(f){ return f==='dark'||f==='black'||f==='mid'?'k':patOf(f)?'w':null; }
 function josa(w,a,b){ const t=String(w).replace(/\(.*\)$/,'').trim(); const c=t.charCodeAt(t.length-1)-0xAC00; return t+(c>=0&&c<11172&&c%28?a:b); }
@@ -409,7 +420,7 @@ function composeTree(doc){
       const role=base.length===1&&roleOf(base[0])==='label'?'label':'seg';
       /* 칸 안에 들어가는 모양을 차례로 찾는다: 두 줄 → 한 줄 → 더 작게 → (둘 다일 때) 이름만. 끝내 안 들어가면 비우고 편집기에 알린다 */
       const fitsB=(L,sc)=>{ const b=block(doc,L,role,sc); return b.w<=a[2]-0.5&&b.h<=a[3]-0.3; };
-      const ch=[...base[0]]; const h2=Math.ceil(ch.length/2); const split=ch.length>=4?[ch.slice(0,h2).join(''),ch.slice(h2).join('')]:null;
+      const ws0=String(base[0]).split(/\s+/).filter(Boolean); const ch=[...base[0]]; const h2=Math.ceil(ch.length/2); const split=ws0.length>1?lineSets(ws0,2)[0].L:ch.length>=4?[ch.slice(0,h2).join(''),ch.slice(h2).join('')]:null;
       const tries=o.inLbl==='both'?[[base,[1,0.9,0.8]],[[base.join(' ')],[1,0.9,0.8]],[base,[0.7,0.62]],[[base.join(' ')],[0.7,0.62]],[[base[0]],[0.8,0.7,0.62]]]
         :[[base,[1,0.9,0.8,0.7]],...(split?[[split,[0.8,0.7,0.62,0.55]]]:[]),[base,[0.62,0.55]]];
       let fit=null; for(const [L,scs] of tries){ for(const sc of scs){ if(fitsB(L,sc)){ fit={lines:L,scale:sc}; break; } } if(fit) break; }
@@ -430,7 +441,7 @@ function composeGroup(doc){
   const o=doc.group; const {R,C,M}=derive(doc); if(!R.length||!C.length) return null;
   const vals=M.flat().filter(fin); const ax=axisFrom(o.axis,[0,...vals],{zero:true,target:3,head:true}); LAST.group=ax;
   const ops=new Ops(doc); const k=C.length, bw=o.barW, inner=o.inner||0, gw=k*bw+(k-1)*inner; const n=R.length;
-  const lw1=t=>metrics(fontOf(doc,'cat'),t).W; const two=t=>{ const ch=[...t.replace(/\s+/g,'')]; if(ch.length<4) return lw1(t); const ws=t.split(/\s+/); if(ws.length>1){ const h2=Math.ceil(ws.length/2); return Math.max(lw1(ws.slice(0,h2).join(' ')),lw1(ws.slice(h2).join(' '))); } const h2=Math.ceil(ch.length/2); return Math.max(lw1(ch.slice(0,h2).join('')),lw1(ch.slice(h2).join(''))); };
+  const lw1=t=>metrics(fontOf(doc,'cat'),t).W; const two=t=>{ const ch=[...t.replace(/\s+/g,'')]; if(ch.length<4) return lw1(t); const ws=t.split(/\s+/).filter(Boolean); if(ws.length>1){ return Math.max(...lineSets(ws,2)[0].L.map(lw1)); } const h2=Math.ceil(ch.length/2); return Math.max(lw1(ch.slice(0,h2).join('')),lw1(ch.slice(h2).join(''))); };
   const need=Math.max(...R.map(r=>{ const t=lblOf(r); return Math.min(lw1(t),two(t)); })); const g=Math.max(o.gap,need+0.8-gw); const m=g*0.55;
   const span=m*2+n*gw+(n-1)*g; const H=o.len; const yv=v=>H-(clamp(v,ax.lo,ax.hi)-ax.lo)/(ax.hi-ax.lo)*H; const lw=W(doc,0.15);
   if(o.grid) for(const t of ticksOf(ax)){ if(t<=ax.lo+1e-9||t>=ax.hi-1e-9) continue; ops.seg(0,yv(t),span,yv(t),W(doc,0.1),{dash:GRID_DASH}); }

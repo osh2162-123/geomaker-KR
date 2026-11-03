@@ -176,21 +176,22 @@ function renderPB(){
       const miss=r.lost.length?` 값이 없는 칸 ${r.lost.length}개(${r.lost.slice(0,3).join(', ')}${r.lost.length>3?' …':''})는 비워 두었어요. 중위 말고는 2030~2100년 10년마다만 있어요.`:'';
       pbMsg(miss||bad.length?'warn':'ok',`행은 추계 방식, 열은 해예요.${miss}${bad.length?` ${bad.join(', ')}은(는) 해로 읽지 못했어요.`:''} ${SRC_TXT}`); syncTop(); changed('all'); });
     B.append(h('div',{class:'paste-row'},go)); }
-  if(ui.pb==='age'){ const a=ui.age; const Y=PG.pyrYears(); const hasPyr=Y.length>0; if(!hasPyr) a.mode='stack';
+  if(ui.pb==='age'){ const a=ui.age; const Y=PG.pyrYears(); const hasPyr=Y.length>0; if(!hasPyr&&a.mode==='pyr') a.mode='stack';
     const yearCtl=a.mode==='pyr'?sel(Y.map(y=>[String(y),`${y}년`]),()=>Y.includes(+a.year)?String(a.year):'2023',v=>{ a.year=v; saveLocal(); },'none','해')
       :txt(()=>a.tp,v=>{ a.tp=v; saveLocal(); },'2023','시점','none');
-    B.append(row('그래프',hasPyr?seg([['pyr','인구 피라미드'],['stack','연령층 비율 막대']],()=>a.mode,v=>{ a.mode=v; saveLocal(); renderPB(); },'none'):h('span',{class:'sub'},'연령층 비율 막대')),
+    B.append(row('그래프',seg(hasPyr?[['pyr','인구 피라미드'],['stack','연령층 비율 막대'],['tri','삼각 그래프']]:[['stack','연령층 비율 막대'],['tri','삼각 그래프']],()=>a.mode,v=>{ a.mode=v; saveLocal(); renderPB(); },'none')),
       ...people(a.rows),row(a.mode==='pyr'?'해':'시점',yearCtl),
-      a.mode==='pyr'?row('',chk('나라 이름을 (가)~(바)로 가리기',()=>a.mask,v=>{ a.mask=v; saveLocal(); },'none')):null,
+      a.mode==='pyr'?row('',chk('나라 이름을 (가)~(바)로 가리기',()=>a.mask,v=>{ a.mask=v; saveLocal(); },'none')):'',
       h('p',{class:'src-note'},a.mode==='pyr'?'5세 단위 남녀 인구가 그 나라 총인구에서 차지하는 비율(%)이에요. 85세 이상은 한 칸으로 묶었어요(2026학년도 9월 10번 양식). 피라미드는 1950~2020년 10년마다, 2023년, 2030~2100년 10년마다(중위 추계) 있어요.'
-        :'유소년층(0~14세)·청장년층(15~64세)·노년층(65세 이상) 비율이에요(2027학년도 6월 15번 양식). 부양비·노령화 지수·청장년층 성비는 ‘지표 비교’, ‘두 지표’, ‘시기 변화’에서 지표로 고를 수 있어요.'));
+        :(a.mode==='tri'?'유소년층(0~14세)·청장년층(15~64세)·노년층(65세 이상) 비율을 삼각 그래프로 그려요. 나라마다 점 하나, 세 값의 합은 100%예요. 나라 이름은 표에서 ‘기호’ 단추로 (가)~(다)로 가릴 수 있어요.'
+        :'유소년층(0~14세)·청장년층(15~64세)·노년층(65세 이상) 비율이에요(2027학년도 6월 15번 양식). 부양비·노령화 지수·청장년층 성비는 ‘지표 비교’, ‘두 지표’, ‘시기 변화’에서 지표로 고를 수 있어요.')));
     const go=h('button',{class:'btn primary',type:'button'},'표 만들기'); go.addEventListener('click',()=>{
       if(!a.rows.length){ pbMsg('err','나라나 지역을 하나 이상 골라 주세요.'); return; }
       if(a.mode==='pyr'){ const r=PG.presetPyr(doc,{rows:a.rows,year:a.year}); if(!r.rows.length){ pbMsg('err','고른 곳의 피라미드 자료가 없어요.'); return; } typeChanged(); doc.kind='pyr'; if(a.mask) PG.maskPyr(doc,'gana');
         pbMsg(r.yearNote||r.rows.length<a.rows.length?'warn':'ok',`행은 연령층, 열은 나라마다 남·여예요.${r.rows.length<a.rows.length?' 피라미드는 여섯 곳까지 그려요.':''}${r.yearNote?' '+r.yearNote:''} ${SRC_TXT}`); }
       else { const {out}=tpCheck(tpList(a.tp)); if(!out.length){ pbMsg('err','시점을 알아보지 못했어요. 예: 2023'); return; }
-        const r=PG.presetAge(doc,{rows:a.rows,tp:out[0]}); typeChanged(); if(!['stack','tb','group'].includes(doc.kind)) doc.kind='stack'; doc.stack.norm=true; doc.stack.dir='h'; doc.stack.legend='bottom';
-        pbMsg(r.missing.length?'warn':'ok',`행은 나라·지역, 열은 연령층이에요.${r.missing.length?` ${r.missing.join(', ')}은(는) 자료에 없어요.`:''} ${SRC_TXT}`); }
+        const r=PG.presetAge(doc,{rows:a.rows,tp:out[0]}); typeChanged(); if(a.mode==='tri') doc.kind='tri'; else { if(!['stack','tb','group'].includes(doc.kind)) doc.kind='stack'; doc.stack.norm=true; doc.stack.dir='h'; doc.stack.legend='bottom'; }
+        pbMsg(r.missing.length?'warn':'ok',`행은 나라·지역, 열은 연령층이에요.${a.mode==='tri'&&r.rows.length<2?' 삼각 그래프는 나라를 여럿 넣어야 점이 여러 개 찍혀요.':''}${r.missing.length?` ${r.missing.join(', ')}은(는) 자료에 없어요.`:''} ${SRC_TXT}`); }
       syncTop(); changed('all'); });
     B.append(h('div',{class:'paste-row'},go)); }
   if(ui.pb==='mig'){ const m=ui.mig; const R=PG.migRevs(); if(!R.includes(m.rev)) m.rev=R[0]; const Y=PG.migYears(m.rev); if(!Y.includes(String(m.year))) m.year=Y[Y.length-1];
@@ -386,6 +387,26 @@ function renderOpts(){
       row('그래프 크기',num(()=>o.w,v=>o.w=v,{min:15,max:150,step:1,aria:'가로(mm)'}),h('span',{class:'unit'},'×'),num(()=>o.h,v=>o.h=v,{min:15,max:150,step:1,aria:'세로(mm)'}),h('span',{class:'unit'},'mm'))),
       sec('축 범위',axisHead(),axisCtl('세로축',o.y,'dumb')));
   }
+  if(k==='tri'){ const o=doc.tri; const C=doc.data.cols.filter(c=>!c.hide); const MKP=Object.entries(GG.MARKS).filter(([m])=>m!=='none'&&m!=='gd'&&m!=='gs');
+    P.append(sec('삼각 그래프',
+      h('p',{class:'sub'},C.length>=3?`꼭짓점: ${(()=>{ const V=RG.triOrient(o).V; const at=w=>EG.lblOf(C[[0,1,2].find(k=>V[k]===w)]); return `위 ${at('T')}, 왼쪽 아래 ${at('BL')}, 오른쪽 아래 ${at('BR')}`; })()}. 보이는 앞의 세 열을 써요. 행(나라)마다 세 값의 합을 100으로 바꿔 점을 찍어요.`:'보이는 열이 세 개 이상 있어야 해요. 자료 불러오기의 ‘연령층 구조’에서 ‘삼각 그래프’를 고르면 유소년층·청장년층·노년층 표가 만들어져요.'),
+      row('눈금 간격',seg([['5','5'],['10','10'],['20','20'],['25','25']],()=>String(o.step),v=>o.step=+v,'opts')),
+      row('보이는 범위',seg([['full','0~100'],['auto','자료에 맞춤'],['manual','직접']],()=>o.range||'full',v=>o.range=v,'opts')),
+      ...(o.range==='manual'&&C.length>=3?C.slice(0,3).map((c,i)=>row(EG.lblOf(c),h('span',{class:'unit'},'최솟값'),(e=>{ e.addEventListener('change',()=>changed('opts')); return e; })(num(()=>(o.min||[0,0,0])[i],v=>{ o.min=(o.min||[0,0,0]).slice(); o.min[i]=v; },{min:0,max:95,step:1,aria:EG.lblOf(c)+' 최솟값'})))):[]),
+      (()=>{ if(C.length<3) return null; const r=RG.triInfo(doc); const rg=r&&r.ranges; const sub=h('p',{class:'sub'},(o.range||'full')==='full'?'세 축 모두 0~100이에요.':rg?'지금 범위: '+C.slice(0,3).map((c,i)=>`${EG.lblOf(c)} ${rg[i][0]}~${rg[i][1]}`).join(' · ')+'. 세 최솟값의 합만큼 작은 삼각형을 크게 보여 줘요(2015 학평처럼 청장년층 50~100).':'세 최솟값의 합만큼 작은 삼각형을 크게 보여 줘요.'); return sub; })(),
+      C.length>=3?row('변 배치',sel([[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]].map(q=>[JSON.stringify(q),`왼쪽 ${EG.lblOf(C[q[0]])} · 오른쪽 ${EG.lblOf(C[q[1]])} · 아래 ${EG.lblOf(C[q[2]])}`]),()=>JSON.stringify(RG.triOrient(o).sd),v=>o.sides=JSON.parse(v),'opts','변 배치')):null,
+      row('아래 변 값',seg([['r','오른쪽으로 커짐'],['l','왼쪽으로 커짐']],()=>o.cw?'l':'r',v=>o.cw=v==='l','opts')),
+      row('단위',txt(()=>o.unit,v=>o.unit=v,'예: (%)','단위'),h('span',{class:'unit'},'자리')),
+      row('',seg([['vertex','꼭짓점'],['title','축 이름 끝'],['none','안 씀']],()=>o.unitPos||'title',v=>o.unitPos=v)),
+      row('',chk('점선 격자',()=>o.grid,v=>o.grid=v)),row('',chk('눈금 숫자',()=>o.nums,v=>o.nums=v)),
+      row('',chk('축 이름',()=>o.titles,v=>o.titles=v,'opts')),o.titles?row('',chk('값이 커지는 쪽 화살표',()=>o.arrows,v=>o.arrows=v)):null,
+      o.titles?row('축 이름 방향',seg([['flat','가로'],['side','변을 따라']],()=>o.tdir||'side',v=>o.tdir=v)):null,
+      o.titles?row('축 이름',seg([['range','0~14세'],['group','유소년층'],['both','유소년층(0~14세)']],()=>o.ageName||'group',v=>o.ageName=v)):null,
+      o.titles?row('축 이름 끝',txt(()=>o.unitWord,v=>o.unitWord=v,'예: 인구 비율','축 이름 뒤 글자')):null,
+      row('점 모양',sel(MKP,()=>o.mk,v=>o.mk=v,null,'점 모양'),h('span',{class:'unit'},'크기'),num(()=>o.mks,v=>o.mks=v,{min:0.6,max:4,step:0.1,aria:'점 크기(mm)'})),
+      row('',chk('점 옆에 행 라벨',()=>o.lbl,v=>o.lbl=v)),
+      row('한 변',num(()=>o.size,v=>o.size=v,{min:25,max:140,step:1,aria:'한 변(mm)'}),h('span',{class:'unit'},'mm'))));
+  }
   if(k==='pyr'){ const o=doc.pyr;
     P.append(sec('인구 피라미드',
       h('p',{class:'sub'},'첫 열(행 이름)에 나이, 열은 ‘남’, ‘여’ 짝이에요. 짝이 여럿이면 피라미드가 나란히 생겨요(2026학년도 9월 10번 양식). 이 엑셀에는 연령층 자료가 없어 붙여 넣어야 해요.'),
@@ -501,6 +522,7 @@ function warnings(){
   if(doc.kind==='sc'&&C.length%2&&!C.every(c=>c.role)) w.push('산점도는 열을 (가로, 세로) 짝으로 읽어요. 마지막 열은 짝이 없어 빠졌어요.');
   if(doc.kind==='pyr'&&!C.some(c=>/남|여/.test(c.name))) w.push('피라미드는 열을 (남, 여) 짝으로 읽어요. 열 이름에 ‘남’, ‘여’를 넣어 주세요.');
   if(doc.kind==='pyr'&&holes.length===R.length*C.length) w.push('값이 비어 있어요. 연령층별 남녀 인구(또는 비율)를 채워 넣어 주세요.');
+  if(doc.kind==='tri'){ const V=C.filter(c=>!c.hide); if(V.length<3) w.push('삼각 그래프는 보이는 열이 세 개 있어야 해요.'); else if(V.length>3) w.push(`보이는 열이 ${V.length}개예요. 앞의 세 열만 써요.`); const t=RG.lastAxes().tri; if(t&&t.lost.length) w.push(`${t.lost.join(', ')}은(는) 세 값이 모두 0이라 빠졌어요.`); if(t&&t.out&&t.out.length) w.push(`${t.out.join(', ')}은(는) 보이는 범위 밖이라 점을 찍지 않았어요. ‘보이는 범위’를 넓혀 주세요.`); }
   if(['tree','stack'].includes(doc.kind)&&M.flat().some(v=>GG.fin(v)&&v<0)) w.push('음수 값은 비율 그림에서 0으로 처리해요.');
   if(doc.kind==='line'||doc.kind==='dumb'||doc.kind==='group'){ const us=[...new Set(C.map(c=>c.unit).filter(Boolean))]; if(doc.kind!=='line'&&us.length>1) w.push(`단위가 다른 열(${us.join(', ')})이 한 축에 그려져요.`); }
   return w;
@@ -520,7 +542,7 @@ new ResizeObserver(()=>schedule()).observe(cv.parentElement);
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>schedule());
 
 /* ───────── 내보내기 · 작업 파일 ───────── */
-const KIND_FILE={sc:'인구_산점도',line:'인구_꺾은선',dumb:'인구_두시기',group:'인구_묶은막대',tb:'인구표',tree:'인구_면적비율',stack:'인구_누적막대',pyr:'인구피라미드'};
+const KIND_FILE={sc:'인구_산점도',line:'인구_꺾은선',dumb:'인구_두시기',group:'인구_묶은막대',tb:'인구표',tree:'인구_면적비율',stack:'인구_누적막대',pyr:'인구피라미드',tri:'인구_삼각그래프'};
 const stamp=()=>{ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`; };
 const RESULT={saved:'저장했어요.',declined:'저장을 취소했어요.',busy:'잠시 뒤에 다시 눌러 주세요.',failed:'저장하지 못했어요.'};
 async function busy(btn,fn){ btn.disabled=true; try{ await fn(); } finally{ btn.disabled=false; } }

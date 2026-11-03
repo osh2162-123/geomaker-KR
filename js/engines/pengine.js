@@ -95,8 +95,8 @@ function unitOf(k,ui){ const I=IND[k]; const j=ui==null?(I.u||0):ui; return {u:I
 function projNote(tps,variant,keys){ if(keys&&keys.length&&keys.every(k=>IND[k]&&IND[k].src==='ims')) return ''; return PD&&tps.some(tp=>tp.b>PD.estLast)?`${PD.estLast+1}년 이후 값은 ${variant&&variant!=='med'?variantName(variant).replace(/\s*추계$/,'')+' 추계':'중위 추계'}값임.`:''; }
 
 /* ───────── 문서 ───────── */
-const KINDS=['sc','line','dumb','group','tb','tree','stack','pyr'];
-const KIND_KO={sc:'산점도',line:'꺾은선',dumb:'두 시기 비교',group:'묶은 막대',tb:'표',tree:'면적 비율',stack:'누적 막대',pyr:'인구 피라미드'};
+const KINDS=['sc','line','dumb','group','tb','tree','stack','pyr','tri'];
+const KIND_KO={sc:'산점도',line:'꺾은선',dumb:'두 시기 비교',group:'묶은 막대',tb:'표',tree:'면적 비율',stack:'누적 막대',pyr:'인구 피라미드',tri:'삼각 그래프'};
 const MKS=['fc','oc','ot','ft','os','fs','od','fd'];
 function freshDoc(kind){
   const d=EG.freshDoc('stack'); d.app='population'; d.v=1; d.kind=KINDS.includes(kind)?kind:'sc';
@@ -105,6 +105,7 @@ function freshDoc(kind){
   d.ln={w:40,h:42,gap:9,dash:true,mks:1.15,grid:true,zero:true,end:'end',xUnit:'년',shareY:false,y:{auto:true,lo:0,hi:100,step:20}};
   d.dumb={w:46,h:40,grid:true,zero:true,legend:'in',mks:1.35,y:{auto:true,lo:0,hi:40,step:10}};
   d.pyr={w:34,h:40,gap:7,auto:true,max:12,step:4,ageStep:20,male:'mid',female:'light',pct:true,cols:0};
+  d.tri=Object.assign({},RG.freshDoc('tri').tri,{unitWord:'',noNote:true,sides:[0,1,2],cw:true,ageName:'range'});   /* 삼각 그래프: 종교 엔진(RG)의 그림 그리기를 그대로 쓴다 */
   Object.assign(d.tree,{layout:'rect',inLbl:'both',top:'lbl',size:34,dec:1,sort:false});
   Object.assign(d.group,{dir:'v',legend:'bottom',barW:2.2,gap:3.2,len:30,barLbl:false});
   Object.assign(d.tb,{dec:1,comma:true,unitLine:true,rowHead:'국가'});
@@ -115,7 +116,9 @@ function normalizeDoc(d){
   const f=freshDoc(d&&d.kind); if(!d||typeof d!=='object') return f;
   const out=EG.normalizeDoc(Object.assign({},d,{kind:'stack'}));
   out.app='population'; out.kind=KINDS.includes(d.kind)?d.kind:'sc';
-  for(const k of ['sc','ln','dumb','pyr']) out[k]=Object.assign({},f[k],d[k]||{});
+  for(const k of ['sc','ln','dumb','pyr','tri']) out[k]=Object.assign({},f[k],d[k]||{});
+  if(d.tri&&d.tri.unitPos===undefined) Object.assign(out.tri,{unit:'',unitPos:'title',tdir:'side',sides:[0,2,1],cw:false,ageName:'group'});   /* 옛 작업 파일은 예전 모양 그대로 */
+  out.tri.min=[0,1,2].map(k=>{ const v=+((out.tri.min||[])[k]); return isFinite(v)&&v>=0&&v<100?v:0; });
   out.sc.x=Object.assign({},f.sc.x,(d.sc||{}).x||{}); out.sc.y=Object.assign({},f.sc.y,(d.sc||{}).y||{}); out.ln.y=Object.assign({},f.ln.y,(d.ln||{}).y||{}); out.dumb.y=Object.assign({},f.dumb.y,(d.dumb||{}).y||{});
   /* EG.normalizeDoc가 열 속성(unit·dec·role·t·grp·mk)을 지우지 않는지 */
   return out;
@@ -343,10 +346,18 @@ function composePyr(doc){
 /* ───────── 조립 ───────── */
 function compose(doc){
   for(const k of Object.keys(LAST)) delete LAST[k];
-  const f={sc:composeSc,line:composeLine,dumb:composeDumb,pyr:composePyr}[doc.kind]; const r=f?f(doc):null; if(!r) return null;
+  const f={sc:composeSc,line:composeLine,dumb:composeDumb,pyr:composePyr,tri:composeTriAge}[doc.kind]; const r=f?f(doc):null; if(!r) return null;
   const ops=finish(doc,r); return {ops,plots:[r.plot]};
 }
-for(const k of ['sc','line','dumb','pyr']) GG.register(k,compose,'population');
+/* 삼각 그래프: 열 이름 뒤의 나이 구간 '(0~14세)'는 축 이름에서 뺀다(‘유소년층 인구 비율(%)’처럼 읽히게) */
+const AGE_TAIL=/\s*\((?:\d+\s*[~∼～]\s*\d+세|\d+세\s*이상)\)\s*$/;
+const AGE_IN=/\(((?:\d+\s*[~∼～]\s*\d+세|\d+세\s*이상))\)\s*$/;
+function ageName(n,mode){ n=String(n); if(mode==='both') return n; if(mode==='range'){ const q=n.match(AGE_IN); return q?q[1].replace(/\s+/g,' '):n; } return n.replace(AGE_TAIL,''); }
+function composeTriAge(doc){
+  const mode=(doc.tri&&doc.tri.ageName)||'group';
+  const d2=Object.assign({},doc,{data:Object.assign({},doc.data,{cols:doc.data.cols.map(c=>Object.assign({},c,{name:ageName(c.name,mode)}))})});
+  return RG.composeTri(d2); }
+for(const k of ['sc','line','dumb','pyr','tri']) GG.register(k,compose,'population');
 for(const k of ['group','tb','tree','stack']) GG.register(k,EG.compose,'population');
 function autoNotes(doc){ const extra=[]; const {C}=derive(doc);
   if(doc.kind==='sc') extra.push(...scNotes(doc,C,pairsOf(C))); if(doc.kind==='pyr') extra.push(...pyrNotes(doc));
@@ -523,6 +534,7 @@ function parseRequest(q){
   const VW=[['hi',/고위/],['lo',/저위/],['med',/중위/],['cf',/출산율\s*(고정|불변)/],['zm',/순\s*이동\s*0|무이동|이동\s*없/],['nc',/변화\s*없|사망률\s*고정/],['mo',/모멘텀/],['ir',/즉시\s*대체|대체\s*출산율/]];
   const ORD=['hi','med','lo','cf','zm','nc','mo','ir']; spec.variants=VW.filter(([,re])=>re.test(text)).map(([k])=>k).sort((a,b)=>ORD.indexOf(a)-ORD.indexOf(b));
   if(/피라미드/.test(text)) spec.kind='pyr';
+  else if(/삼각/.test(text)) spec.kind='tri';
   else if(/산점도|가로축|세로축|x\s*축|y\s*축/.test(text)) spec.kind='sc';
   else if(/두\s*시기|아령|시기\s*비교/.test(text)) spec.kind='dumb';
   else if(/꺾은선|선\s*그래프|추이|변화/.test(text)) spec.kind='line';
@@ -539,6 +551,7 @@ function parseRequest(q){
   if(odm&&PD.migod&&spec.kind!=='pyr'){ const d=aliasFind(odm[1].replace(/(의|에)$/,''))||odm[1]; spec.src='migod'; spec.dest=d; spec.rows=places.map(p=>p.k).filter(n=>n!==d); spec.rev=/2020\s*년?\s*판/.test(text)?'2020':(/2024\s*년?\s*판/.test(text)?'2024':null); if(!spec.kind) spec.kind=/비율|구성|차지/.test(text)?'tree':'tb'; }
   else if(spec.kind!=='pyr'&&(spec.variants.length>1||(spec.variants.length&&/추계|전망/.test(text)))){ spec.src='proj'; if(!spec.kind||spec.kind==='dumb') spec.kind='line'; if(!spec.keys.length) spec.keys=['pop']; }
   else if(spec.kind==='pyr'){ if(PD.pyr&&spec.rows.length){ spec.src='pyr'; } else { spec.src='paste'; notes.push(PD.pyr?'피라미드로 그릴 나라나 지역 이름을 함께 적어 주세요. 붙여넣기 틀을 열어 두었어요.':'인구 피라미드 자료가 없어 붙여넣기 틀을 열어 두었어요.'); } }
+  else if(spec.kind==='tri'&&!keys.some(k=>!['p014','p1564','p65'].includes(k))&&(/연령|유소년|청장년|노년|15\s*~\s*64|65\s*세/.test(text)||!keys.length)){ spec.src='age'; }
   else if(/연령\s*(층\s*)?별?\s*(인구\s*)?구조|연령층별|연령\s*구성|연령층\s*비율/.test(text)&&!keys.some(k=>!['p014','p1564','p65'].includes(k))){ spec.src='age'; if(!spec.kind||spec.kind==='group') spec.kind='stack'; }
   else if(spec.kind==='tree'||((spec.kind==='stack'||!spec.kind)&&/상위\s*\d+\s*개\s*(국|나라)|1\s*~\s*\d+\s*위|국가별\s*(인구\s*)?순위|인구\s*순위/.test(text)&&places.some(p=>isAgg(p.k))&&!keys.some(k=>k!=='pop'))){ spec.src='share'; if(!spec.kind) spec.kind='tree'; spec.rows=places.filter(p=>isAgg(p.k)).map(p=>p.k); }
   else if(spec.kind==='sc'||(keys.length===2&&spec.tps.length<=3&&/산점도|과\s|와\s/.test(text)&&spec.kind!=='tb'&&spec.kind!=='group'&&spec.kind!=='line'&&spec.kind!=='dumb')){ spec.kind='sc'; spec.src='sc'; }
@@ -581,11 +594,11 @@ function groupAxis(d){ const vals=d.data.v.flat().filter(fin); if(!vals.length) 
 const PROJ_YEARS=['1960','1980','2000','2020','2040','2060','2080','2100'];
 function buildPrompt(q){
   return `세계지리 인구 그래프 편집기의 요청을 JSON 하나로 바꿔 줘. 다른 말은 쓰지 마.
-형식: {"kind":"sc|line|dumb|group|tb|tree|stack|pyr","src":"cmp|trend|sc|share|paste|proj|pyr|age|migod","dest":null,"rev":null,"variants":["hi","med","lo"],"rows":["독일"],"keys":["rnc"],"units":[null],"tps":["2015~2020"],"n":5,"maskRows":"gana|latin|null","maskCols":"gana|latin|null","shuffle":false,"missing":[]}
+형식: {"kind":"sc|line|dumb|group|tb|tree|stack|pyr|tri","src":"cmp|trend|sc|share|paste|proj|pyr|age|migod","dest":null,"rev":null,"variants":["hi","med","lo"],"rows":["독일"],"keys":["rnc"],"units":[null],"tps":["2015~2020"],"n":5,"maskRows":"gana|latin|null","maskCols":"gana|latin|null","shuffle":false,"missing":[]}
 - 지표 키: ${IND_KEYS.map(k=>`${k} ${IND[k].name}(${IND[k].units.map(u=>u[0]).join('/')})`).join(', ')}. units는 keys마다 단위 순번(없으면 null).
 - 시점 tps: 해(‘2023’) 또는 기간(‘2015~2020’, ‘1971~1980’). 자료는 1950~2023년 해마다, 2025~2100년은 5년마다 추계.
 - src=proj: 추계 방식 비교(꺾은선). variants는 ${variants().map(a=>a[0]+' '+a[1]).join(', ')} 중에서. 추계 변형은 pop tfr med rnc gr만, 2030~2100년 10년마다.
-- src=cmp: 한 시점에 여러 지표(표·묶은 막대). src=trend: 한 지표를 여러 시점(꺾은선·두 시기 비교·묶은 막대). src=sc: keys 두 개(가로축, 세로축)를 1~2 시점에. src=share: 지역 안 나라별 인구 순위와 비율(rows는 대륙). src=pyr: 인구 피라미드(rows는 나라·지역 1~6곳, tps는 해 하나; 1950~2020년 10년마다·2023·2030~2100년 10년마다). src=age: 연령층별 인구 구조(유소년·청장년·노년층 비율 누적 막대, tps는 해 하나). src=migod: 한 나라(dest) 안 이민자의 출신국별 수(rows=출신국, 비우면 상위 n개국; tps는 1990~2020년 5년마다·2024 중 하나; rev는 2024 또는 2020(지난 기출이 쓴 판)). 도시화율(urb)·도시 인구(upop)·도시 인구 증가율(ugr)·촌락 인구 비율(rur)은 1950~2050년(2025년판; 지난 기출과 맞추려면 urb18·upop18·ugr18·rur18·rpop18 = 2018년판), 이민자 수(mig)·이민자 비율(migp)은 1990~2020년 5년마다와 2024년. src=paste: 이 자료에 없는 것.
+- src=cmp: 한 시점에 여러 지표(표·묶은 막대). src=trend: 한 지표를 여러 시점(꺾은선·두 시기 비교·묶은 막대). src=sc: keys 두 개(가로축, 세로축)를 1~2 시점에. src=share: 지역 안 나라별 인구 순위와 비율(rows는 대륙). src=pyr: 인구 피라미드(rows는 나라·지역 1~6곳, tps는 해 하나; 1950~2020년 10년마다·2023·2030~2100년 10년마다). src=age: 연령층별 인구 구조(유소년·청장년·노년층 비율 누적 막대 또는 kind=tri 삼각 그래프, tps는 해 하나). src=migod: 한 나라(dest) 안 이민자의 출신국별 수(rows=출신국, 비우면 상위 n개국; tps는 1990~2020년 5년마다·2024 중 하나; rev는 2024 또는 2020(지난 기출이 쓴 판)). 도시화율(urb)·도시 인구(upop)·도시 인구 증가율(ugr)·촌락 인구 비율(rur)은 1950~2050년(2025년판; 지난 기출과 맞추려면 urb18·upop18·ugr18·rur18·rpop18 = 2018년판), 이민자 수(mig)·이민자 비율(migp)은 1990~2020년 5년마다와 2024년. src=paste: 이 자료에 없는 것.
 - rows는 나라 이름, ‘세계’, 대륙(아시아, 아프리카, 유럽, 라틴 아메리카, 앵글로아메리카, 오세아니아, 아메리카), 선진국, 개발 도상국. 목록에 없으면 missing에 넣는다.
 요청: ${q}`;
 }

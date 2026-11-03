@@ -3,6 +3,7 @@
    2) 긴 드롭다운(지표·한꺼번에 넣기)을 갈래별 격자 선택기로 바꾼다 (원래 <select>는 그대로 두고 값만 맞춘다)
    3) 오른쪽·왼쪽 패널의 묶음을 제목을 눌러 접고 펼친다
    4) 표를 크게 보기
+   5) 좌우 패널을 접어 가운데 미리 보기를 넓게
    도구 안쪽 코드는 건드리지 않고, 만들어진 화면을 보고 덧입힌다. */
 (function(){
 'use strict';
@@ -35,7 +36,7 @@ const THEMES={
  climate:[['기후 그래프','기온 선과 강수량 막대','climo',['climo']],['월별 그래프','달마다의 값을 선으로','line',['line']],['지역 비교','막대·산점도·방사형','cat',['cat','sc','rd']],['표','수치를 표로','tb',['tb']]],
  energy:[['구성 비율','누적 막대·도넛·면적','stack',['stack','donut','tree']],['나라별 비교','묶은 막대·상댓값 막대','group',['group','small']],['표','수치를 표로','tb',['tb']]],
  religion:[['구성 비율','누적 막대·원·삼각 그래프','stack',['stack','donut','tri']],['종교별 비교','종교별 막대·묶은 막대','bars',['bars','group']],['순위·표','순위 표와 수치 표','rank',['rank','tb']]],
- population:[['변화와 관계','산점도·꺾은선·두 시기 비교','sc',['sc','line','dumb']],['비교와 구성','묶은 막대·면적·누적 막대','group',['group','tree','stack']],['인구 피라미드','나이·성별 구조','pyr',['pyr']],['표','수치를 표로','tb',['tb']]],
+ population:[['변화와 관계','산점도·꺾은선·두 시기 비교','sc',['sc','line','dumb']],['비교와 구성','묶은 막대·면적·누적 막대','group',['group','tree','stack']],['연령 구조','인구 피라미드·삼각 그래프','pyr',['pyr','tri']],['표','수치를 표로','tb',['tb']]],
  agriculture:[['구성 비율','누적 막대·원·면적','stack',['stack','donut','tree']],['비교','묶은 막대·상댓값·산점도','group',['group','small','sc']],['표·이름 표','수치 표와 이름 표','tb',['tb','list']]]
 };
 const h=(t,a,...k)=>{ const e=document.createElement(t); for(const [x,v] of Object.entries(a||{})){ if(v==null) continue; if(x==='class') e.className=v; else e.setAttribute(x,v); } e.append(...k.filter(c=>c!=null)); return e; };
@@ -49,7 +50,7 @@ function chooser(id,box,opt){
   box.classList.add('has-gch');
   const go=k=>{ const b=seg.querySelector(`button[data-v="${k}"]`); if(b) b.click(); close(); };
   const ov=h('div',{class:'gch',role:'region','aria-label':NAME[id]+' 그래프 종류 고르기'});
-  const cards=h('div',{class:'gch-grid'});
+  const cards=h('div',{class:'gch-grid'+(themes.length===4?' two':'')});
   themes.forEach((t,i)=>{
     const card=h('div',{class:'gch-c'+(themes.length%3===1&&i===themes.length-1?' wide':'')});
     const main=h('button',{type:'button',class:'gch-main'},h('span',{class:'ic-w',innerHTML:''}),h('b',null,t.n),h('small',null,t.d)); main.firstChild.innerHTML=svg(t.ic);
@@ -218,6 +219,45 @@ function watchTable(id,box){
   react();
 }
 
+
+/* ───────── 5) 좌우 패널 접기: 가운데 미리 보기를 넓게 ───────── */
+const FOLD_KEY='gm-sidefold-v1';
+function sideLoad(){ try{ return JSON.parse(localStorage.getItem(FOLD_KEY)||'{}')||{}; }catch(e){ return {}; } }
+function sideSave(o){ try{ localStorage.setItem(FOLD_KEY,JSON.stringify(o)); }catch(e){} }
+const IC_L='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M7.5 3.5v13"/></svg>';
+const IC_R='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12.5 3.5v13"/></svg>';
+const IC_W='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V3h5M17 8V3h-5M3 12v5h5M17 12v5h-5"/></svg>';
+const IC_N='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v5H3M12 3v5h5M8 17v-5H3M12 17v-5h5"/></svg>';
+function sideFold(id,box){
+  const bar=box.querySelector('.desk-bar'), L=box.querySelector('.pane.data'), R=box.querySelector('.pane.opts'); if(!bar||!L||!R||bar.querySelector('.sf-btn')) return;
+  const st=sideLoad(); const cur=st[id]||{l:false,r:false};
+  const mk=(cls,title)=>{ const b=h('button',{type:'button',class:'btn sf-btn '+cls,title,'aria-label':title}); return b; };
+  const bl=mk('sf-l','왼쪽 자료 칸 접기'), br=mk('sf-r','오른쪽 설정 칸 접기'), bw=mk('sf-w','양쪽 칸 접고 미리 보기 넓게');
+  bl.innerHTML=IC_L; br.innerHTML=IC_R;
+  bar.prepend(bl); bar.append(br); const ta=box.querySelector('.top-actions'); if(ta) ta.prepend(bw); else bar.append(bw);
+  const name={l:L.getAttribute('aria-label')||'자료',r:R.getAttribute('aria-label')||'설정'};
+  L.dataset.sfOrig=name.l; R.dataset.sfOrig=name.r; L.dataset.sfName=name.l; R.dataset.sfName=name.r.replace(/^그래프\s*/,'');
+  const fit=()=>{ window.dispatchEvent(new Event('resize')); setTimeout(()=>window.dispatchEvent(new Event('resize')),260); };
+  const apply=(save)=>{
+    box.classList.toggle('sf-fold-l',cur.l); box.classList.toggle('sf-fold-r',cur.r);
+    L.classList.toggle('sf-folded',cur.l); R.classList.toggle('sf-folded',cur.r);
+    [[L,cur.l],[R,cur.r]].forEach(([pn,f])=>{ if(f){ pn.setAttribute('tabindex','0'); pn.setAttribute('role','button'); pn.setAttribute('aria-label',pn.dataset.sfName+' 칸 펼치기'); } else { pn.removeAttribute('tabindex'); pn.removeAttribute('role'); pn.setAttribute('aria-label',pn.dataset.sfOrig); } });
+    bl.setAttribute('aria-pressed',String(cur.l)); br.setAttribute('aria-pressed',String(cur.r));
+    bl.title=bl.ariaLabel=cur.l?'왼쪽 자료 칸 펼치기':'왼쪽 자료 칸 접기';
+    br.title=br.ariaLabel=cur.r?'오른쪽 설정 칸 펼치기':'오른쪽 설정 칸 접기';
+    const both=cur.l&&cur.r; bw.innerHTML=(both?IC_N:IC_W)+h('span',null,both?'원래대로':'넓게 보기').outerHTML;
+    bw.title=bw.ariaLabel=both?'양쪽 칸 다시 펼치기':'양쪽 칸 접고 미리 보기 넓게'; bw.setAttribute('aria-pressed',String(both));
+    if(save){ st[id]={l:cur.l,r:cur.r}; sideSave(st); fit(); }
+  };
+  bl.addEventListener('click',()=>{ cur.l=!cur.l; apply(true); });
+  br.addEventListener('click',()=>{ cur.r=!cur.r; apply(true); });
+  bw.addEventListener('click',()=>{ const both=cur.l&&cur.r; cur.l=cur.r=!both; apply(true); });
+  /* 접힌 칸(세로 띠)을 누르면 그 칸만 펼친다 */
+  const rail=(pane,k)=>pane.addEventListener('click',e=>{ if(!cur[k]) return; e.preventDefault(); e.stopPropagation(); cur[k]=false; apply(true); },true);
+  rail(L,'l'); rail(R,'r');
+  [L,R].forEach(pane=>pane.addEventListener('keydown',e=>{ if(pane.classList.contains('sf-folded')&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); pane.click(); } }));
+  apply(false); if(cur.l||cur.r) fit();
+}
 document.addEventListener('hub:mounted',e=>{
   const {id,box,opt}=e.detail; if(!GR.includes(id)) return;
   try{
@@ -225,7 +265,7 @@ document.addEventListener('hub:mounted',e=>{
     const run=()=>box.querySelectorAll('select').forEach(s=>gridify(box,id,s));
     run(); new MutationObserver(run).observe(box,{childList:true,subtree:true});
     watchPane(id,box,box.querySelector('.pane.data'),'data'); watchPane(id,box,box.querySelector('.pane.opts'),'opts');
-    bigTable(id,box); watchTable(id,box);
+    bigTable(id,box); watchTable(id,box); sideFold(id,box);
   }catch(err){ console.error('graphui',err); }
 });
 document.addEventListener('hub:show',()=>closePicker());

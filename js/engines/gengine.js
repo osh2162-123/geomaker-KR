@@ -1105,15 +1105,27 @@ function composeScatter(doc){
   return {ops,plots:[{x:0,y:0,w,h}]};
 }
 function overlap(a,b,pad){ const x=Math.max(0,Math.min(a.x+a.w,b.x+b.w+pad)-Math.max(a.x,b.x-pad)); const y=Math.max(0,Math.min(a.y+a.h,b.y+b.h+pad)-Math.max(a.y,b.y-pad)); return x*y; }
-function wrapWords(s,max){   /* 낱말 단위로 max 글자 안쪽 줄 나누기 */
+/* 줄 나누기 자리 고르기(어절 단위). '인구 비율', '자연 증가율', '65세 이상', '(%)'처럼 앞말에 붙는 낱말 앞에서는 되도록 끊지 않는다 */
+const GLUE_W=/^(?:[(（\[]|[^가-힣A-Za-z]*$)|^(?:비율|비중|증가율|감소율|변화율|성장률|자급률|보급률|도시화율|지수|성비|밀도|부양비|이상|이하|미만|초과|평균|합계|총량|생산량|소비량|수출량|수입량|매장량|발전량|공급량|순위|구성|규모|면적|당|수|량|율|률|액)(?:\(.*\))?$/;
+function brkPen(a,b){ return /^[(（\[]/.test(b)?9:GLUE_W.test(b)?4:0; }
+function lineSets(words,n){
+  const out=[], W=words.length; if(n<1||n>W) return out;
+  const rec=(start,left,cut)=>{ if(left===1){ const L=[]; let pen=0, prev=0; for(const c of cut.concat([W])){ L.push(words.slice(prev,c).join(' ')); if(c<W) pen+=brkPen(words[c-1],words[c]); prev=c; }
+      const len=L.map(x=>x.length); out.push({L,sc:pen*3+(Math.max(...len)-Math.min(...len))*0.5}); return; }
+    for(let c=start+1;c<=W-left+1;c++) rec(c,left-1,cut.concat([c])); };
+  rec(0,n,[]); return out.sort((a,b)=>a.sc-b.sc);
+}
+function wrapWords(s,max){   /* 낱말 단위로 max 글자 안쪽 줄 나누기(붙는 낱말은 함께) */
+  const ws=String(s).split(/\s+/).filter(Boolean); if(String(s).length<=max||ws.length<2) return ws.length?[ws.join(' ')]:[''];
+  for(let n=2;n<=Math.min(4,ws.length);n++){ const c=lineSets(ws,n).find(o=>o.L.every(l=>l.length<=max)); if(c) return c.L; }
   const out=[]; let cur='';
   for(const w of String(s).split(/\s+/).filter(Boolean)){ if(cur&&(cur+' '+w).length>max){ out.push(cur); cur=w; } else cur=cur?cur+' '+w:w; }
   if(cur) out.push(cur); return out.length?out:[''];
 }
 function splitTitle(s,max){
   if(s.length<=max) return [s];
-  const sp=[...s.matchAll(/\s/g)].map(m=>m.index); if(!sp.length) return [s];
-  const mid=s.length/2; const k=sp.reduce((a,b)=>Math.abs(b-mid)<Math.abs(a-mid)?b:a); return [s.slice(0,k),s.slice(k+1)];
+  const ws=s.split(/\s+/).filter(Boolean); if(ws.length<2) return [s];
+  return lineSets(ws,2)[0].L;
 }
 
 /* ───────── 발문 단서: 숨긴 시기 이름과 실제 시기 ───────── */

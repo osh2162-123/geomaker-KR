@@ -49,7 +49,7 @@ function freshDoc(kind){
   const d=EG.freshDoc('stack'); d.app='religion'; d.v=1; d.kind=KINDS.includes(kind)?kind:'stack';
   Object.assign(d.data,{unit:'%',measure:'신자 수',rowNoun:'국가',itemNoun:'종교'});
   Object.assign(d.donut,{hole:0,center:'none',top:'lbl',inLbl:'name',size:28,gap:6});
-  d.tri={size:58,step:20,grid:true,nums:true,titles:true,arrows:true,mk:'fc',mks:1.3,lbl:true,unitWord:'(%)'};
+  d.tri={size:58,step:20,grid:true,nums:true,titles:true,arrows:true,mk:'fc',mks:1.3,lbl:true,unitWord:'',unit:'(%)',unitPos:'vertex',tdir:'flat',range:'full',min:[0,0,0],sides:[0,2,1],cw:false};
   d.bars={by:'row',barW:2.6,gap:1.5,len:30,pgap:5,cols:0,values:false,dec:1,grid:true,shareCat:true,fill:'one',one:'dark',axis:{auto:true,lo:0,hi:100,step:20}};
   d.rank={layout:'country',n:2,shade:true,rowWord:'국가',mRows:'used',mCols:'all',suffix:true,cell:10.5};
   return d;
@@ -60,6 +60,8 @@ function normalizeDoc(d){
   const out=EG.normalizeDoc(Object.assign({},d,{kind:'stack'}));
   out.app='religion'; out.kind=KINDS.includes(d.kind)?d.kind:'stack';
   for(const k of ['tri','bars','rank']) out[k]=Object.assign({},f[k],d[k]||{});
+  if(d.tri&&d.tri.unitPos===undefined) Object.assign(out.tri,{unit:'',unitPos:'title',tdir:'side',sides:[0,2,1],cw:false});   /* 옛 작업 파일은 예전 모양 그대로 */
+  out.tri.min=[0,1,2].map(k=>{ const v=+((out.tri.min||[])[k]); return fin(v)&&v>=0&&v<100?v:0; });
   out.bars.axis=Object.assign({},f.bars.axis,(d.bars||{}).axis||{});
   return out;
 }
@@ -75,41 +77,80 @@ function textBeyond(ops,doc,s,x,y,ux,uy,role,pad,o){ const m=metrics(fontOf(doc,
   return textAtCenter(ops,doc,s,x+ux*ext,y+uy*ext,role,o); }
 
 /* ───────── ① 삼각 그래프 ───────── */
+/* 꼭짓점·변 배치. sides=[왼쪽 변, 오른쪽 변, 아래 변]이 읽는 열(세 열 중 몇째), cw=true면 아래 변 값이 왼쪽으로 커짐(2015 학평 양식) */
+function triOrient(o){
+  const ok=Array.isArray(o.sides)&&o.sides.length===3&&new Set(o.sides.map(Number)).size===3&&o.sides.every(k=>[0,1,2].includes(+k));
+  const sd=ok?o.sides.map(Number):[0,2,1]; const cw=!!o.cw; const [l,r,b]=sd; const V={};
+  if(cw){ V[b]='BL'; V[l]='T'; V[r]='BR'; } else { V[b]='BR'; V[r]='T'; V[l]='BL'; }
+  return {sd,cw,V};
+}
+const TRI_STEPS=[5,10,20,25,50];
+/* 보이는 범위: full 0~100, auto 자료에 맞춰 좁힘, manual 직접(세 열의 최솟값). 세 최솟값의 합만큼 줄어든 정삼각형이 된다 */
+function triRange(o,rows,st){
+  let m=[0,0,0];
+  if(o.range==='manual') m=[0,1,2].map(k=>{ const v=+((o.min||[])[k]); return fin(v)&&v>=0?v:0; });
+  else if(o.range==='auto'&&rows.length){ m=[0,1,2].map(k=>Math.max(0,Math.floor(Math.min(...rows.map(x=>x[k]))/st+1e-9)*st)); }
+  let L=100-m[0]-m[1]-m[2];
+  while(L<2*st-1e-9&&(m[0]||m[1]||m[2])){ const k=m.indexOf(Math.max(...m)); m[k]=Math.max(0,m[k]-st); L=100-m[0]-m[1]-m[2]; }
+  if(!(L>0)){ m=[0,0,0]; L=100; }
+  return {m,L};
+}
+/* 편집기용: 지금 자료로 정해지는 세 축 범위 */
+function triInfo(doc){ const o=doc.tri; const {R,C,M}=derive(doc); const cs=C.slice(0,3); if(cs.length<3) return null; const st=TRI_STEPS.includes(+o.step)?+o.step:20; const rows=[];
+  R.forEach((r,i)=>{ const v=cs.map(c=>{ const x=M[i][C.indexOf(c)]; return fin(x)&&x>0?x:0; }); const t=sum(v); if(t>0) rows.push(v.map(x=>x/t*100)); });
+  const {m,L}=triRange(o,rows,st); return {ranges:[0,1,2].map(k=>[m[k],m[k]+L])}; }
 function composeTri(doc){
   const o=doc.tri; const {R,C,M}=derive(doc); const cs=C.slice(0,3); if(!R.length||cs.length<3) return null;
   const S=o.size, H=S*Math.sqrt(3)/2; const ops=new Ops(doc); const lw=W(doc,0.15), gw=W(doc,0.1);
-  const P=(a,b,c)=>[(b+c/2)/100*S,H-c/100*H];
-  const st=[5,10,20,25,50].includes(+o.step)?+o.step:20;
-  if(o.grid) for(let t=st;t<100-1e-9;t+=st){
-    const seg=(p,q)=>ops.seg(p[0],p[1],q[0],q[1],gw,{dash:GRID_DASH});
-    seg(P(100-t,t,0),P(0,t,100-t)); seg(P(100-t,0,t),P(0,100-t,t)); seg(P(t,0,100-t),P(t,100-t,0)); }
-  ops.line([P(100,0,0),P(0,100,0),P(0,0,100)],lw,{closed:true,join:'miter'});
-  /* 눈금: 읽는 격자선을 바깥으로 늘인 방향 */
-  const tl=0.9, s3=Math.sqrt(3)/2;
-  const axes=[
-    {j:1,edge:t=>P(100-t,t,0),dir:[-0.5,s3],nrm:[0,1]},              /* 아래 변: B */
-    {j:2,edge:t=>P(0,100-t,t),dir:[1,0],nrm:[s3,-0.5]},              /* 오른쪽 변: C */
-    {j:0,edge:t=>P(t,0,100-t),dir:[-0.5,-s3],nrm:[-s3,-0.5]}];       /* 왼쪽 변: A */
-  const numBox={0:[],1:[],2:[]};
-  for(const ax of axes) for(let t=0;t<=100+1e-9;t+=st){ const [x,y]=ax.edge(t); const ex=x+ax.dir[0]*tl, ey=y+ax.dir[1]*tl; ops.seg(x,y,ex,ey,lw);
-    if(o.nums){ const it=textBeyond(ops,doc,fmt(t,0),ex,ey,ax.dir[0],ax.dir[1],'tick',0.3); if(it) numBox[ax.j].push(it.box); } }
+  const st=TRI_STEPS.includes(+o.step)?+o.step:20;
+  /* 행마다 세 값을 합 100으로 */
+  const rows=[], lost=[];
+  R.forEach((r,i)=>{ const v=cs.map(c=>{ const x=M[i][C.indexOf(c)]; return fin(x)&&x>0?x:0; }); const t=sum(v); if(!(t>0)){ lost.push(r.name); return; } rows.push({r,x:v.map(x=>x/t*100)}); });
+  const {m,L}=triRange(o,rows.map(q=>q.x),st);
+  const {sd,V}=triOrient(o); const POS={T:[S/2,0],BL:[0,H],BR:[S,H]}; const pv=k=>POS[V[k]];
+  const P=x=>{ let X=0,Y=0; for(let k=0;k<3;k++){ const u=(x[k]-m[k])/L; X+=u*pv(k)[0]; Y+=u*pv(k)[1]; } return [X,Y]; };
+  const at=(k,v,j,vj)=>{ const x=[0,0,0]; const l=3-k-j; x[k]=v; x[j]=vj; x[l]=100-v-vj; return P(x); };
+  const mult=(a,b)=>{ const out=[]; for(let t=Math.ceil(a/st-1e-9)*st;t<=b+1e-9;t+=st) out.push(Math.round(t*1e6)/1e6); return out; };
+  if(o.grid) for(let k=0;k<3;k++){ const j=(k+1)%3, l=(k+2)%3;
+    for(const v of mult(m[k],m[k]+L)){ if(v<=m[k]+1e-9||v>=m[k]+L-1e-9) continue; const a=at(k,v,j,m[j]), b=at(k,v,l,m[l]); ops.seg(a[0],a[1],b[0],b[1],gw,{dash:GRID_DASH}); } }
+  ops.line([POS.BL,POS.BR,POS.T],lw,{closed:true,join:'miter'});
+  /* 변마다: 읽는 열 P, 그 변의 다른 꼭짓점 열 Q, 마주 보는 꼭짓점 열 Rk. 눈금은 P가 같은 격자선을 바깥으로 늘인 방향 */
+  const tl=0.9, cen=[S/2,H*2/3]; const arrB=[]; const arrowB=(x0,y0,x1,y1)=>{ arrow(ops,doc,x0,y0,x1,y1); arrB.push({x:Math.min(x0,x1)-0.5,y:Math.min(y0,y1)-0.5,w:Math.abs(x1-x0)+1,h:Math.abs(y1-y0)+1}); };
+  const sides=sd.map(Pk=>{ const others=[0,1,2].filter(k=>k!==Pk); const side=[[0,'T','BL'],[1,'T','BR'],[2,'BL','BR']][sd.indexOf(Pk)];
+    const Qk=others.find(k=>V[k]===side[1]||V[k]===side[2]), Rk=others.find(k=>k!==Qk);
+    const dq=pv(Qk), dr=pv(Rk); const dir=[(dq[0]-dr[0])/S,(dq[1]-dr[1])/S];
+    return {Pk,Qk,Rk,dir,edge:v=>at(Pk,v,Rk,m[Rk])}; });
+  const numBox={0:[],1:[],2:[]}, maxBox={};
+  for(const sx of sides){ const ts=mult(m[sx.Pk],m[sx.Pk]+L); for(const t of ts){ const [x,y]=sx.edge(t); const ex=x+sx.dir[0]*tl, ey=y+sx.dir[1]*tl; ops.seg(x,y,ex,ey,lw);
+      if(o.nums){ const it=textBeyond(ops,doc,fmt(t,0),ex,ey,sx.dir[0],sx.dir[1],'tick',0.3); if(it){ numBox[sx.Pk].push(it.box); if(t===ts[ts.length-1]) maxBox[sx.Pk]=it.box; } }
+      else if(t===ts[ts.length-1]) maxBox[sx.Pk]={x:ex-0.2,y:ey-0.2,w:0.4,h:0.4}; } }
+  /* 단위: 꼭짓점(각 축 최댓값 옆)에 한 번씩 */
+  const unit=String(o.unit==null?'':o.unit).trim(); const upos=o.unitPos||'title';
+  if(unit&&upos==='vertex') for(const sx of sides){ const b=maxBox[sx.Pk]; if(!b) continue; const mm=metrics(fontOf(doc,'tick'),unit); const left=b.x+b.w/2<S/2-1e-6;
+    ops.text(unit,left?b.x-0.5:b.x+b.w+0.5,b.y+b.h/2+(mm.A-mm.D)/2,'tick',{align:left?'right':'left'}); }
   /* 축 제목과 화살표 */
-  if(o.titles){ const cxy=[S/2,H*2/3];
-    for(const ax of axes){ const c=cs[ax.j]; const title=`${lblOf(c)}${o.unitWord||''}`; const role=roleOf(lblOf(c))==='label'?'label':'axis';
-      const A=ax.edge(0), B=ax.edge(100); const mid=[(A[0]+B[0])/2,(A[1]+B[1])/2]; const n=ax.nrm;
+  if(o.titles){
+    for(const sx of sides){ const c=cs[sx.Pk]; const name=lblOf(c); const title=`${name}${o.unitWord||''}${unit&&upos==='title'?unit:''}`; const role=roleOf(name)==='label'?'label':'axis';
+      const A=sx.edge(m[sx.Pk]), B=sx.edge(m[sx.Pk]+L); const mid=[(A[0]+B[0])/2,(A[1]+B[1])/2]; const len=Math.hypot(B[0]-A[0],B[1]-A[1]); const ux=(B[0]-A[0])/len, uy=(B[1]-A[1])/len;
+      let n=[-uy,ux]; if((mid[0]-cen[0])*n[0]+(mid[1]-cen[1])*n[1]<0) n=[uy,-ux];
       const prj=b=>Math.max(...[[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h]].map(p=>(p[0]-mid[0])*n[0]+(p[1]-mid[1])*n[1]));
-      const far=Math.max(tl,...numBox[ax.j].map(prj));
-      const rot=ax.j===1?0:ax.j===2?Math.PI/3:-Math.PI/3; const m=metrics(fontOf(doc,role),title);
-      const d=far+1.1+m.H/2; const cx=mid[0]+n[0]*d, cy=mid[1]+n[1]*d; textAtCenter(ops,doc,title,cx,cy,role,{rot});
-      if(o.arrows){ /* 값이 커지는 쪽(0 → 100)으로 */ const ux=(B[0]-A[0])/S, uy=(B[1]-A[1])/S; const half=m.W/2+0.9; const x0=cx+ux*half, y0=cy+uy*half; arrow(ops,doc,x0,y0,x0+ux*4.2,y0+uy*4.2); }
-      void cxy; } }
+      const far=Math.max(tl,...numBox[sx.Pk].map(prj));
+      const m2=metrics(fontOf(doc,role),title);
+      if(o.tdir==='flat'){
+        let d=far+1.0;
+        if(o.arrows){ const al=Math.min(7,len*0.3); const cx=mid[0]+n[0]*d, cy=mid[1]+n[1]*d; arrowB(cx-ux*al/2,cy-uy*al/2,cx+ux*al/2,cy+uy*al/2); d+=1.1; }
+        const ext=Math.abs(n[0])*m2.W/2+Math.abs(n[1])*m2.H/2; textAtCenter(ops,doc,title,mid[0]+n[0]*(d+ext),mid[1]+n[1]*(d+ext),role);
+      } else {
+        let rot=Math.atan2(uy,ux); if(rot>Math.PI/2+1e-6) rot-=Math.PI; if(rot<-Math.PI/2-1e-6) rot+=Math.PI;
+        const d=far+1.1+m2.H/2; const cx=mid[0]+n[0]*d, cy=mid[1]+n[1]*d; textAtCenter(ops,doc,title,cx,cy,role,{rot});
+        if(o.arrows){ /* 값이 커지는 쪽으로 */ const half=m2.W/2+0.9; const x0=cx+ux*half, y0=cy+uy*half; arrowB(x0,y0,x0+ux*4.2,y0+uy*4.2); }
+      } } }
   /* 점 */
-  const pts=[]; const lost=[];
-  R.forEach((r,i)=>{ const v=cs.map(c=>{ const x=M[i][C.indexOf(c)]; return fin(x)&&x>0?x:0; }); const t=sum(v); if(!(t>0)){ lost.push(r.name); return; }
-    const [a,b,c]=v.map(x=>x/t*100); const [x,y]=P(a,b,c); pts.push({r,x,y}); ops.mark(x,y,o.mk||'fc',o.mks||1.3,{sw:W(doc,0.15),g:gray(doc.style.mid-40)}); });
-  LAST.tri={lost,used:cs.map(c=>c.name)};
+  const pts=[]; const out=[];
+  for(const q of rows){ if(q.x.some((v,k)=>v<m[k]-1e-6)){ out.push(q.r.name); continue; } const [x,y]=P(q.x); pts.push({r:q.r,x,y}); ops.mark(x,y,o.mk||'fc',o.mks||1.3,{sw:W(doc,0.15),g:gray(doc.style.mid-40)}); }
+  LAST.tri={lost,out,used:cs.map(c=>c.name),ranges:[0,1,2].map(k=>[m[k],m[k]+L])};
   /* 점 이름: 다른 점·이름과 겹치지 않는 자리 */
-  if(o.lbl!==false){ const placed=pts.map(p=>({x:p.x-(o.mks||1.3)/2-0.2,y:p.y-(o.mks||1.3)/2-0.2,w:(o.mks||1.3)+0.4,h:(o.mks||1.3)+0.4})).concat(ops.list.filter(t=>t.t==='text').map(t=>t.box));
+  if(o.lbl!==false){ const placed=pts.map(p=>({x:p.x-(o.mks||1.3)/2-0.2,y:p.y-(o.mks||1.3)/2-0.2,w:(o.mks||1.3)+0.4,h:(o.mks||1.3)+0.4})).concat(ops.list.filter(t=>t.t==='text').map(t=>t.box)).concat(typeof arrB!=='undefined'?arrB:[]);
     const r0=(o.mks||1.3)/2+0.45;
     for(const p of pts){ const s=lblOf(p.r); const role=roleOf(s)==='label'?'label':'cat'; const m=metrics(fontOf(doc,role),s); let best=null;
       for(const [dx,dy] of [[1,-1],[1,0],[-1,-1],[-1,0],[1,1],[-1,1],[0,-1],[0,1]]){ const len=Math.hypot(dx,dy); const ux=dx/len, uy=dy/len;
@@ -221,7 +262,7 @@ function compose(doc){
 }
 for(const k of ['tri','bars','rank']) GG.register(k,compose,'religion');
 for(const k of ['stack','donut','group','tb']) GG.register(k,EG.compose,'religion');
-function extraNotes(doc){ if(doc.kind!=='tri') return []; const {C}=derive(doc); const cs=C.slice(0,3); if(cs.length<3) return [];
+function extraNotes(doc){ if(doc.kind!=='tri'||(doc.tri&&doc.tri.noNote)) return []; const {C}=derive(doc); const cs=C.slice(0,3); if(cs.length<3) return [];
   return !cs.some(c=>c.other)?[`${namesSorted(cs.map(c=>c.name)).join(', ')}의 ${doc.data.measure||'값'} 합을 100%로 하여 나타냄.`]:[]; }
 function autoNotes(doc){ return EG.autoNotes(doc).concat(extraNotes(doc)); }
 
@@ -395,6 +436,6 @@ function cleanSpec(o){
 }
 
 return {KINDS,KIND_KO,REL,RKEYS,MAIN,SCHEME,setData,data,years,regions,countries,entities,isAgg,regionOf,arrOf,aliasFind,
-  freshDoc,normalizeDoc,compose,autoNotes,rankInfo,pruneForRank,presetComp,presetDist,presetTop,parseRequest,specToDoc,buildPrompt,cleanSpec,
+  freshDoc,normalizeDoc,compose,composeTri,triOrient,triInfo,TRI_STEPS,autoNotes,rankInfo,pruneForRank,presetComp,presetDist,presetTop,parseRequest,specToDoc,buildPrompt,cleanSpec,
   lastAxes:()=>Object.assign({},LAST)};
 })();
