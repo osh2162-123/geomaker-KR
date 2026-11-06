@@ -1257,7 +1257,7 @@ function paintSheet(doc,cv,opts){
   c.save(); c.shadowColor='rgba(0,0,0,.22)'; c.shadowBlur=14; c.shadowOffsetY=3; c.fillStyle='#ffffff'; c.fillRect(ox,oy,sw*k,sh*k); c.restore();
   c.setTransform(dpr*k,0,0,dpr*k,dpr*(ox+(M-R.b.x)*k),dpr*(oy+(M-R.b.y)*k));
   paintOps(c,R.ops.list);
-  return {k,R};
+  return {k,R,ox,oy};
 }
 
 /* ───────── SVG ───────── */

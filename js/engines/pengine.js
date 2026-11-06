@@ -95,13 +95,14 @@ function unitOf(k,ui){ const I=IND[k]; const j=ui==null?(I.u||0):ui; return {u:I
 function projNote(tps,variant,keys){ if(keys&&keys.length&&keys.every(k=>IND[k]&&IND[k].src==='ims')) return ''; return PD&&tps.some(tp=>tp.b>PD.estLast)?`${PD.estLast+1}년 이후 값은 ${variant&&variant!=='med'?variantName(variant).replace(/\s*추계$/,'')+' 추계':'중위 추계'}값임.`:''; }
 
 /* ───────── 문서 ───────── */
-const KINDS=['sc','line','dumb','group','tb','tree','stack','pyr','tri'];
-const KIND_KO={sc:'산점도',line:'꺾은선',dumb:'두 시기 비교',group:'묶은 막대',tb:'표',tree:'면적 비율',stack:'누적 막대',pyr:'인구 피라미드',tri:'삼각 그래프'};
+const KINDS=['sc','line','dumb','group','tb','tree','stack','pyr','tri','cube'];
+const KIND_KO={cube:'입방체',sc:'산점도',line:'꺾은선',dumb:'두 시기 비교',group:'묶은 막대',tb:'표',tree:'면적 비율',stack:'누적 막대',pyr:'인구 피라미드',tri:'삼각 그래프'};
 const MKS=['fc','oc','ot','ft','os','fs','od','fd'];
 function freshDoc(kind){
   const d=EG.freshDoc('stack'); d.app='population'; d.v=1; d.kind=KINDS.includes(kind)?kind:'sc';
   Object.assign(d.data,{unit:'',measure:'',rowNoun:'국가',itemNoun:'지표'});
-  d.sc={w:54,h:44,conn:true,arrow:false,diag:false,zero:true,grid:true,lbl:true,leader:true,legend:'in',mks:1.3,xTitle:'',yTitle:'',x:{auto:true,lo:0,hi:30,step:10},y:{auto:true,lo:0,hi:30,step:10}};
+  d.cube={s:30,hw:'hl',words:true,thr:['','',''],hl:{}};
+  d.sc={w:54,h:44,bd:8,zleg:true,conn:true,arrow:false,diag:false,zero:true,grid:true,lbl:true,leader:true,legend:'in',mks:1.3,xTitle:'',yTitle:'',x:{auto:true,lo:0,hi:30,step:10},y:{auto:true,lo:0,hi:30,step:10}};
   d.ln={w:40,h:42,gap:9,dash:true,mks:1.15,grid:true,zero:true,end:'end',xUnit:'년',shareY:false,y:{auto:true,lo:0,hi:100,step:20}};
   d.dumb={w:46,h:40,grid:true,zero:true,legend:'in',mks:1.35,y:{auto:true,lo:0,hi:40,step:10}};
   d.pyr={w:34,h:40,gap:7,auto:true,max:12,step:4,ageStep:20,male:'mid',female:'light',pct:true,cols:0};
@@ -116,7 +117,7 @@ function normalizeDoc(d){
   const f=freshDoc(d&&d.kind); if(!d||typeof d!=='object') return f;
   const out=EG.normalizeDoc(Object.assign({},d,{kind:'stack'}));
   out.app='population'; out.kind=KINDS.includes(d.kind)?d.kind:'sc';
-  for(const k of ['sc','ln','dumb','pyr','tri']) out[k]=Object.assign({},f[k],d[k]||{});
+  for(const k of ['sc','ln','dumb','pyr','tri','cube']) out[k]=Object.assign({},f[k],d[k]||{});
   if(d.tri&&d.tri.unitPos===undefined) Object.assign(out.tri,{unit:'',unitPos:'title',tdir:'side',sides:[0,2,1],cw:false,ageName:'group'});   /* 옛 작업 파일은 예전 모양 그대로 */
   out.tri.min=[0,1,2].map(k=>{ const v=+((out.tri.min||[])[k]); return isFinite(v)&&v>=0&&v<100?v:0; });
   out.sc.x=Object.assign({},f.sc.x,(d.sc||{}).x||{}); out.sc.y=Object.assign({},f.sc.y,(d.sc||{}).y||{}); out.ln.y=Object.assign({},f.ln.y,(d.ln||{}).y||{}); out.dumb.y=Object.assign({},f.dumb.y,(d.dumb||{}).y||{});
@@ -154,8 +155,8 @@ function frameXY(ops,doc,w,h,ax,ay,o){
 
 /* ───────── ① 산점도(한 시기 또는 두 시기를 이은 점) ───────── */
 function pairsOf(C){
-  if(C.length&&C.every(c=>c.role==='x'||c.role==='y')){ const ts=[]; for(const c of C) if(!ts.includes(c.t||'')) ts.push(c.t||'');
-    return ts.map(t=>({t,x:C.findIndex(c=>c.role==='x'&&(c.t||'')===t),y:C.findIndex(c=>c.role==='y'&&(c.t||'')===t)})).filter(p=>p.x>=0&&p.y>=0); }
+  if(C.length&&C.every(c=>c.role==='x'||c.role==='y'||c.role==='z')){ const ts=[]; for(const c of C) if(!ts.includes(c.t||'')) ts.push(c.t||'');
+    return ts.map(t=>({t,x:C.findIndex(c=>c.role==='x'&&(c.t||'')===t),y:C.findIndex(c=>c.role==='y'&&(c.t||'')===t),z:C.findIndex(c=>c.role==='z'&&(c.t||'')===t)})).filter(p=>p.x>=0&&p.y>=0); }
   const out=[]; for(let j=0;j+1<C.length;j+=2) out.push({t:C[j].t||'',x:j,y:j+1}); return out; }
 /* 선분이 상자(여유 pad)를 지나는가: 정확히 계산(Liang–Barsky) */
 function segBox(a,b,box,pad){ pad=pad||0; const x0=box.x-pad, y0=box.y-pad, x1=box.x+box.w+pad, y1=box.y+box.h+pad; let t0=0, t1=1; const dx=b.x-a.x, dy=b.y-a.y;
@@ -169,13 +170,17 @@ function composeSc(doc){
   const ops=new Ops(doc); const w=o.w, h=o.h; const cx=C[P[0].x], cy=C[P[0].y];
   const xUnit=cx.unit||'', yUnit=cy.unit||''; const {X,Y}=frameXY(ops,doc,w,h,ax,ay,{grid:o.grid,zero:o.zero,xUnit,yUnit});
   if(o.diag){ const lo=Math.max(ax.lo,ay.lo), hi=Math.min(ax.hi,ay.hi); if(hi>lo) ops.seg(X(lo),Y(lo),X(hi),Y(hi),W(doc,0.15)); }
-  const nT=P.length; const mkOf=k=>nT===1?'fc':k===0?'oc':k===nT-1?'fc':'oc';
-  const pts=[]; const segs=[];
-  R.forEach((r,i)=>{ const q=P.map((p,k)=>fin(M[i][p.x])&&fin(M[i][p.y])?{x:X(clamp(M[i][p.x],ax.lo,ax.hi)),y:Y(clamp(M[i][p.y],ay.lo,ay.hi)),mk:mkOf(k)}:null).filter(Boolean);
+  const nT=P.length; const mkOf=k=>nT===1?(P[0].z>=0?'oc':'fc'):k===0?'oc':k===nT-1?'fc':'oc';
+  /* 버블: 세 번째 지표(role z)가 있으면 원의 면적이 값에 비례 */
+  const hasZ=P[0].z>=0; const zs=[]; if(hasZ) R.forEach((_,i)=>P.forEach(p=>{ if(p.z>=0&&fin(M[i][p.z])&&M[i][p.z]>0) zs.push(M[i][p.z]); }));
+  const zmax=zs.length?Math.max(...zs):1; const bd=o.bd||8; const szf=v=>Math.max(1.0,bd*Math.sqrt(v/zmax));
+  const pts=[]; const segs=[]; const allM=[];
+  R.forEach((r,i)=>{ const q=P.map((p,k)=>fin(M[i][p.x])&&fin(M[i][p.y])?{x:X(clamp(M[i][p.x],ax.lo,ax.hi)),y:Y(clamp(M[i][p.y],ay.lo,ay.hi)),mk:mkOf(k),sz:hasZ&&p.z>=0&&fin(M[i][p.z])&&M[i][p.z]>0?szf(M[i][p.z]):o.mks}:null).filter(Boolean);
     if(o.conn&&q.length>1){ ops.line(q.map(p=>[p.x,p.y]),W(doc,0.2)); if(o.arrow){ const a=q[q.length-2], b=q[q.length-1]; arrowHead(ops,doc,a.x,a.y,b.x-(b.x-a.x)*0.06,b.y-(b.y-a.y)*0.06); } for(let k=0;k+1<q.length;k++) segs.push([q[k],q[k+1]]); }
-    q.forEach(p=>mark(ops,doc,p.x,p.y,p.mk,o.mks)); pts.push({r,q}); });
+    q.forEach(p=>allM.push(p)); pts.push({r,q}); });
+  allM.sort((a,b)=>b.sz-a.sz).forEach(p=>mark(ops,doc,p.x,p.y,p.mk,p.sz));
   /* 점 이름: 선 가운데(두 시기) 또는 점 옆, 다른 점·선·이름을 피해서. 가까운 자리가 모두 겹치면 조금 떨어뜨리고 지시선으로 잇는다 */
-  if(o.lbl){ const placed=pts.flatMap(p=>p.q.map(a=>({x:a.x-o.mks/2-0.25,y:a.y-o.mks/2-0.25,w:o.mks+0.5,h:o.mks+0.5})));
+  if(o.lbl){ const placed=pts.flatMap(p=>p.q.map(a=>({x:a.x-a.sz/2-0.25,y:a.y-a.sz/2-0.25,w:a.sz+0.5,h:a.sz+0.5})));
     const segHit=box=>segs.some(([a,b])=>segBox(a,b,box,0.2));
     const allPts=pts.flatMap(p=>p.q.map(a=>({x:a.x,y:a.y,p})));
     const dBox=(box,x,y)=>Math.hypot(Math.max(box.x-x,0,x-box.x-box.w),Math.max(box.y-y,0,y-box.y-box.h));
@@ -188,7 +193,7 @@ function composeSc(doc){
     const DIR16=Array.from({length:16},(_,i)=>{ const a=-Math.PI/2+i*Math.PI/8; return [Math.cos(a),Math.sin(a)]; });
     const labs=[];
     for(const p of pts){ if(!p.q.length) continue; const s=lblOf(p.r); const role=roleOf(s)==='label'?'label':'cat'; const m=metrics(fontOf(doc,role),s);
-      const anchors=p.q.length>1?[{x:(p.q[0].x+p.q[1].x)/2,y:(p.q[0].y+p.q[1].y)/2,r:0.9},...p.q.map(a=>({x:a.x,y:a.y,r:o.mks/2+0.5}))]:[{x:p.q[0].x,y:p.q[0].y,r:o.mks/2+0.5}];
+      const anchors=p.q.length>1?[{x:(p.q[0].x+p.q[1].x)/2,y:(p.q[0].y+p.q[1].y)/2,r:0.9},...p.q.map(a=>({x:a.x,y:a.y,r:a.sz/2+0.5}))]:[{x:p.q[0].x,y:p.q[0].y,r:p.q[0].sz/2+0.5}];
       let best=null;
       for(const an of anchors) for(const [dx,dy] of DIR8){ const len=Math.hypot(dx,dy); const ux=dx/len, uy=dy/len;
         const ext=Math.abs(ux)*m.W/2+Math.abs(uy)*m.H/2; const cxp=an.x+ux*(an.r+ext), cyp=an.y+uy*(an.r+ext); const box={x:cxp-m.W/2,y:cyp-m.H/2,w:m.W,h:m.H};
@@ -199,13 +204,13 @@ function composeSc(doc){
         for(const d of [2.6,3.6,4.8,6.2,8,10,12.5,15]) { for(const [ux,uy] of DIR16){ const ext=Math.abs(ux)*m.W/2+Math.abs(uy)*m.H/2; const cxp=an.x+ux*(an.r+d+ext), cyp=an.y+uy*(an.r+d+ext); const box={x:cxp-m.W/2,y:cyp-m.H/2,w:m.W,h:m.H};
             const [ex,ey]=edge(box,an.x,an.y); const A={x:an.x,y:an.y}, B={x:ex,y:ey};
             /* 지시선이 다른 점·이름·선을 지나면 감점 */
-            const cross=placed.filter(q=>!(Math.abs(q.x+q.w/2-an.x)<o.mks&&Math.abs(q.y+q.h/2-an.y)<o.mks)&&segBox(A,B,q,0.1)).length*1.0
+            const cross=placed.filter(q=>!(Math.abs(q.x+q.w/2-an.x)<an.r*2&&Math.abs(q.y+q.h/2-an.y)<an.r*2)&&segBox(A,B,q,0.1)).length*1.0
               +segs.filter(([a,b])=>{ const den=(b.x-a.x)*(B.y-A.y)-(b.y-a.y)*(B.x-A.x); if(Math.abs(den)<1e-9) return false; const t=((A.x-a.x)*(B.y-A.y)-(A.y-a.y)*(B.x-A.x))/den, u=((A.x-a.x)*(b.y-a.y)-(A.y-a.y)*(b.x-a.x))/den; return t>0.02&&t<0.98&&u>0.05&&u<0.98; }).length*0.6;
             const bad=score(box)+cross+d*0.03; if(far==null||bad<far.bad) far={bad,cxp,cyp,box,ex,ey}; }
           if(far&&far.bad<0.25) break; }
         if(far&&far.bad+0.3<best.bad){ best=far; lead=[an.x,an.y,far.ex,far.ey]; } }
       if(lead) segs.push([{x:lead[0],y:lead[1]},{x:lead[2],y:lead[3]}]);
-      labs.push({s,role,cx:best.cxp,cy:best.cyp,box:best.box,lead,st:p.q.length>1?0:o.mks/2+0.15}); placed.push(best.box); }
+      labs.push({s,role,cx:best.cxp,cy:best.cyp,box:best.box,lead,st:p.q.length>1?0:p.q[0].sz/2+0.15}); placed.push(best.box); }
     /* 지시선끼리 엇갈리면 두 이름 자리를 맞바꾼다 */
     const X2=(a,b)=>{ const [p1x,p1y,p2x,p2y]=a, [q1x,q1y,q2x,q2y]=b; const d=(p2x-p1x)*(q2y-q1y)-(p2y-p1y)*(q2x-q1x); if(Math.abs(d)<1e-9) return false;
       const t=((q1x-p1x)*(q2y-q1y)-(q1y-p1y)*(q2x-q1x))/d, u=((q1x-p1x)*(p2y-p1y)-(q1y-p1y)*(p2x-p1x))/d; return t>0.01&&t<0.99&&u>0.01&&u<0.99; };
@@ -218,6 +223,12 @@ function composeSc(doc){
     for(const L of labs){ if(L.lead){ const [ax0,ay0,bx,by]=L.lead; const len=Math.hypot(bx-ax0,by-ay0)||1; const st=Math.min(L.st,len*0.4); const ux=(bx-ax0)/len, uy=(by-ay0)/len;
         ops.seg(ax0+ux*st,ay0+uy*st,bx,by,W(doc,0.12)); }
       textAt(ops,doc,L.s,L.cx,L.cy,L.role,{halo:'w'}); } }
+  /* 크기 범례: 기준 값 두 개의 원 */
+  if(hasZ&&zs.length&&o.zleg!==false){ const zc=C[P[0].z]; const nice=v=>{ const p=Math.pow(10,Math.floor(Math.log10(v))); const m=v/p; return (m>=5?5:m>=2?2:1)*p; };
+    const r1=nice(zmax), r2=r1/4; const fv=v=>(+v.toPrecision(3)).toLocaleString('en-US',{maximumFractionDigits:2}); const lg=new Ops(doc);
+    const t1=`원의 크기: ${zc.ax||zc.name}${zc.unit?` (${zc.unit})`:''}`; const m1=metrics(fontOf(doc,'legend'),t1); lg.text(t1,0,m1.A,'legend');
+    let y=m1.H+1.2+szf(r1)/2; for(const v of [r1,r2]){ const d=szf(v); lg.mark(1+szf(r1)/2,y,'oc',d,{sw:W(doc,0.15),g:gray(doc.style.mid-40)}); const tm=metrics(fontOf(doc,'legend'),fv(v)); lg.text(fv(v),1+szf(r1)+1.4,y+(tm.A-tm.D)/2,'legend'); y+=d/2+(v===r1?szf(r2)/2:0)+1.4; }
+    const bb=ops.bounds(); const lb=lg.bounds(); ops.absorb(lg,bb.x+bb.w+3-lb.x,0-lb.y); }
   /* 축 이름 */
   const xT=o.xTitle||cx.ax||'', yT=o.yTitle||cy.ax||'';
   const tm=metrics(fontOf(doc,'tick'),'0');
@@ -226,7 +237,7 @@ function composeSc(doc){
   /* 시점 범례 */
   let legend=null;
   if(nT>1&&o.legend!=='none'){ const lg=tpLegend(doc,P.map((p,k)=>({text:p.t||`시기 ${k+1}`,mk:mkOf(k)})),o.conn); const lb=lg.bounds();
-    const obs=pts.flatMap(p=>p.q.map(a=>({x:a.x-1,y:a.y-1,w:2,h:2}))).concat(ops.list.filter(t=>t.t==='text'&&t.box.x>=0&&t.box.y>=0&&t.box.x<w&&t.box.y<h).map(t=>t.box));
+    const obs=pts.flatMap(p=>p.q.map(a=>({x:a.x-a.sz/2,y:a.y-a.sz/2,w:a.sz,h:a.sz}))).concat(ops.list.filter(t=>t.t==='text'&&t.box.x>=0&&t.box.y>=0&&t.box.x<w&&t.box.y<h).map(t=>t.box));
     const spots=[[w-1.6-lb.w,1.6],[1.6,1.6],[w-1.6-lb.w,h-1.6-lb.h],[1.6,h-1.6-lb.h]]; let at=null;
     if(o.legend==='in') for(const [x,y] of spots){ const box={x,y,w:lb.w,h:lb.h}; if(!obs.some(q=>GG.overlap(q,box,0.3)>0)&&!segs.some(([a,b])=>segBox(a,b,box,0.2))){ at=[x,y]; break; } }
     if(!at&&o.legend==='below'){ const b=ops.bounds(); const lg2=tpLegend(doc,P.map((p,k)=>({text:p.t||`시기 ${k+1}`,mk:mkOf(k)})),false,true); const l2=lg2.bounds(); ops.absorb(lg2,w/2-l2.w/2-l2.x,b.y+b.h+2.2-l2.y); at='done'; }
@@ -344,9 +355,45 @@ function composePyr(doc){
 }
 
 /* ───────── 조립 ───────── */
+/* ───────── 입방체: 지표 셋(가로·세로·깊이)의 높음/낮음을 꼭짓점 여덟 곳에 놓는다 ───────── */
+const CUBE_HW={hl:['높음','낮음'],ma:['많음','적음'],bs:['큼','작음']};
+function cubeInfo(doc){
+  const o=doc.cube; const {R,C,M}=derive(doc); if(!R.length||C.length<3) return null;
+  const thr=[0,1,2].map(j=>{ const t=o.thr&&o.thr[j]; if(t!==''&&t!=null&&isFinite(+t)) return +t; const v=R.map((_,i)=>M[i][j]).filter(fin).sort((a,b)=>a-b); if(!v.length) return 0; const m=v.length>>1; return v.length%2?v[m]:(v[m-1]+v[m])/2; });
+  const hi=(i,j)=>{ const ov=(o.hl&&o.hl[R[i].id]||[])[j]; if(ov==='h') return true; if(ov==='l') return false; const v=M[i][j]; return fin(v)?v>=thr[j]:null; };
+  const at={}; const warn=[];
+  R.forEach((r,i)=>{ const b=[0,1,2].map(j=>hi(i,j)); if(b.some(x=>x==null)){ warn.push(`${r.name}은(는) 값이 없어 그리지 않았어요.`); return; }
+    [0,1,2].forEach(j=>{ const v=M[i][j]; if(!((o.hl&&o.hl[r.id]||[])[j])&&fin(v)&&v===thr[j]) warn.push(`${r.name}의 ${lblOf(C[j])} 값이 기준과 같아 ‘높음’으로 봤어요.`); });
+    const k=b.map(x=>x?1:0).join(''); (at[k]=at[k]||[]).push(r); });
+  for(const [k,a] of Object.entries(at)) if(a.length>1) warn.push(`${a.map(r=>r.name).join(', ')}은(는) 같은 꼭짓점에 놓여요. 기준을 바꾸거나 ‘높음/낮음’을 직접 고르세요.`);
+  return {R,C,M,thr,at,warn};
+}
+function composeCube(doc){
+  const o=doc.cube; const info=cubeInfo(doc); if(!info) return null; const {C,at}=info;
+  const s=o.s, dx=s*0.5, dy=s*0.42, lw=W(doc,0.2); const P=(x,y,z)=>[x*s+z*dx,(1-y)*s-z*dy];
+  const ops=new Ops(doc); const hid=p=>p[0]===0&&p[1]===0&&p[2]===1;
+  const E=[]; for(const a of [0,1]) for(const b of [0,1]){ E.push([[0,a,b],[1,a,b]]); E.push([[a,0,b],[a,1,b]]); E.push([[a,b,0],[a,b,1]]); }
+  for(const [p,q] of E){ const h=hid(p)||hid(q); ops.line([P(...p),P(...q)],h?W(doc,0.15):lw,{dash:h?GRID_DASH:null}); }
+  const ctr=P(0.5,0.5,0.5);
+  for(const [k,rows] of Object.entries(at)){ const v=k.split('').map(Number); const [px,py]=P(v[0],v[1],v[2]); mark(ops,doc,px,py,'fc',1.7);
+    const t=rows.map(r=>lblOf(r)).join(', '); const role=roleOf(t)==='label'?'label':'cat'; const m=metrics(fontOf(doc,role),t);
+    const ux=ctr[0]>px?1:-1, uy=ctr[1]>py?1:-1; textAt(ops,doc,t,px+ux*(1.1+m.W/2),py+uy*(0.6+m.H/2),role,{halo:'w'}); }
+  const [wHi,wLo]=CUBE_HW[o.hw]||CUBE_HW.hl; const wd=o.words!==false; const tk=metrics(fontOf(doc,'tick'),'가'); const ttl=j=>lblOf(C[j]);
+  /* 가로축(앞면 아래 모서리) */
+  const yw=s+1.3+tk.H/2; if(wd){ textAt(ops,doc,`(${wLo})`,0.8,yw,'tick',{align:'left'}); textAt(ops,doc,`(${wHi})`,s-0.8,yw,'tick',{align:'right'}); }
+  textAt(ops,doc,ttl(0),s/2,yw+(wd?tk.H+0.7:0),'axis');
+  /* 세로축(앞면 왼쪽 모서리) */
+  let lx=-1.4; if(wd){ const a=metrics(fontOf(doc,'tick'),`(${wHi})`), b=metrics(fontOf(doc,'tick'),`(${wLo})`); ops.text(`(${wHi})`,lx,0+(a.A-a.D)/2,'tick',{align:'right'}); ops.text(`(${wLo})`,lx,s+(b.A-b.D)/2,'tick',{align:'right'}); lx-=Math.max(a.W,b.W)+2.0; }
+  ops.vtext(ttl(1),lx,s/2,'axis');
+  /* 깊이축(오른쪽 아래 모서리) */
+  const [nx,ny]=P(1,0,0), [fx,fy]=P(1,0,1); const rx=1.8;
+  if(wd){ ops.text(`(${wLo})`,nx+rx,ny+0.9+(tk.A-tk.D)/2,'tick'); ops.text(`(${wHi})`,fx+rx,fy+(tk.A-tk.D)/2,'tick'); }
+  const mid=metrics(fontOf(doc,'axis'),ttl(2)); ops.text(ttl(2),(nx+fx)/2+rx+(wd?4.5:1.5),(ny+fy)/2+(mid.A-mid.D)/2,'axis');
+  return {ops,plot:{x:0,y:-dy,w:s+dx,h:s+dy},legend:'none',items:[],notes:[]};
+}
 function compose(doc){
   for(const k of Object.keys(LAST)) delete LAST[k];
-  const f={sc:composeSc,line:composeLine,dumb:composeDumb,pyr:composePyr,tri:composeTriAge}[doc.kind]; const r=f?f(doc):null; if(!r) return null;
+  const f={sc:composeSc,line:composeLine,dumb:composeDumb,pyr:composePyr,tri:composeTriAge,cube:composeCube}[doc.kind]; const r=f?f(doc):null; if(!r) return null;
   const ops=finish(doc,r); return {ops,plots:[r.plot]};
 }
 /* 삼각 그래프: 열 이름 뒤의 나이 구간 '(0~14세)'는 축 이름에서 뺀다(‘유소년층 인구 비율(%)’처럼 읽히게) */
@@ -357,7 +404,7 @@ function composeTriAge(doc){
   const mode=(doc.tri&&doc.tri.ageName)||'group';
   const d2=Object.assign({},doc,{data:Object.assign({},doc.data,{cols:doc.data.cols.map(c=>Object.assign({},c,{name:ageName(c.name,mode)}))})});
   return RG.composeTri(d2); }
-for(const k of ['sc','line','dumb','pyr','tri']) GG.register(k,compose,'population');
+for(const k of ['sc','line','dumb','pyr','tri','cube']) GG.register(k,compose,'population');
 for(const k of ['group','tb','tree','stack']) GG.register(k,EG.compose,'population');
 function autoNotes(doc){ const extra=[]; const {C}=derive(doc);
   if(doc.kind==='sc') extra.push(...scNotes(doc,C,pairsOf(C))); if(doc.kind==='pyr') extra.push(...pyrNotes(doc));
@@ -411,13 +458,14 @@ function presetProj(doc,p){
 /* 산점도: 행 = 나라, 열 = (가로축, 세로축) × 시점 */
 function presetSc(doc,p){
   const rows=expandRows(p.rows||[]).filter(n=>PD.v[n]); const tps=(p.tps||[]).map(parseTp).filter(Boolean).slice(0,3); const kx=p.kx, ky=p.ky; if(!IND[kx]||!IND[ky]) return {rows:[],missing:[]};
-  const Ux=unitOf(kx,p.ux), Uy=unitOf(ky,p.uy); const cols=[], idx=[];
+  const Ux=unitOf(kx,p.ux), Uy=unitOf(ky,p.uy); const kz=IND[p.kz]?p.kz:null, Uz=kz?unitOf(kz,p.uz):null; const cols=[], idx=[];
   tps.forEach(tp=>{ cols.push({name:`${indName(kx)} ${tp.label}`,key:kx,unit:Ux.u,dec:Ux.dec,role:'x',t:`${tp.label}년`,ax:indName(kx)}); idx.push([kx,tp,Ux.f]);
-    cols.push({name:`${indName(ky)} ${tp.label}`,key:ky,unit:Uy.u,dec:Uy.dec,role:'y',t:`${tp.label}년`,ax:indName(ky)}); idx.push([ky,tp,Uy.f]); });
+    cols.push({name:`${indName(ky)} ${tp.label}`,key:ky,unit:Uy.u,dec:Uy.dec,role:'y',t:`${tp.label}년`,ax:indName(ky)}); idx.push([ky,tp,Uy.f]);
+    if(kz){ cols.push({name:`${indName(kz)} ${tp.label}`,key:kz,unit:Uz.u,dec:Uz.dec,role:'z',t:`${tp.label}년`,ax:indName(kz)}); idx.push([kz,tp,Uz.f]); } });
   const v=rows.map(n=>idx.map(([k,tp,f])=>valueAt(n,k,tp,f)));
   setTable(doc,rows.map(n=>({name:n})),cols,v,{fills:false});
-  Object.assign(doc.data,{unit:'',measure:'',rowNoun:rows.every(n=>!isAgg(n))?'국가':'지역',itemNoun:'지표',note:projNote(tps,null,[kx,ky]),noteSum:false});
-  doc.preset={type:'sc',rows,kx,ky,ux:p.ux,uy:p.uy,tps:tps.map(t=>t.label)}; doc.meta.year=tps.length===1?`(${tps[0].label})`:'';
+  Object.assign(doc.data,{unit:'',measure:'',rowNoun:rows.every(n=>!isAgg(n))?'국가':'지역',itemNoun:'지표',note:projNote(tps,null,kz?[kx,ky,kz]:[kx,ky]),noteSum:false});
+  doc.preset={type:'sc',rows,kx,ky,kz,uz:p.uz,ux:p.ux,uy:p.uy,tps:tps.map(t=>t.label)}; doc.meta.year=tps.length===1?`(${tps[0].label})`:'';
   return {rows,missing:(p.rows||[]).filter(n=>!String(n).startsWith('@')&&!PD.v[aliasFind(n)||n])};
 }
 /* 지역 안 나라별 인구 순위와 비율: 행 = 지역, 열 = 1위…N위, 기타 */
@@ -535,6 +583,7 @@ function parseRequest(q){
   const ORD=['hi','med','lo','cf','zm','nc','mo','ir']; spec.variants=VW.filter(([,re])=>re.test(text)).map(([k])=>k).sort((a,b)=>ORD.indexOf(a)-ORD.indexOf(b));
   if(/피라미드/.test(text)) spec.kind='pyr';
   else if(/삼각/.test(text)) spec.kind='tri';
+  else if(/입방체|정육면체|큐브/.test(text)) spec.kind='cube';
   else if(/산점도|가로축|세로축|x\s*축|y\s*축/.test(text)) spec.kind='sc';
   else if(/두\s*시기|아령|시기\s*비교/.test(text)) spec.kind='dumb';
   else if(/꺾은선|선\s*그래프|추이|변화/.test(text)) spec.kind='line';
@@ -543,6 +592,7 @@ function parseRequest(q){
   else if(/(^|\s)표(로|\s|$)|표를/.test(text)) spec.kind='tb';
   if(/섞어|무작위/.test(text)) spec.shuffle=true; if(/대각선|y\s*=\s*x/.test(text)) spec.diag=true; if(/범례/.test(text)) spec.end='legend';
   let keys=indsIn(text); if(/2018\s*년?\s*판/.test(text)) keys=keys.map(k=>IND[k+'18']?k+'18':k); spec.keys=keys; spec.units=keys.map(k=>unitIn(text,k.replace(/18$/,'')));
+  { const zm=/(원|점|버블)\s*(의\s*)?크기\s*(는|를|로|가|:)?/.exec(text); if(zm&&spec.kind==='sc'&&indsIn.last){ const hz=indsIn.last.find(x=>x.i>=zm.index); const j=hz?spec.keys.indexOf(hz.k):-1; if(j>=0&&spec.keys.length>=3){ spec.kz=hz.k; spec.uz=spec.units[j]; spec.keys.splice(j,1); spec.units.splice(j,1); keys=keys.filter(k=>k!==hz.k); } } }
   spec.tps=tpsIn(text);
   const tn=text.match(/(\d+)\s*위\s*까지|상위\s*(\d+)/); if(tn) spec.n=+(tn[1]||tn[2]);
   spec.cellName=/나라\s*이름|국가\s*이름|국가명|나라명/.test(text)?'top':null;
@@ -569,7 +619,7 @@ function specToDoc(spec,cur){
   const last=String(PD.estLast);
   if(spec.src==='cmp') info=presetCmp(d,{rows:spec.rows,keys:spec.keys,units:spec.units,tp:spec.tps[0]||last});
   else if(spec.src==='trend') info=presetTrend(d,{rows:spec.rows,keys:spec.keys,units:spec.units,tps:spec.tps.length?spec.tps:['1970','1980','1990','2000','2010','2020']});
-  else if(spec.src==='sc') info=presetSc(d,{rows:spec.rows,kx:spec.keys[0],ky:spec.keys[1],ux:spec.units[0],uy:spec.units[1],tps:spec.tps.length?spec.tps:[last]});
+  else if(spec.src==='sc') info=presetSc(d,{rows:spec.rows,kx:spec.keys[0],ky:spec.keys[1],ux:spec.units[0],uy:spec.units[1],kz:spec.kz,uz:spec.uz,tps:spec.tps.length?spec.tps:[last]});
   else if(spec.src==='share') info=presetShare(d,{regions:spec.rows,n:spec.n||5,tp:spec.tps[0]||last});
   else if(spec.src==='proj'){ const ys=spec.tps.filter(t=>/^\d{4}$/.test(t)); info=presetProj(d,{rows:spec.rows,k:spec.keys[0],unit:spec.units[0],variants:spec.variants.length>1?spec.variants:['hi','med','lo'],tps:ys.length>2?ys:PROJ_YEARS}); }
   else if(spec.src==='migod'){ const rev=spec.rev||migRevs()[0]; info=presetMigOD(d,{dest:spec.dest,origins:spec.rows,year:spec.tps[0]||migYears(rev).slice(-1)[0],rev,n:spec.n||5,shape:spec.kind==='tree'||spec.kind==='stack'?'share':'rows'}); }

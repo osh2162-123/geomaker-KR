@@ -24,6 +24,7 @@ const IC={
  sc:'<path class="s nf" d="M8 8v48h48M8 32h48"/><circle class="fb" cx="18" cy="42" r="3.4"/><circle class="fb" cx="26" cy="20" r="3.4"/><circle class="f2 s" cx="36" cy="46" r="3.4"/><circle class="fb" cx="46" cy="24" r="3.4"/><circle class="f2 s" cx="50" cy="42" r="3.4"/>',
  rd:'<path class="f1 s" d="M32 8l22 16-8 26H18L10 24z"/><path class="s nf" d="M32 32V8M32 32l22-8M32 32l-8 18M32 32l14 18M32 32 10 24"/><path class="fb" opacity=".75" d="M32 17l14 10-4 16H24l-6-16z"/>',
  rank:'<rect class="f1 s" x="8" y="9" width="48" height="46" rx="4"/><circle class="fb" cx="18" cy="21" r="4"/><circle class="f2 s" cx="18" cy="32" r="4"/><circle class="f2 s" cx="18" cy="43" r="4"/><path class="s nf" d="M28 21h20M28 32h16M28 43h12"/>',
+ cube:'<path class="f1 s" d="M10 24h30v30H10z"/><path class="f2 s" d="M40 24l14-12v30L40 54z"/><path class="f2 s" d="M10 24l14-12h30L40 24z"/><circle class="fb" cx="10" cy="54" r="3.2"/><circle class="fb" cx="54" cy="12" r="3.2"/><circle class="fb" cx="40" cy="24" r="3.2"/>',
  tri:'<path class="f1 s" d="M32 8 57 54H7z"/><path class="s nf" d="M19.5 31h25M13.5 42h37M26 20h12"/><circle class="fb" cx="30" cy="38" r="3.4"/><circle class="fb" cx="40" cy="44" r="3.4"/><circle class="f2 s" cx="24" cy="46" r="3.4"/>',
  bars:'<path class="s nf" d="M8 8v48h48"/><rect class="fb" x="13" y="26" width="8" height="30" rx="1"/><rect class="f2 s" x="24" y="14" width="8" height="42" rx="1"/><rect class="fb" x="35" y="36" width="8" height="20" rx="1"/><rect class="f2 s" x="46" y="44" width="7" height="12" rx="1"/>',
  dumb:'<path class="s nf" d="M8 8v48h48"/><path class="s nf" d="M18 18h24M14 32h32M24 46h26"/><circle class="f2 s" cx="18" cy="18" r="3.6"/><circle class="fb" cx="42" cy="18" r="3.6"/><circle class="f2 s" cx="14" cy="32" r="3.6"/><circle class="fb" cx="46" cy="32" r="3.6"/><circle class="f2 s" cx="24" cy="46" r="3.6"/><circle class="fb" cx="50" cy="46" r="3.6"/>',
@@ -36,7 +37,7 @@ const THEMES={
  climate:[['기후 그래프','기온 선과 강수량 막대','climo',['climo']],['월별 그래프','달마다의 값을 선으로','line',['line']],['지역 비교','막대·산점도·방사형','cat',['cat','sc','rd']],['표','수치를 표로','tb',['tb']]],
  energy:[['구성 비율','누적 막대·도넛·면적','stack',['stack','donut','tree']],['나라별 비교','묶은 막대·상댓값 막대','group',['group','small']],['표','수치를 표로','tb',['tb']]],
  religion:[['구성 비율','누적 막대·원·삼각 그래프','stack',['stack','donut','tri']],['종교별 비교','종교별 막대·묶은 막대','bars',['bars','group']],['순위·표','순위 표와 수치 표','rank',['rank','tb']]],
- population:[['변화와 관계','산점도·꺾은선·두 시기 비교','sc',['sc','line','dumb']],['비교와 구성','묶은 막대·면적·누적 막대','group',['group','tree','stack']],['연령 구조','인구 피라미드·삼각 그래프','pyr',['pyr','tri']],['표','수치를 표로','tb',['tb']]],
+ population:[['변화와 관계','산점도·꺾은선·두 시기 비교·입방체','sc',['sc','line','dumb','cube']],['비교와 구성','묶은 막대·면적·누적 막대','group',['group','tree','stack']],['연령 구조','인구 피라미드·삼각 그래프','pyr',['pyr','tri']],['표','수치를 표로','tb',['tb']]],
  agriculture:[['구성 비율','누적 막대·원·면적','stack',['stack','donut','tree']],['비교','묶은 막대·상댓값·산점도','group',['group','small','sc']],['표·이름 표','수치 표와 이름 표','tb',['tb','list']]]
 };
 const h=(t,a,...k)=>{ const e=document.createElement(t); for(const [x,v] of Object.entries(a||{})){ if(v==null) continue; if(x==='class') e.className=v; else e.setAttribute(x,v); } e.append(...k.filter(c=>c!=null)); return e; };

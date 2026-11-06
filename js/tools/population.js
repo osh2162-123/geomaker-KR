@@ -137,13 +137,16 @@ function renderPB(){
     B.append(h('div',{class:'paste-row'},go)); }
   if(ui.pb==='sc'){ const c=ui.sc;
     const [sx,uxs]=indPick(()=>c.kx,v=>c.kx=v,()=>c.ux,v=>c.ux=v,'가로축 지표'), [sy,uys]=indPick(()=>c.ky,v=>c.ky=v,()=>c.uy,v=>c.uy=v,'세로축 지표');
-    B.append(...people(c.rows),row('가로축',sx,uxs),row('세로축',sy,uys),
+    const zsel=h('select',{'aria-label':'원 크기 지표'}); zsel.append(h('option',{value:''},'없음 (보통 산점도)')); indOpts().forEach(([k,t])=>zsel.append(h('option',{value:k},t))); zsel.value=c.kz||'';
+    const zun=h('select',{'aria-label':'원 크기 단위'}); const fillZ=()=>{ zun.textContent=''; zun.hidden=!c.kz; if(c.kz) PG.IND[c.kz].units.forEach(([t],j)=>zun.append(h('option',{value:j},t))); zun.value=String(c.uz==null?(c.kz?(PG.IND[c.kz].u||0):0):c.uz); };
+    zsel.addEventListener('change',()=>{ c.kz=zsel.value; c.uz=null; fillZ(); saveLocal(); }); zun.addEventListener('change',()=>{ c.uz=+zun.value; saveLocal(); }); fillZ();
+    B.append(...people(c.rows),row('가로축',sx,uxs),row('세로축',sy,uys),row('원 크기',zsel,zun),
       row('시점',txt(()=>c.tps,v=>{ c.tps=v; saveLocal(); },'1960, 2020','시점','none')),
       h('p',{class:'sub'},'시점을 두 개 적으면 앞 시점(○)과 뒤 시점(●)을 선으로 이어요(2024학년도 9월 12번, 2025학년도 6월 16번 양식).'),h('p',{class:'src-note'},TP_HELP));
     const go=h('button',{class:'btn primary',type:'button'},'표 만들기'); go.addEventListener('click',()=>{
       const {out,bad}=tpCheck(tpList(c.tps)); if(!c.rows.length){ pbMsg('err','나라나 지역을 하나 이상 골라 주세요.'); return; } if(!out.length){ pbMsg('err','시점을 알아보지 못했어요. 예: 1960, 2020'); return; }
-      const r=PG.presetSc(doc,{rows:c.rows,kx:c.kx,ky:c.ky,ux:c.ux,uy:c.uy,tps:out}); typeChanged(); doc.kind='sc'; doc.sc.x.auto=true; doc.sc.y.auto=true;
-      pbMsg(bad.length?'warn':'ok',`열은 (가로축, 세로축) 짝이 시점마다 하나씩이에요.${bad.length?` ${bad.join(', ')}은(는) 자료 범위 밖이라 뺐어요.`:''}${r.missing.length?` ${r.missing.join(', ')}은(는) 자료에 없어요.`:''} ${PG.srcText([c.kx,c.ky])}`); syncTop(); changed('all'); });
+      const r=PG.presetSc(doc,{rows:c.rows,kx:c.kx,ky:c.ky,ux:c.ux,uy:c.uy,kz:c.kz||null,uz:c.uz,tps:out}); typeChanged(); doc.kind='sc'; doc.sc.x.auto=true; doc.sc.y.auto=true;
+      pbMsg(bad.length?'warn':'ok',`열은 (가로축, 세로축) 짝이 시점마다 하나씩이에요.${bad.length?` ${bad.join(', ')}은(는) 자료 범위 밖이라 뺐어요.`:''}${r.missing.length?` ${r.missing.join(', ')}은(는) 자료에 없어요.`:''} ${PG.srcText([c.kx,c.ky,c.kz].filter(Boolean))}`); syncTop(); changed('all'); });
     B.append(h('div',{class:'paste-row'},go)); }
   if(ui.pb==='cmp'){ const c=ui.cmp;
     const ind=c.keys.map((k,i)=>{ const [s,u]=indPick(()=>c.keys[i],v=>c.keys[i]=v,()=>c.units[i],v=>c.units[i]=v,`지표 ${i+1}`); const x=h('button',{class:'ico x',type:'button','aria-label':'지표 빼기'},'×'); x.addEventListener('click',()=>{ c.keys.splice(i,1); c.units.splice(i,1); saveLocal(); renderPB(); }); return row(`지표 ${i+1}`,s,u,x); });
@@ -364,6 +367,8 @@ function renderOpts(){
       row('시점 범례',seg([['in','그래프 안'],['right','오른쪽'],['below','아래'],['none','없음']],()=>o.legend,v=>o.legend=v)),
       row('가로축 이름',txt(()=>o.xTitle,v=>o.xTitle=v,'비우면 지표 이름','가로축 이름')),row('세로축 이름',txt(()=>o.yTitle,v=>o.yTitle=v,'비우면 지표 이름','세로축 이름')),
       row('점 크기',num(()=>o.mks,v=>o.mks=v,{min:0.6,max:4,step:0.1,aria:'점 크기(mm)'}),h('span',{class:'unit'},'mm')),
+      doc.data.cols.some(c=>c.role==='z')?row('원 크기',num(()=>o.bd,v=>o.bd=v,{min:3,max:25,step:0.5,aria:'가장 큰 원의 지름(mm)'}),h('span',{class:'unit'},'mm (가장 큰 원의 지름)')):null,
+      doc.data.cols.some(c=>c.role==='z')?row('',chk('원 크기 범례',()=>o.zleg!==false,v=>o.zleg=v)):null,
       row('그래프 크기',num(()=>o.w,v=>o.w=v,{min:20,max:150,step:1,aria:'가로(mm)'}),h('span',{class:'unit'},'×'),num(()=>o.h,v=>o.h=v,{min:20,max:150,step:1,aria:'세로(mm)'}),h('span',{class:'unit'},'mm'))),
       sec('축 범위',axisHead(),axisCtl('가로축',o.x,'scx'),axisCtl('세로축',o.y,'scy')));
   }
@@ -386,6 +391,17 @@ function renderOpts(){
       row('점 크기',num(()=>o.mks,v=>o.mks=v,{min:0.6,max:4,step:0.1,aria:'점 크기(mm)'}),h('span',{class:'unit'},'mm')),
       row('그래프 크기',num(()=>o.w,v=>o.w=v,{min:15,max:150,step:1,aria:'가로(mm)'}),h('span',{class:'unit'},'×'),num(()=>o.h,v=>o.h=v,{min:15,max:150,step:1,aria:'세로(mm)'}),h('span',{class:'unit'},'mm'))),
       sec('축 범위',axisHead(),axisCtl('세로축',o.y,'dumb')));
+  }
+  if(k==='cube'){ const o=doc.cube; const {R,C}=EG.derive(doc); const HW=[['hl','높음·낮음'],['ma','많음·적음'],['bs','큼·작음']];
+    const sel3=r=>[0,1,2].map(j=>sel([['','자동'],['h','높음'],['l','낮음']],()=>((o.hl[r.id]||[])[j])||'',v=>{ const a=(o.hl[r.id]||['','','']).slice(); a[j]=v; o.hl[r.id]=a; },null,`${r.name} ${C[j]?EG.lblOf(C[j]):j+1}`));
+    P.append(sec('입방체',
+      h('p',{class:'sub'},C.length<3?'표의 열이 세 개 이상이어야 그려져요. ‘비교 표’ 만들기에서 지표를 세 개 넣어 주세요.':'표의 첫 세 열이 가로·세로·깊이 축이에요. 각 축에서 값이 기준보다 크면 ‘높음’ 쪽 꼭짓점에 놓아요. 기준은 비우면 중앙값이에요.'),
+      row('크기',num(()=>o.s,v=>o.s=v,{min:18,max:70,step:1,aria:'앞면 한 변(mm)'}),h('span',{class:'unit'},'mm (앞면 한 변)')),
+      row('축 끝 말',seg(HW,()=>o.hw,v=>o.hw=v)),
+      row('',chk('축 끝에 (높음)·(낮음) 적기',()=>o.words!==false,v=>o.words=v)),
+      ...[0,1,2].map(j=>C[j]?row(`기준 ${j+1}`,h('span',{class:'unit'},C[j].name),txt(()=>o.thr[j],v=>o.thr[j]=v,'비우면 중앙값','기준값')):null),
+      h('p',{class:'sub'},'기준과 다르게 놓고 싶으면 아래에서 직접 고르세요.'),
+      ...R.map(r=>row(r.name,...sel3(r)))));
   }
   if(k==='tri'){ const o=doc.tri; const C=doc.data.cols.filter(c=>!c.hide); const MKP=Object.entries(GG.MARKS).filter(([m])=>m!=='none'&&m!=='gd'&&m!=='gs');
     P.append(sec('삼각 그래프',
