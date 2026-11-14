@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 // Run from any working directory. Only deployment assets participate in the stamp.
 let root;
-const textExtensions = new Set(['.js', '.css', '.html', '.txt', '.webmanifest']);
+const textExtensions = new Set(['.js', '.css', '.html', '.txt', '.webmanifest', '.json', '.svg', '.mjs', '.map']);
+const binaryExtensions = new Set(['.png', '.woff2', '.bcmap', '.jpg', '.ico', '.webp']);
 const normalized = (name, bytes) => textExtensions.has(path.extname(name))
   ? Buffer.from(bytes.toString('utf8').replace(/\r\n/g, '\n')) : bytes;
 const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex').slice(0, 10);
@@ -27,7 +28,7 @@ function git(args, cwd = root) {
 
 try {
   root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-  try { git(['rev-parse', '--show-toplevel'], process.cwd()); git(['rev-parse', '--show-toplevel']); }
+  try { git(['rev-parse', '--show-toplevel']); }
   catch { throw new Error('Git 저장소 안에서 실행해 주세요. Git 설치와 저장소 상태도 확인해 주세요.'); }
   const args = process.argv.slice(2);
   if (args.some(arg => arg !== '--check')) throw new Error('인자가 올바르지 않습니다. node scripts/stamp.mjs [--check] 형식으로 실행해 주세요.');
@@ -37,8 +38,16 @@ try {
   const files = [...new Set(git(['ls-files', '-z', '--', ...targets]).split('\0').filter(Boolean).filter(deployable))].sort();
   const untracked = git(['ls-files', '-z', '--others', '--exclude-standard', '--', ...targets]).split('\0').filter(Boolean).sort();
   if (untracked.length) console.warn(`배포 경로의 추적하지 않는 파일은 제외합니다:\n${untracked.join('\n')}\n새 파일은 git add를 먼저 한 뒤 다시 실행하세요`);
+  if (check) {
+    const modified = git(['diff', '--name-only', 'HEAD', '--', ...targets]).trim();
+    if (modified) console.warn(`배포 경로에 커밋하지 않은 수정이 있습니다:\n${modified}\n해시는 작업 폴더 기준이라 커밋된 내용과 다를 수 있다`);
+  }
   for (const name of files) {
     if (!fs.existsSync(path.join(root, name))) throw new Error(`${name}: Git 추적 파일이 작업 폴더에 없습니다. 파일을 복원하거나 git rm으로 삭제를 반영한 뒤 다시 실행해 주세요.`);
+    const extension = path.extname(name);
+    if (!textExtensions.has(extension) && !binaryExtensions.has(extension)) {
+      throw new Error(`${name}: 확장자 분류를 stamp.mjs에 추가해 주세요`);
+    }
   }
   for (const name of targets.slice(0, 4).concat('js/shell.js')) {
     if (!files.includes(name)) throw new Error(`${name}: 필수 배포 파일이 없습니다. 파일을 복원하고 git add한 뒤 다시 실행해 주세요.`);
@@ -78,6 +87,7 @@ try {
 
   const changed = [...pending].filter(([name, bytes]) => !bytes.equals(read(name)));
   if (check) {
+    if (untracked.length) process.exitCode = 1;
     if (changed.length) {
       console.error('다음 파일이 도장과 다릅니다. node scripts/stamp.mjs를 실행한 뒤 커밋해 주세요\n' + changed.map(([name]) => name).join('\n'));
       process.exitCode = 1;

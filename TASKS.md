@@ -75,5 +75,13 @@ PLAN.md의 목표를 작은 작업으로 나눈다. 수행 담당은 위에서�
     - CORE 첫 항목 `"./"` 확인.
     - 보완: Git 추적 배포 파일만 로케일 무관 정렬; 미추적 Thumbs.db/desktop.ini는 경고 후 제외하고 검사 뒤 삭제; 추적 파일 누락과 GMVER 뒤 코드가 있는 사본은 오류 2, 한국어 복구 안내 확인. root는 try 안에서 fileURLToPath로 계산.
     - 앱 화면·설치 기기·실제 오프라인 동작은 T1 범위에서 확인하지 않음.
+  - 추가 보완 A~D 확인 (2026-11-14, 로컬 저장소를 임시 git clone한 뒤 변경된 스크립트를 복사하여 시험):
+    - A: 미추적 css/new.css가 있으면 `node scripts/stamp.mjs --check`는 1, 쓰기 모드는 경고와 함께 0이며 CORE에서 제외. Thumbs.db도 제외. .gitignore로 무시한 CSS는 검사 0.
+    - B: cwd의 Git 검사를 제거하고 스크립트 root만 확인. 저장소 밖 폴더에서 절대 경로로 스크립트의 --check 실행 시 0.
+    - C: 텍스트(.json .svg .mjs .map 추가)·바이너리(.png .woff2 .bcmap .jpg .ico .webp) 확장자 명시. 현재 자료는 오류 없음, css/x.foo를 git add한 사본은 파일명과 분류 추가 안내/2. LF·CRLF 사본에서 V·GMVER 동일, 추가 텍스트 확장자의 줄바꿈 정규화와 바이너리 바이트 보존 확인.
+    - D: --check에서 git diff --name-only HEAD로 미커밋 배포 수정 경고. 스테이징 전후 모두 도장이 맞으면 0이며 작업 폴더 기준 해시 안내 출력.
+    - 작업 폴더 마무리: `node scripts/stamp.mjs`는 이미 최신 도장(변경 없음), `node scripts/stamp.mjs --check`는 0. V gm-61620ece92와 CORE 113개 유지.
+    - 회귀 확인: 연속 실행 전후 git diff --binary 동일, CSS 공백 추가 시 생성 결과 V만 변경, 도장 불일치 1·실행 오류 2, CORE 첫 항목 "./" 유지.
+
 
 - [x] T0. 구조 진단과 PLAN·TASKS 작성, AGENTS.md 앱별 메모 점검 — 2026-11-14, 큰 틀 담당. 코드 수정은 하지 않음.
