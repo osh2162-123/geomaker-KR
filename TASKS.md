@@ -8,13 +8,6 @@ PLAN.md의 목표를 작은 작업으로 나눈다. 수행 담당은 위에서�
 ## 할 일
 
 ### 목표 1: 배포·갱신 안정화
-- [ ] T2. 쓰이지 않는 `data/arid.js` 정리 — 완료 기준:
-  - 저장소 전체에서 `arid`를 참조하는 곳이 없음을 다시 확인한다(참조 0건).
-    - 검색 범위: `index.html`, `guide.html`, `licenses.html`, `sw.js`, `js/` 전체(`js/engines/`, `js/tools/` 하위 포함), `css/`, `data/`.
-    - 예: `git grep -n "arid"`. 이미 확인한 `js/engines/engine.js`의 옛 작업 파일 변환 코드(`kind:'arid'`)는 파일 참조가 아니므로 건드리지 않는다.
-  - 확인되면 파일을 지우고, T1 스크립트를 다시 돌려 `CORE`에 들어가지 않았는지 본다.
-  - licenses.html에 이 파일만을 위한 출처 줄이 있었다면 함께 정리한다.
-  - 관련 파일: data/arid.js, licenses.html
 - [ ] T3. 설치 기기 갱신 확인 — 완료 기준:
   - T1·T2를 적용한 판을 로컬 서버(`python -m http.server` 등, http)로 연다.
   - 한 번 연 뒤 파일 하나를 고치고 스크립트를 돌려 다시 연다. 이때 "새 버전이 나왔어요" 막대가 뜨고, 새로 고침하면 바뀐 내용이 보인다.
@@ -44,6 +37,18 @@ PLAN.md의 목표를 작은 작업으로 나눈다. 수행 담당은 위에서�
 ## 진행 중
 
 ## 완료
+- [x] T2. 쓰이지 않는 `data/arid.js` 정리 — 완료 기준:
+  - 저장소 전체에서 `arid`를 참조하는 곳이 없음을 다시 확인한다(참조 0건).
+    - 검색 범위: `index.html`, `guide.html`, `licenses.html`, `sw.js`, `js/` 전체(`js/engines/`, `js/tools/` 하위 포함), `css/`, `data/`.
+    - 예: `git grep -n "arid"`. 이미 확인한 `js/engines/engine.js`의 옛 작업 파일 변환 코드(`kind:'arid'`)는 파일 참조가 아니므로 건드리지 않는다.
+  - 확인되면 파일을 지우고, T1 스크립트를 다시 돌려 `CORE`에 들어가지 않았는지 본다.
+  - licenses.html에 이 파일만을 위한 출처 줄이 있었다면 함께 정리한다.
+  - 관련 파일: data/arid.js, licenses.html
+  - 완료 확인 (2026-11-14): 삭제 전 `git grep -n "arid"`로 전체 참조를 확인. 실행 코드의 파일 로딩 참조는 없으며, T1 생성 CORE·DATAVER 항목은 스크립트로 제거. engine.js의 옛 작업 변환, ldata.js의 지형 id, places.js의 지명 문자열은 유지.
+  - `licenses.html` 직접 확인: 해당 파일만을 위한 출처 줄 없음. 기존 쾨펜 기후 자료 출처는 유지.
+  - `git rm -- data/arid.js` 후 `node scripts/stamp.mjs` 실행: sw.js·js/shell.js 갱신. CORE에서 data/arid.js 제외, DATAVER의 arid 제거, 파일 삭제를 Node assert로 확인. `node scripts/stamp.mjs --check` 종료 코드 0.
+  - V: gm-3bf2f50451 → gm-61620ece92. CORE: 114 → 113개, data/arid.js만 제외. 앱 화면·설치 기기·오프라인 확인(T3)은 수행하지 않음.
+
 - [x] T1. 버전 도장 스크립트 만들기 — 내용:
   - `scripts/stamp.mjs`를 만든다. Node 내장 모듈만 쓴다(`fs`, `path`, `crypto`, `child_process`, `url`).
   - (a) 배포 대상 파일로 `sw.js`의 `CORE` 목록을 다시 만든다. 대상: `"./"`(현재 CORE의 첫 항목. 스크립트는 이 항목을 항상 맨 앞에 둔다), `index.html`, `manifest.webmanifest`, `licenses.html`, `guide.html`, `icons/`, `data/`, `fonts/`, `lib/`(`lib/pdfjs/cmaps/` 포함), `css/`, `js/`. 제외: `scripts/`, `*.md`, `LICENSE`, `sw.js` 자신.
