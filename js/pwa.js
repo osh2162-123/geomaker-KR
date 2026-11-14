@@ -28,7 +28,7 @@
         if(navigator.serviceWorker.controller) ask(w); }); });
     /* 처음 열었을 때: 자료를 모두 저장하고 나면(작동 시작) 알려 준다 */
     if(first) navigator.serviceWorker.ready.then(()=>bar('이제 인터넷 없이도 열려요. 모든 자료를 이 기기에 저장했어요.'));
-    /* 하루에 한 번쯤 새 버전 확인 */
+    /* 6시간마다 새 버전 확인 */
     setInterval(()=>reg.update().catch(()=>{}),6*3600*1000);
   }).catch(()=>{});
 })();
