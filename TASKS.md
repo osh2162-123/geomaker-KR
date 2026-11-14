@@ -42,7 +42,8 @@ PLAN.md의 목표를 작은 작업으로 나눈다. 수행 담당은 위에서�
   - 완료 확인 (2026-11-15, Node vm): 실제 checkVer를 가짜 document에서 실행. 미등록 키·버전 일치 시 막대 없음, 불일치 시 관리자 표현·파일명이 없는 안내와 hub-btn 새로 고침 생성, 클릭 시 location.reload 1회, 닫기 × 동작, console.warn 파일명 확인. 실제 mount도 실행하여 웹 판 자료·라이브러리 실패의 동일 안내 및 콘솔 파일명을 확인. 비웹 기존 문구와 다시 시도 콜백 유지 확인.
   - node --check js/shell.js, node scripts/stamp.mjs, node scripts/stamp.mjs --check 모두 0. 브라우저 화면·실제 네트워크 실패·실제 새로 고침은 직접 확인하지 못함. 기존 T8·T5 변경 보존.
   - 사용자에게 보이는 변경 → T7 필요. README 갱신은 묶음 마지막 T7에서 수행. V gm-0bbc917d6c → gm-e0bc607cf7, CORE 113개 유지(추가·제외 없음).
-- [ ] T7. README 버전 갱신 — 완료 기준: 묶음의 마지막 작업으로 한다. T5·T6처럼 사용자에게 보이는 변경이 들어갔으면, README의 `ver 1.0.(2026. 10. 6.)`을 새 버전(예: ver 1.1.)과 병합 날짜로 바꾼다. README는 배포 대상이 아니므로 도장을 다시 찍을 필요는 없다. — 관련 파일: README.md
+- [x] T7. README 버전 갱신 — 완료 기준: 묶음의 마지막 작업으로 한다. T5·T6처럼 사용자에게 보이는 변경이 들어갔으면, README의 `ver 1.0.(2026. 10. 6.)`을 새 버전(예: ver 1.1.)과 병합 날짜로 바꾼다. README는 배포 대상이 아니므로 도장을 다시 찍을 필요는 없다. — 관련 파일: README.md
+  - 완료 확인 (2026-11-15): README의 버전을 ver 1.1.(2026. 11. 15.)로, AGENTS의 현재 버전을 ver 1.1로 수정. Node assert로 기존 버전 문자열 부재와 지정 문자열 외 원문 동일 확인. node scripts/stamp.mjs --check 종료 코드 0, sw.js 바이트 동일. git diff의 변경 파일은 README.md·AGENTS.md·TASKS.md뿐임을 확인. 커밋하지 않음.
 - [ ] M2. 병합 전 점검(큰 틀 담당 + 사용자) — 완료 기준:
   - 새로 받은 사본(`git clone`)에서 `node scripts/stamp.mjs --check`가 0이다.
   - PR diff(`origin/main...HEAD`)에 묶음 2 밖의 변경이 없다.
