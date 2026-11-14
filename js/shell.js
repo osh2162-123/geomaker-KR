@@ -50,7 +50,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"xlo": "4afd7f74c3", "lo": "3041a84396", "hi": "8c2e1839f0", "places": "f77e2744ea", "koppen": "a49c5a7b98", "plates": "42d4952d91", "relief": "867eb9d417", "stations": "21d0842fbc", "edata": "27d88225b0", "rdata": "bb16f47b9f", "pdata": "778a4c6cd7", "adata": "b90afd7aab", "ldata": "b66e20fd47", "kmdata": "e749e9e39d", "idata": "f93e3437aa"}; const oldFiles=[];
+const DATAVER={"adata":"818c40ef93","arid":"85e1ca192e","edata":"7da04bce8e","hi":"eb8477bc35","idata":"ea3235e23b","kmdata":"1a5d280150","koppen":"52246e79e5","ldata":"90dd025ac2","lo":"64da9548ec","pdata":"e7173c9e06","places":"6e3a317164","plates":"f1e72bd1e9","rdata":"d69ae9c7a9","relief":"27762a32c0","stations":"f139be33e4","xlo":"9b80e47a95"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
