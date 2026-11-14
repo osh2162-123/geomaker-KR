@@ -23,6 +23,19 @@ PLAN.md의 목표를 작은 작업으로 나눈다. 수행 담당은 위에서�
   - '다시 시도' 단추는 그대로 둔다.
   - 관련 파일: js/shell.js
 - [ ] T7. README 버전 갱신 — 완료 기준: T5·T6 등 사용자에게 보이는 변경을 main에 병합할 때, README의 `ver 1.0.(2026. 10. 6.)`을 새 버전과 날짜로 바꾼다. — 관련 파일: README.md
+- [ ] T8. 없는 글꼴 파일을 요청하는 404 없애기 — 내용:
+  - 증상: `css/base.css` 2번째 줄의 `@font-face`("Pretendard Variable", `font-weight:45 920`, `format("woff2-variations")`)가 존재하지 않는 `css/fonts/PretendardVariable.woff2`를 요청해, 공개 주소에서 404가 난다. 실제 글꼴은 `fonts/Pretendard-*.subset.woff2`(Regular·Medium·SemiBold·Bold)이고, `css/fonts.css`가 같은 family를 굵기 400·500·600·700으로 이미 선언한다.
+  - 먼저 확인: 어떤 `@font-face`가 실제로 쓰이는지 본다.
+    - 개발자 도구에서 `document.fonts`의 각 항목 상태(`status`: loaded/error)를 확인한다.
+    - index.html의 css 로드 순서를 확인한다(현재 `fonts.css`가 `base.css`보다 먼저 로드됨).
+    - 화면에서 400·500·600·700 밖의 굵기(예: 300, 800)를 쓰는 곳이 있는지 css에서 찾는다. base.css 선언이 가변 범위(45~920)를 맡고 있었기 때문이다.
+  - 고칠 것: base.css의 깨진 선언을 지우거나, 실제 파일을 가리키게 고친다. 새 글꼴 파일을 추가하는 것은 큰 변경이므로 하지 않는다(필요해 보이면 멈추고 물어본다).
+  - 완료 기준:
+    - 공개 판이나 로컬 서버에서 Network 탭에 해당 404가 없다.
+    - 화면 글꼴이 이전과 같다(고치기 전과 후의 같은 화면을 눈으로 비교).
+    - `node scripts/stamp.mjs`로 도장을 다시 찍고, `node scripts/stamp.mjs --check`가 0이다.
+    - 사용자에게 보이는 변화가 없으면 README 버전은 올리지 않는다.
+  - 관련 파일: css/base.css, css/fonts.css
 
 ### 보류(큰 틀 담당이 먼저 할 일)
 - [ ] B1. 실제 화면 사용성 점검 — 공개 주소에서 처음 쓰는 교사 흐름으로 홈→각 도구→내보내기를 직접 써 보고, 헤매는 지점을 T8 이후 항목으로 추가한다. 수행 담당은 손대지 않는다.
