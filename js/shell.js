@@ -55,9 +55,10 @@ function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
   b.textContent=''; const t=document.createElement('span');
-  t.textContent=`${oldFiles.join(', ')} 파일이 이 화면보다 옛 판이에요. 사이트의 data 폴더 안에 새 파일을 올려 주세요(맨 위에 올리면 쓰이지 않아요). 고칠 때까지 새 기능 일부가 보이지 않을 수 있어요.`;
+  t.textContent='새 버전이 나와 화면과 자료가 맞지 않아요. 새로 고치면 최신 판으로 열려요.';
+  const r=document.createElement('button'); r.type='button'; r.className='hub-btn'; r.textContent='새로 고침'; r.addEventListener('click',()=>location.reload());
   const x=document.createElement('button'); x.type='button'; x.className='hub-x'; x.setAttribute('aria-label','닫기'); x.textContent='×'; x.addEventListener('click',()=>b.remove());
-  b.append(t,x); }
+  b.append(t,r,x); }
 window.GM_LOAD=getJSON;
 const got={};
 function needData(k){
@@ -88,8 +89,8 @@ function mount(id,opt){
       pending[id]=null;
       const lib=step==='d3'||step==='topo';
       let msg=lib?'지도 라이브러리를 받아 오지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.':'자료를 받아 오지 못했어요. 잠시 뒤 다시 시도해 주세요.';
-      /* 웹 앱: 어떤 파일이 없는지 알려 준다(폴더를 빠뜨리고 올린 경우가 많다) */
-      if(MODE==='web') msg=`${lib?'라이브러리':'자료'} 파일(${short(e&&e.message)})을 받아 오지 못했어요. 사이트에 index.html과 함께 data·lib·icons 폴더가 그대로 올라가 있는지 확인해 주세요.`;
+      /* 웹 앱: 교사가 할 수 있는 행동을 안내하고 파일 정보는 콘솔에 남긴다 */
+      if(MODE==='web'){ console.warn('불러오기 실패:',short(e&&e.message)); msg="자료를 불러오지 못했어요. 인터넷 연결을 확인하고 '다시 시도'를 눌러 주세요. 계속 안 되면 페이지를 새로 고쳐 주세요."; }
       if(current===id) wait(msg,()=>show(id));
       throw e;
     }
@@ -165,7 +166,8 @@ function bindLinks(){
     if(to==='mapquick'&&apis[from]&&apis[from].mapRequest){   // 기후(지점)·에너지·종교·인구·농업(표의 나라) → 백지도 자동 생성(같은 기호)
       const req=apis[from].mapRequest();
       if(!req){ toast(from==='climate'?'지도에 찍을 지점이 없어요. 위도·경도가 있는 지점을 넣어 주세요.':'지도에 칠할 나라가 없어요. 표에 나라 이름을 넣어 주세요.'); return; }
-      show(to).then(api=>{ if(api&&api.fromSpec) return api.fromSpec(req.spec,{q:req.q,from:from,fromName:(toolOf(from)||{}).tab?`${(toolOf(from)||{}).tab} 탭`:''}); }).catch(()=>{}); return; }
+      const fromName=((toolOf(from)||{}).name||'').replace(/ 그래프 편집기$/,'').trim();
+      show(to).then(api=>{ if(api&&api.fromSpec) return api.fromSpec(req.spec,{q:req.q,from:from,fromName:fromName?`${fromName} 탭`:''}); }).catch(()=>{}); return; }
     if(from==='mapquick'&&to==='mapedit'&&apis.mapquick&&apis.mapquick.getDoc) d=apis.mapquick.getDoc();
     try{ localStorage.removeItem('wgmap-handoff'); }catch(err){}
     const msg='자동 생성기에서 만든 지도를 가져왔어요.';

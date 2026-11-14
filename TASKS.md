@@ -10,31 +10,38 @@ PLAN.md의 목표를 작은 작업으로 나눈다. 수행 담당은 위에서�
 ### 배포 묶음 2 — 브랜치 `feat/t4-t8-cleanup`, 한 PR로 한 번만 병합 (PLAN 결정 기록 2026-11-15)
 순서: T4(완료) → T8 → T5 → T6 → T7 → M2. 각 작업은 커밋하지 않고 끝낸다. 큰 틀 담당이 검토한 뒤 사용자가 커밋한다.
 
-- [ ] T8. 없는 글꼴 파일을 요청하는 404 없애기 — 내용:
-  - 증상: `css/base.css` 2번째 줄의 `@font-face`("Pretendard Variable", `font-weight:45 920`, `format("woff2-variations")`)가 존재하지 않는 `css/fonts/PretendardVariable.woff2`를 요청해, 공개 주소에서 404가 난다. 실제 글꼴은 `fonts/Pretendard-*.subset.woff2`(Regular·Medium·SemiBold·Bold)이고, `css/fonts.css`가 같은 family를 굵기 400·500·600·700으로 이미 선언한다.
-  - 먼저 확인: 어떤 `@font-face`가 실제로 쓰이는지 본다.
-    - 개발자 도구에서 `document.fonts`의 각 항목 상태(`status`: loaded/error)를 확인한다.
-    - index.html의 css 로드 순서를 확인한다(현재 `fonts.css`가 `base.css`보다 먼저 로드됨).
-    - 화면에서 400·500·600·700 밖의 굵기(예: 300, 800)를 쓰는 곳이 있는지 css에서 찾는다. base.css 선언이 가변 범위(45~920)를 맡고 있었기 때문이다.
-  - 큰 틀 담당 사전 조사(2026-11-15): css·js·html 전체에서 쓰는 굵기는 400·500·600·700뿐이다(`--fw-*` 변수도 600·700). guide.html·licenses.html은 base.css를 부르지 않는다. 따라서 base.css 2번째 줄을 **지우는 쪽**을 권한다. 위 확인에서 다른 결과가 나오면 멈추고 알린다.
-  - 고칠 것: base.css의 깨진 선언을 지우거나, 실제 파일을 가리키게 고친다. 새 글꼴 파일을 추가하는 것은 큰 변경이므로 하지 않는다(필요해 보이면 멈추고 물어본다).
+- [x] T5. 표 탭(에너지·종교·인구·농업)에서 백지도로 넘길 때 출처 이름이 비는 버그 — 완료 기준:
+  - 원인: `shell.js:168`이 `TOOLS`에 없는 `.tab` 속성을 읽어 `fromName`이 늘 빈 문자열이다. 그래서 `mapquick.js:241`의 안내가 "표의 나라를 칠한 지도를 만들었어요"로만 나온다. 기후 탭은 `mapquick.js:241`에 "기후 탭의 지점으로…" 문구가 따로 있어 영향이 없다(큰 틀 담당 확인, 2026-11-15).
+  - 고칠 것: `fromName`을 `TOOLS`의 `name`에서 만든다. 예: "에너지 그래프 편집기" → "에너지 탭". 고치는 곳은 shell.js 한 곳뿐이고, mapquick.js 문구는 바꾸지 않는다.
   - 완료 기준:
-    - 공개 판이나 로컬 서버에서 Network 탭에 해당 404가 없다.
-    - 화면 글꼴이 이전과 같다(고치기 전과 후의 같은 화면을 눈으로 비교).
-    - `node scripts/stamp.mjs`로 도장을 다시 찍고, `node scripts/stamp.mjs --check`가 0이다.
-    - 사용자에게 보이는 변화가 없으면 README 버전은 올리지 않는다.
-  - 관련 파일: css/base.css, css/fonts.css
-- [ ] T5. 그래프→백지도 넘길 때 출처 이름이 비는 버그 — 완료 기준:
-  - `shell.js:168`의 `fromName`이 `TOOLS`에 없는 `.tab` 대신 실제로 있는 값(예: `name`에서 "그래프 편집기"를 뺀 "기후" 등)을 쓴다.
-  - 기후 탭에서 지점을 넣고 백지도 자동 생성으로 넘기면, 백지도 쪽 안내에 "기후 탭" 같은 출처가 보인다.
-  - 백지도 쪽이 `fromName`을 어떻게 표시하는지 mapquick.js에서 먼저 확인한다.
-  - 관련 파일: js/shell.js, js/tools/mapquick.js
-- [ ] T6. 불러오기 실패 문구를 교사용으로 — 완료 기준:
-  - `shell.js:92`(자료·라이브러리 파일을 받지 못함)는 "인터넷 연결을 확인하고 다시 시도해 주세요. 계속되면 새로 고침해 주세요"처럼 교사가 할 수 있는 행동만 안내한다.
-  - `shell.js:58`(옛 자료 파일) 문구도 같은 방식으로 바꾼다.
-  - 관리자용 정보(어떤 파일인지)는 `console.warn`으로만 남긴다.
-  - '다시 시도' 단추는 그대로 둔다.
-  - 관련 파일: js/shell.js
+    - 에너지·종교·인구·농업 탭에서 백지도 자동 생성으로 넘기면 안내가 "에너지 탭의 나라를 칠한 지도를 만들었어요…"처럼 탭 이름으로 나온다.
+    - 기후 탭에서 넘길 때의 안내는 바뀌지 않는다.
+    - `fromName`을 만들지 못하면 지금처럼 "표"로 나온다.
+    - 도장을 다시 찍고 `--check`가 0이다.
+  - 관련 파일: js/shell.js (읽기만: js/tools/mapquick.js)
+  - 완료 확인 (2026-11-15, Node): 실제 TOOLS 배열과 수정한 fromName 식을 읽어 vm으로 계산하고 mapquick.js의 실제 안내문 조건식을 실행. climate→기후 탭, energy→에너지 탭, religion→종교 탭, population→인구 탭, agriculture→농업 탭 출력 확인. 네 표 탭은 각 탭 이름의 나라 안내, 기후는 기존 지점 안내 그대로, 알 수 없는 id는 빈 fromName과 "표" 안내 확인.
+  - node --check js/shell.js 통과. node scripts/stamp.mjs 실행 후 --check 종료 코드 0(기존 T8과 이번 수정의 미커밋 경고만 출력). mapquick.js 변경 없음. 기존 T8 변경은 보존. 브라우저 화면의 직접 클릭·안내 표시는 확인하지 못함.
+  - V gm-073156656f → gm-0bbc917d6c, CORE 113개 유지(추가·제외 없음). README는 묶음 마지막 T7에서 갱신하는 PLAN/TASKS 범위에 따라 이번에는 수정하지 않음.
+- [x] T6. 불러오기 실패·옛 자료 문구를 교사용으로 — 내용:
+  - 배경: 두 문구 모두 사이트 관리자용이다. 공개 주소를 쓰는 교사는 폴더를 올릴 수 없다.
+    - `shell.js:92`(웹 판에서 자료·라이브러리 파일을 받지 못함): "data·lib·icons 폴더가 올라가 있는지 확인해 주세요"
+    - `shell.js:58`(옛 자료 파일 경고): "data 폴더 안에 새 파일을 올려 주세요"
+  - 교사 쪽에서 실제로 이 상황이 생기는 경우: 인터넷이 끊긴 채 처음 여는 도구, 그리고 옛 탭을 열어 둔 채 다른 탭에서 새 버전으로 갱신한 경우(T3에서 확인하지 못한 항목).
+  - 고칠 것 (문구는 예시이며 뜻이 같으면 다듬어도 된다):
+    - 92행(웹 판): "자료를 불러오지 못했어요. 인터넷 연결을 확인하고 '다시 시도'를 눌러 주세요. 계속 안 되면 페이지를 새로 고쳐 주세요." 라이브러리 실패도 같은 문구로 한다.
+    - 58행: "새 버전이 나와 화면과 자료가 맞지 않아요. 새로 고치면 최신 판으로 열려요." 그리고 `location.reload()`를 부르는 '새로 고침' 단추를 더한다. 단추 모양은 pwa.js 알림 막대의 `hub-btn`을 쓴다. 닫기(×)는 그대로 둔다.
+    - 어떤 파일이 문제인지는 두 경우 모두 `console.warn`으로만 남긴다(58행은 이미 있음).
+  - 바꾸지 않을 것: '다시 시도' 단추, `MODE!=='web'`일 때의 기존 문구(89~90행), `checkVer`가 언제 경고를 띄우는지 판단하는 조건.
+  - 완료 기준:
+    - 두 문구에 "폴더", "올려" 같은 관리자용 표현이 없다.
+    - 58행 막대에 '새로 고침' 단추가 있고, 누르면 다시 열린다.
+    - 콘솔 경고에 파일 이름이 남는다.
+    - `node --check js/shell.js`가 통과하고, 도장을 다시 찍은 뒤 `--check`가 0이다.
+    - 사용자에게 보이는 변경이므로 T7(README 버전)이 필요하다고 기록한다.
+  - 관련 파일: js/shell.js (참고: js/pwa.js의 bar 함수, css에서 hub-btn 정의)
+  - 완료 확인 (2026-11-15, Node vm): 실제 checkVer를 가짜 document에서 실행. 미등록 키·버전 일치 시 막대 없음, 불일치 시 관리자 표현·파일명이 없는 안내와 hub-btn 새로 고침 생성, 클릭 시 location.reload 1회, 닫기 × 동작, console.warn 파일명 확인. 실제 mount도 실행하여 웹 판 자료·라이브러리 실패의 동일 안내 및 콘솔 파일명을 확인. 비웹 기존 문구와 다시 시도 콜백 유지 확인.
+  - node --check js/shell.js, node scripts/stamp.mjs, node scripts/stamp.mjs --check 모두 0. 브라우저 화면·실제 네트워크 실패·실제 새로 고침은 직접 확인하지 못함. 기존 T8·T5 변경 보존.
+  - 사용자에게 보이는 변경 → T7 필요. README 갱신은 묶음 마지막 T7에서 수행. V gm-0bbc917d6c → gm-e0bc607cf7, CORE 113개 유지(추가·제외 없음).
 - [ ] T7. README 버전 갱신 — 완료 기준: 묶음의 마지막 작업으로 한다. T5·T6처럼 사용자에게 보이는 변경이 들어갔으면, README의 `ver 1.0.(2026. 10. 6.)`을 새 버전(예: ver 1.1.)과 병합 날짜로 바꾼다. README는 배포 대상이 아니므로 도장을 다시 찍을 필요는 없다. — 관련 파일: README.md
 - [ ] M2. 병합 전 점검(큰 틀 담당 + 사용자) — 완료 기준:
   - 새로 받은 사본(`git clone`)에서 `node scripts/stamp.mjs --check`가 0이다.
@@ -53,6 +60,25 @@ PLAN.md의 목표를 작은 작업으로 나눈다. 수행 담당은 위에서�
 ## 진행 중
 
 ## 완료
+- [x] T8. 없는 글꼴 파일을 요청하는 404 없애기 — 내용:
+  - 증상: `css/base.css` 2번째 줄의 `@font-face`("Pretendard Variable", `font-weight:45 920`, `format("woff2-variations")`)가 존재하지 않는 `css/fonts/PretendardVariable.woff2`를 요청해, 공개 주소에서 404가 난다. 실제 글꼴은 `fonts/Pretendard-*.subset.woff2`(Regular·Medium·SemiBold·Bold)이고, `css/fonts.css`가 같은 family를 굵기 400·500·600·700으로 이미 선언한다.
+  - 먼저 확인: 어떤 `@font-face`가 실제로 쓰이는지 본다.
+    - 개발자 도구에서 `document.fonts`의 각 항목 상태(`status`: loaded/error)를 확인한다.
+    - index.html의 css 로드 순서를 확인한다(현재 `fonts.css`가 `base.css`보다 먼저 로드됨).
+    - 화면에서 400·500·600·700 밖의 굵기(예: 300, 800)를 쓰는 곳이 있는지 css에서 찾는다. base.css 선언이 가변 범위(45~920)를 맡고 있었기 때문이다.
+  - 큰 틀 담당 사전 조사(2026-11-15): css·js·html 전체에서 쓰는 굵기는 400·500·600·700뿐이다(`--fw-*` 변수도 600·700). guide.html·licenses.html은 base.css를 부르지 않는다. 따라서 base.css 2번째 줄을 **지우는 쪽**을 권한다. 위 확인에서 다른 결과가 나오면 멈추고 알린다.
+  - 고칠 것: base.css의 깨진 선언을 지우거나, 실제 파일을 가리키게 고친다. 새 글꼴 파일을 추가하는 것은 큰 변경이므로 하지 않는다(필요해 보이면 멈추고 물어본다).
+  - 완료 기준:
+    - 공개 판이나 로컬 서버에서 Network 탭에 해당 404가 없다.
+    - 화면 글꼴이 이전과 같다(고치기 전과 후의 같은 화면을 눈으로 비교).
+    - `node scripts/stamp.mjs`로 도장을 다시 찍고, `node scripts/stamp.mjs --check`가 0이다.
+    - 사용자에게 보이는 변화가 없으면 README 버전은 올리지 않는다.
+  - 관련 파일: css/base.css, css/fonts.css
+  - 구현 및 정적 확인 (2026-11-15): css・js・html의 font-weight/fontWeight/font 축약형 및 --fw-* 변수를 전수 검색. 깨진 @font-face 범위(45 920)를 제외한 사용 굵기는 400·500·600·700(normal/기본값=400, bold=700). --fw-title=700, --fw-head/strong=600, --fw-body=400. index.html은 fonts.css → base.css 순서.
+  - base.css 2번째 줄의 깨진 @font-face만 삭제. css/fonts.css 원문 동일 및 네 글꼴 URL의 파일 존재 확인. 새 글꼴 추가 없음, README 변경 없음.
+  - 임시 git clone에서 node scripts/stamp.mjs와 --check 모두 0. 작업 폴더에서도 도장 실행 후 --check 0. CORE 113개 동일, V gm-a01bbb8ebc → gm-073156656f.
+  - 미확인: 브라우저 연결 도구가 browser access host is unavailable을 반환하여 Chrome document.fonts 상태, Network의 404 부재, 수정 전후 화면 글꼴 비교는 직접 확인하지 못함. 코드 수정·도장 확인 완료이며 브라우저 완료 기준은 검토 시 확인 필요.
+
 - [x] T4. pwa.js 주석 바로잡기 — 완료 기준: "하루에 한 번쯤 새 버전 확인" 주석이 실제 간격(6시간)과 맞는다. 동작은 바꾸지 않는다. — 관련 파일: js/pwa.js
   - 완료 확인 (2026-11-15): 주석을 "6시간마다 새 버전 확인"으로 수정. 기존 setInterval의 6*3600*1000과 나머지 코드는 변경 없음(주석 문자열을 되돌려 원문과 동일함을 비교).
   - 임시 git clone에서 node --check js/pwa.js, node scripts/stamp.mjs, node scripts/stamp.mjs --check 모두 종료 코드 0. CORE 목록 동일 확인. 작업 폴더에서도 도장 실행 후 --check 0 확인.
