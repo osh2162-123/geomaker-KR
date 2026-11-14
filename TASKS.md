@@ -8,24 +8,6 @@ PLAN.md의 목표를 작은 작업으로 나눈다. 수행 담당은 위에서�
 ## 할 일
 
 ### 목표 1: 배포·갱신 안정화
-- [ ] T1. 버전 도장 스크립트 만들기 — 내용:
-  - `scripts/stamp.mjs`를 만든다. Node 내장 모듈만 쓴다(`fs`, `path`, `crypto`).
-  - (a) 배포 대상 파일로 `sw.js`의 `CORE` 목록을 다시 만든다. 대상: `"./"`(현재 CORE의 첫 항목. 스크립트는 이 항목을 항상 맨 앞에 둔다), `index.html`, `manifest.webmanifest`, `licenses.html`, `guide.html`, `icons/`, `data/`, `fonts/`, `lib/`(`lib/pdfjs/cmaps/` 포함), `css/`, `js/`. 제외: `scripts/`, `*.md`, `LICENSE`, `sw.js` 자신.
-  - 해시 전 줄바꿈 규칙: 이 PC는 Git 자동 줄바꿈 변환(CRLF)이 켜져 있다. 그래서 파일을 그대로 해시하면 다른 PC나 GitHub에서 받은 사본과 해시가 달라진다.
-    - 텍스트 파일(`.js` `.css` `.html` `.txt` `.webmanifest`)은 읽은 뒤 `\r\n`을 `\n`으로 바꾸고 해시한다.
-    - 바이너리 파일(`.png` `.woff2` `.bcmap` 등)은 그대로 해시한다.
-    - 이 규칙은 (b)와 (c) 모두에 적용한다.
-  - (b) 각 `data/*.js`의 끝줄 `GMVER` 값을 그 파일 본문(끝줄 제외)의 해시 10자리로 바꾸고, `shell.js`의 `DATAVER`도 같은 값으로 맞춘다. 해시는 위 줄바꿈 규칙을 따른다.
-  - (c) `V`를 `'gm-'+`(CORE 파일 전체 내용 해시 10자리)로 바꾼다. 해시는 위 줄바꿈 규칙을 따른다.
-  - (d) `--check` 옵션을 주면 파일을 고치지 않고, 어긋난 곳이 있을 때만 목록을 출력하고 종료 코드 1로 끝난다.
-  - 메모: `lib/pdfjs/cmaps/`(25개, 약 0.16MB)를 CORE에 넣으면 기기 저장 용량이 약 0.2MB 늘어난다. 한글 PDF 불러오기를 오프라인에서도 되게 하려는 것이다.
-  - 완료 기준:
-    - `node scripts/stamp.mjs`를 두 번 연달아 실행해도 두 번째 실행은 아무것도 바꾸지 않는다(`git diff`로 확인).
-    - 아무 `css` 파일에 공백 한 칸을 넣고 실행하면 `V`만 바뀐다.
-    - `--check`가 어긋남을 찾아낸다.
-    - 작업 폴더의 텍스트 파일을 CRLF로 바꾼 사본에서도 같은 `V`와 `GMVER`가 나온다.
-    - 생성된 CORE의 첫 항목이 `"./"`이다.
-  - 관련 파일: scripts/stamp.mjs(새 파일), sw.js, js/shell.js, data/*.js
 - [ ] T2. 쓰이지 않는 `data/arid.js` 정리 — 완료 기준:
   - 저장소 전체에서 `arid`를 참조하는 곳이 없음을 다시 확인한다(참조 0건).
     - 검색 범위: `index.html`, `guide.html`, `licenses.html`, `sw.js`, `js/` 전체(`js/engines/`, `js/tools/` 하위 포함), `css/`, `data/`.
@@ -62,4 +44,31 @@ PLAN.md의 목표를 작은 작업으로 나눈다. 수행 담당은 위에서�
 ## 진행 중
 
 ## 완료
+- [x] T1. 버전 도장 스크립트 만들기 — 내용:
+  - `scripts/stamp.mjs`를 만든다. Node 내장 모듈만 쓴다(`fs`, `path`, `crypto`, `child_process`, `url`).
+  - (a) 배포 대상 파일로 `sw.js`의 `CORE` 목록을 다시 만든다. 대상: `"./"`(현재 CORE의 첫 항목. 스크립트는 이 항목을 항상 맨 앞에 둔다), `index.html`, `manifest.webmanifest`, `licenses.html`, `guide.html`, `icons/`, `data/`, `fonts/`, `lib/`(`lib/pdfjs/cmaps/` 포함), `css/`, `js/`. 제외: `scripts/`, `*.md`, `LICENSE`, `sw.js` 자신.
+  - 해시 전 줄바꿈 규칙: 이 PC는 Git 자동 줄바꿈 변환(CRLF)이 켜져 있다. 그래서 파일을 그대로 해시하면 다른 PC나 GitHub에서 받은 사본과 해시가 달라진다.
+    - 텍스트 파일(`.js` `.css` `.html` `.txt` `.webmanifest`)은 읽은 뒤 `\r\n`을 `\n`으로 바꾸고 해시한다.
+    - 바이너리 파일(`.png` `.woff2` `.bcmap` 등)은 그대로 해시한다.
+    - 이 규칙은 (b)와 (c) 모두에 적용한다.
+  - (b) 각 `data/*.js`의 끝줄 `GMVER` 값을 그 파일 본문(끝줄 제외)의 해시 10자리로 바꾸고, `shell.js`의 `DATAVER`도 같은 값으로 맞춘다. 해시는 위 줄바꿈 규칙을 따른다.
+  - (c) `V`를 `'gm-'+`(CORE 파일 전체 내용 해시 10자리)로 바꾼다. 해시는 위 줄바꿈 규칙을 따른다.
+  - (d) `--check` 옵션을 주면 파일을 고치지 않고, 어긋난 곳이 있을 때만 목록을 출력하고 종료 코드 1로 끝난다.
+  - 메모: `lib/pdfjs/cmaps/`(25개, 약 0.16MB)를 CORE에 넣으면 기기 저장 용량이 약 0.2MB 늘어난다. 한글 PDF 불러오기를 오프라인에서도 되게 하려는 것이다.
+  - 완료 기준:
+    - `node scripts/stamp.mjs`를 두 번 연달아 실행해도 두 번째 실행은 아무것도 바꾸지 않는다(`git diff`로 확인).
+    - 아무 `css` 파일에 공백 한 칸을 넣고 실행하면 `V`만 바뀐다.
+    - `--check`가 어긋남을 찾아낸다.
+    - 작업 폴더의 텍스트 파일을 CRLF로 바꾼 사본에서도 같은 `V`와 `GMVER`가 나온다.
+    - 생성된 CORE의 첫 항목이 `"./"`이다.
+  - 관련 파일: scripts/stamp.mjs(새 파일), sw.js, js/shell.js, data/*.js
+  - 완료 확인 (2026-11-14, 임시 Git 저장소에서 Node 검증 스크립트로 실제 실행):
+    - 반복 실행: `node scripts/stamp.mjs` 두 번째 실행 전후 `git diff --binary` 동일.
+    - CSS 공백 추가: 실행 후 생성 파일은 sw.js의 V만 변경됨.
+    - `--check`: 정상은 출력 없이 0, CSS 변경 시 stderr 안내와 sw.js 목록/1, 파일 수정 없음. 잘못된 인자·파일 누락·GMVER 형식 오류·Git 저장소 밖 실행은 2.
+    - CRLF 사본: 텍스트 전체를 CRLF로 변환 후 V와 자료 16개의 GMVER 동일, `--check` 0. 바이너리는 변환 없이 해시.
+    - CORE 첫 항목 `"./"` 확인.
+    - 보완: Git 추적 배포 파일만 로케일 무관 정렬; 미추적 Thumbs.db/desktop.ini는 경고 후 제외하고 검사 뒤 삭제; 추적 파일 누락과 GMVER 뒤 코드가 있는 사본은 오류 2, 한국어 복구 안내 확인. root는 try 안에서 fileURLToPath로 계산.
+    - 앱 화면·설치 기기·실제 오프라인 동작은 T1 범위에서 확인하지 않음.
+
 - [x] T0. 구조 진단과 PLAN·TASKS 작성, AGENTS.md 앱별 메모 점검 — 2026-11-14, 큰 틀 담당. 코드 수정은 하지 않음.
