@@ -55,7 +55,7 @@ function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
   b.textContent=''; const t=document.createElement('span');
-  t.textContent='새 버전이 나와 화면과 자료가 맞지 않아요. 새로 고치면 최신 판으로 열려요.';
+  t.textContent='화면과 자료의 버전이 맞지 않아요. 페이지를 한 번 새로 고쳐 주세요. 같은 안내가 계속되면 일부 새 기능이 보이지 않을 수 있지만, 지금 화면은 그대로 써도 돼요.';
   const r=document.createElement('button'); r.type='button'; r.className='hub-btn'; r.textContent='새로 고침'; r.addEventListener('click',()=>location.reload());
   const x=document.createElement('button'); x.type='button'; x.className='hub-x'; x.setAttribute('aria-label','닫기'); x.textContent='×'; x.addEventListener('click',()=>b.remove());
   b.append(t,r,x); }
