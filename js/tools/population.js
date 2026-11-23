@@ -383,9 +383,11 @@ function renderOpts(){
       row('칸 크기',num(()=>o.w,v=>o.w=v,{min:15,max:150,step:1,aria:'가로(mm)'}),h('span',{class:'unit'},'×'),num(()=>o.h,v=>o.h=v,{min:15,max:150,step:1,aria:'세로(mm)'}),h('span',{class:'unit'},'간격'),num(()=>o.gap,v=>o.gap=v,{min:0,max:40,step:0.5,aria:'칸 간격(mm)'}))),
       sec('축 범위',axisHead(),axisCtl('세로축',o.y,'ln')));
   }
-  if(k==='dumb'){ const o=doc.dumb;
+  if(k==='dumb'){ const o=doc.dumb; const {C}=EG.derive(doc);
     P.append(sec('두 시기 비교',
-      h('p',{class:'sub'},'행마다 세로 막대 하나에 시점별 점을 찍고 이어요(2026학년도 9월 15번 양식). 첫 열은 빈 점(○), 마지막 열은 찬 점(●)이에요.'),
+      h('p',{class:'sub'},'행마다 시점·지표별 점을 찍어요. 점 잇기를 끄면 여러 지표를 점만으로 비교할 수 있어요. 점 모양을 자동으로 두면 첫 열은 ○, 마지막 열은 ●예요(열이 하나면 ●).'),
+      row('',chk('점 잇기',()=>o.conn!==false,v=>o.conn=v),chk('범주 구분선',()=>!!o.sep,v=>o.sep=v)),
+      ...C.map(c=>row(c.lbl||c.name,sel([['','자동'],...Object.entries(GG.MARKS).filter(([mk])=>mk!=='none')],()=>doc.data.cols[c._j].mk||'',v=>doc.data.cols[c._j].mk=v,null,`${c.name} 점 모양`))),
       row('시점 범례',seg([['in','그래프 안'],['right','오른쪽'],['below','아래'],['none','없음']],()=>o.legend,v=>o.legend=v)),
       row('',chk('점선 격자',()=>o.grid,v=>o.grid=v)),row('',chk('0 선',()=>o.zero,v=>o.zero=v)),
       row('점 크기',num(()=>o.mks,v=>o.mks=v,{min:0.6,max:4,step:0.1,aria:'점 크기(mm)'}),h('span',{class:'unit'},'mm')),
