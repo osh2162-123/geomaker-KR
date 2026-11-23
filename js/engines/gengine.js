@@ -128,7 +128,7 @@ const SEQS={
  name:[]
 };
 const FILLS={white:'흰색',light:'연한 회색',mid:'회색',dark:'진한 회색',black:'검정',hatch:'빗금'};
-const MARKS={oc:'○',fc:'●',os:'□',fs:'■',ot:'△',ft:'▲',od:'◇',fd:'◆',gd:'회색 ◆',gs:'회색 ■',none:'없음'};
+const MARKS={oc:'○',fc:'●',os:'□',fs:'■',ot:'△',ft:'▲',od:'◇',fd:'◆',gc:'회색 ●',gd:'회색 ◆',gs:'회색 ■',none:'없음'};
 const LINE_STY=[
  {c:'k',dash:'solid',mk:'oc'},{c:'k',dash:'dash',mk:'os'},{c:'g',dash:'solid',mk:'ft'},
  {c:'k',dash:'solid',mk:'fs'},{c:'k',dash:'dash',mk:'od'},{c:'g',dash:'solid',mk:'fc'}

@@ -104,7 +104,7 @@ function freshDoc(kind){
   d.cube={s:30,hw:'hl',words:true,thr:['','',''],hl:{}};
   d.sc={w:54,h:44,bd:8,zleg:true,conn:true,arrow:false,diag:false,zero:true,grid:true,lbl:true,leader:true,legend:'in',mks:1.3,xTitle:'',yTitle:'',x:{auto:true,lo:0,hi:30,step:10},y:{auto:true,lo:0,hi:30,step:10}};
   d.ln={w:40,h:42,gap:9,dash:true,mks:1.15,grid:true,zero:true,end:'end',xUnit:'년',shareY:false,y:{auto:true,lo:0,hi:100,step:20}};
-  d.dumb={w:46,h:40,grid:true,zero:true,legend:'in',mks:1.35,y:{auto:true,lo:0,hi:40,step:10}};
+  d.dumb={w:46,h:40,grid:true,zero:true,conn:true,sep:false,legend:'in',mks:1.35,y:{auto:true,lo:0,hi:40,step:10}};
   d.pyr={w:34,h:40,gap:7,auto:true,max:12,step:4,ageStep:20,male:'mid',female:'light',pct:true,cols:0};
   d.tri=Object.assign({},RG.freshDoc('tri').tri,{unitWord:'',noNote:true,sides:[0,1,2],cw:true,ageName:'range'});   /* 삼각 그래프: 종교 엔진(RG)의 그림 그리기를 그대로 쓴다 */
   Object.assign(d.tree,{layout:'rect',inLbl:'both',top:'lbl',size:34,dec:1,sort:false});
@@ -300,16 +300,17 @@ function composeDumb(doc){
   const ops=new Ops(doc); const n=R.length; const w=Math.max(o.w,n*8), h=o.h; const X=i=>(i+0.5)*w/n, Y=v=>h-(clamp(v,ay.lo,ay.hi)-ay.lo)/(ay.hi-ay.lo)*h; const lw=W(doc,0.15);
   if(o.grid) for(const t of ticksOf(ay)) if(t>ay.lo+1e-9&&t<ay.hi-1e-9) ops.seg(0,Y(t),w,Y(t),W(doc,0.1),{dash:GRID_DASH});
   if(o.zero&&ay.lo<0&&ay.hi>0) ops.seg(0,Y(0),w,Y(0),W(doc,0.12));
+  if(o.sep) for(let i=1;i<n;i++) ops.seg(i*w/n,0,i*w/n,h,W(doc,0.1));
   ops.rect(0,0,w,h,{stroke:'#000000',sw:lw});
   const dy=decOf(ay.step); let top=null; for(const t of ticksOf(ay)){ const it=ops.textMid(fmt(t,dy),-0.9,Y(t),'tick',{align:'right'}); if(t===ticksOf(ay).slice(-1)[0]) top=it; }
   const unit=C[0].unit||doc.data.unit||''; if(unit&&top) ops.text(`(${unit})`,top.box.x+top.box.w/2,top.box.y-1.0,'unit',{align:'center'});
   const mkOf=k=>C[k].mk||(C.length===1?'fc':k===0?'oc':k===C.length-1?'fc':'ot');
   const tm=metrics(fontOf(doc,'cat'),'가');
-  R.forEach((r,i)=>{ const p=C.map((_,k)=>fin(M[i][k])?Y(M[i][k]):null); const ok=p.filter(fin); if(ok.length>1) ops.seg(X(i),Math.min(...ok),X(i),Math.max(...ok),W(doc,0.25));
+  R.forEach((r,i)=>{ const p=C.map((_,k)=>fin(M[i][k])?Y(M[i][k]):null); const ok=p.filter(fin); if(o.conn!==false&&ok.length>1) ops.seg(X(i),Math.min(...ok),X(i),Math.max(...ok),W(doc,0.25));
     p.forEach((y,k)=>{ if(fin(y)) mark(ops,doc,X(i),y,mkOf(k),o.mks); });
     const s=lblOf(r); const role=roleOf(s)==='label'?'label':'cat'; ops.text(s,X(i),h+1.0+tm.A,role,{align:'center'}); });
-  if(C.length>1&&o.legend!=='none'){ const lg=tpLegend(doc,C.map((c,k)=>({text:lblOf(c),mk:mkOf(k)})),true); const lb=lg.bounds();
-    const obs=[]; R.forEach((_,i)=>C.forEach((__,k)=>{ if(fin(M[i][k])) obs.push({x:X(i)-1.5,y:Y(M[i][k])-1.5,w:3,h:3}); })); R.forEach((_,i)=>{ const ok=C.map((__,k)=>M[i][k]).filter(fin).map(Y); if(ok.length>1) obs.push({x:X(i)-0.5,y:Math.min(...ok),w:1,h:Math.max(...ok)-Math.min(...ok)}); });
+  if(C.length>1&&o.legend!=='none'){ const lg=tpLegend(doc,C.map((c,k)=>({text:lblOf(c),mk:mkOf(k)})),o.conn!==false); const lb=lg.bounds();
+    const obs=[]; R.forEach((_,i)=>C.forEach((__,k)=>{ if(fin(M[i][k])) obs.push({x:X(i)-1.5,y:Y(M[i][k])-1.5,w:3,h:3}); })); if(o.conn!==false) R.forEach((_,i)=>{ const ok=C.map((__,k)=>M[i][k]).filter(fin).map(Y); if(ok.length>1) obs.push({x:X(i)-0.5,y:Math.min(...ok),w:1,h:Math.max(...ok)-Math.min(...ok)}); });
     let at=null; if(o.legend==='in') for(const [x,y] of [[w-1.6-lb.w,1.6],[1.6,1.6],[w-1.6-lb.w,h-1.6-lb.h],[1.6,h-1.6-lb.h]]){ const box={x,y,w:lb.w,h:lb.h}; if(!obs.some(q=>GG.overlap(q,box,0.3)>0)){ at=[x,y]; break; } }
     if(!at&&o.legend==='below'){ const b=ops.bounds(); const lg2=tpLegend(doc,C.map((c,k)=>({text:lblOf(c),mk:mkOf(k)})),false,true); const l2=lg2.bounds(); ops.absorb(lg2,w/2-l2.w/2-l2.x,b.y+b.h+2.2-l2.y); at='done'; }
     if(!at) at=[w+3,h/2-lb.h/2]; if(at!=='done') ops.absorb(lg,at[0]-lb.x,at[1]-lb.y); }
