@@ -422,8 +422,8 @@ function draw(){
   const r=GG.paintSheet(doc,cv,{desk});
   $('#deskEmpty').hidden=GG.plotted(doc).length>0;
   const w=warnings(); const dw=$('#deskWarn'); dw.hidden=!w.length; dw.textContent=w.join(' ');
-  if(r){ const W=r.R.W+2*GG.M, H=r.R.H+2*GG.M; $('#sizeInfo').textContent=`${W.toFixed(1)} × ${H.toFixed(1)} mm · ${Math.round(W/25.4*dpi)} × ${Math.round(H/25.4*dpi)} px`; }
-  else $('#sizeInfo').textContent='';
+  if(r){ const W=r.R.W+2*GG.M, H=r.R.H+2*GG.M; const sz=`${W.toFixed(1)} × ${H.toFixed(1)} mm · ${Math.round(W/25.4*dpi)} × ${Math.round(H/25.4*dpi)} px`; $('#sizeInfo').textContent=sz; $('#pngBtn').title=sz; }
+  else { $('#sizeInfo').textContent=''; $('#pngBtn').title=''; }
   ['pngBtn','svgBtn','copyBtn'].forEach(id=>$('#'+id).disabled=!r);
   for(const f of axisRefresh) f();
   requestFonts();

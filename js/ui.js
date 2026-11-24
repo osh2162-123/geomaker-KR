@@ -9,7 +9,15 @@
 'use strict';
 const GR=['climate','energy','religion','population','agriculture'];
 const NAME={climate:'기후',energy:'에너지',religion:'종교',population:'인구',agriculture:'농업'};
-const SUB={climate:'지점의 기온·강수 자료로 시험지 양식 그래프를 만들어요',energy:'Energy Institute 통계로 시험지 양식 도표를 만들어요',religion:'Pew 조사 자료로 나라별 종교 구성을 그려요',population:'UN 자료로 인구 구조·변화·도시화 그래프를 그려요',agriculture:'FAO 자료로 작물·가축 생산과 교역 그래프를 그려요'};
+const SUB={climate:'지점의 기온·강수 자료로 시험지 양식 그래프를 만들어요',energy:'세계 에너지 통계로 시험지 양식 도표를 만들어요',religion:'나라별 종교 구성 자료를 시험지 양식 도표로 그려요',population:'인구 구조·변화·도시화 그래프를 시험지 양식으로 그려요',agriculture:'작물·가축 생산과 교역 그래프를 시험지 양식으로 그려요'};
+/* A3: 부제에서 뺀 원래 출처 문구(원문 그대로). 오른쪽 설정 맨 끝 '자료 출처' 접힘 칸에 보존한다 */
+const SRC_ORIG={
+ climate:{brand:'ClimatView 평년값으로 시험지 양식 그래프',sub:'지점의 기온·강수 자료로 시험지 양식 그래프를 만들어요'},
+ energy:{brand:'EI 세계 에너지 통계로 시험지 양식 도표',sub:'Energy Institute 통계로 시험지 양식 도표를 만들어요'},
+ religion:{brand:'Pew 세계 종교 인구 자료로 시험지 양식 도표',sub:'Pew 조사 자료로 나라별 종교 구성을 그려요'},
+ population:{brand:'UN 세계 인구 전망 2024로 시험지 양식 도표',sub:'UN 자료로 인구 구조·변화·도시화 그래프를 그려요'},
+ agriculture:{brand:'FAOSTAT 생산·교역 자료로 시험지 양식 도표',sub:'FAO 자료로 작물·가축 생산과 교역 그래프를 그려요'}
+};
 /* 종류 그림(64×64). s=선, f1=흰 면, f2=연한 파랑 면, fb=파랑 면 */
 const IC={
  stack:'<rect class="f1 s" x="7" y="12" width="50" height="11" rx="2"/><path class="fb" d="M7 14a2 2 0 0 1 2-2h20v11H9a2 2 0 0 1-2-2z"/><path class="f2" d="M29 12h12v11H29z"/><rect class="f1 s" x="7" y="27" width="50" height="11" rx="2"/><path class="fb" d="M7 29a2 2 0 0 1 2-2h13v11H9a2 2 0 0 1-2-2z"/><path class="f2" d="M22 27h22v11H22z"/><rect class="f1 s" x="7" y="42" width="50" height="11" rx="2"/><path class="fb" d="M7 44a2 2 0 0 1 2-2h28v11H9a2 2 0 0 1-2-2z"/><path class="f2" d="M37 42h8v11h-8z"/>',
@@ -149,26 +157,73 @@ function gridify(box,id,sel){
 }
 
 /* ───────── 3) 접고 펼치기 ───────── */
-const OPEN_DEFAULT=/문장으로|자료 불러오기|^표$|^지점/;
+const OPEN_DEFAULT=/문장으로|^지점/;
 const fold={};   // 도구·패널·제목별로 펼침 상태를 기억(이번 접속 동안)
+/* 숫자 표(tb)·자료 불러오기(pb)는 처음에 접어 두고, 펼침 상태를 기기에 기억한다 */
+const TB_KEY='gm-tbfold-v1';
+function tbLoad(){ try{ return JSON.parse(localStorage.getItem(TB_KEY)||'{}')||{}; }catch(e){ return {}; } }
+function tbSave(o){ try{ localStorage.setItem(TB_KEY,JSON.stringify(o)); }catch(e){} }
+const tbPref=tbLoad();
+const SPECIAL={tb:'자료 보기·고치기'};   // 제목을 바꿔 보여 줄 칸
+const kindOfSec=t=>/-tbTitle$/.test(t.id||'')?'tb':/-pbTitle$/.test(t.id||'')?'pb':'';
 function foldPane(id,pane,key){
   const secs=[...pane.querySelectorAll(':scope>.sec')];
   secs.forEach((s,i)=>{
     let t=s.querySelector(':scope>.sec-title, :scope>.sec-head .sec-title'); if(!t) return;
+    const kind=key==='data'?kindOfSec(t):'';
+    if(kind&&SPECIAL[kind]&&t.textContent!==SPECIAL[kind]) t.textContent=SPECIAL[kind];
     const label=t.textContent.trim(); if(!label) return;
-    const k=id+'|'+key+'|'+label; s.dataset.fk=k;
+    const k=kind?id+'|'+kind:id+'|'+key+'|'+label; s.dataset.fk=k;
     if(!s.dataset.fz){
       s.dataset.fz='1'; t.setAttribute('role','button'); t.setAttribute('tabindex','0'); t.classList.add('fold-title');
-      const toggle=()=>{ const open=s.classList.contains('folded'); fold[k]=open; s.classList.toggle('folded',!open); t.setAttribute('aria-expanded',String(open)); };
+      const toggle=()=>{ const open=s.classList.contains('folded'); if(kind){ tbPref[k]=open; tbSave(tbPref); } else fold[k]=open; s.classList.toggle('folded',!open); t.setAttribute('aria-expanded',String(open)); };
       t.addEventListener('click',toggle); t.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
     }
-    let open=fold[k]; if(open===undefined) open=(key==='data')?OPEN_DEFAULT.test(label):(i===0);
+    let open=kind?tbPref[k]===true:fold[k]; if(open===undefined) open=(key==='data')?OPEN_DEFAULT.test(label):(i===0);
     s.classList.toggle('folded',!open); t.setAttribute('aria-expanded',String(open));
   });
 }
+/* 문장 입력 칸 바로 아래 '직접 고르기 ▸': 접혀 있는 '자료 불러오기'를 펼치고 그리로 옮겨 간다 */
+function pickLink(id,box){
+  const ask=box.querySelector('.pane.data>.sec.ask'), t=box.querySelector('.pane.data [id$="-pbTitle"]'); if(!ask||!t||ask.querySelector('.ask-pick')) return;
+  const s=t.closest('.sec'); if(!s) return;
+  const b=h('button',{type:'button',class:'btn small ask-pick',title:'나라·지표를 목록에서 직접 골라 표를 만들어요','aria-controls':t.id},'직접 고르기 ▸');
+  const row=ask.querySelector('.paste-row'); if(row) row.after(b); else ask.append(b);
+  b.addEventListener('click',()=>{
+    if(s.classList.contains('folded')) t.click();
+    if(s.scrollIntoView) s.scrollIntoView({block:'nearest',behavior:'smooth'});
+    const f=s.querySelector('#pbSeg button'); if(f) f.focus({preventScroll:true});
+  });
+}
+/* A3: 오른쪽 설정 맨 끝 '자료 출처' 접힘 칸. opts를 다시 만들 때마다 없으면 도로 넣는다 */
+function sourceSec(id,pane){
+  const o=SRC_ORIG[id]; if(!o) return;
+  let s=pane.querySelector(':scope>.sec-src');
+  if(!s){
+    s=h('section',{class:'sec sec-src','aria-label':'자료 출처'},
+      h('h2',{class:'sec-title'},'자료 출처'),
+      h('p',{class:'sub'},o.brand),
+      h('p',{class:'sub'},o.sub),
+      h('p',{class:'sub'},h('a',{href:'licenses.html',target:'_blank',rel:'noopener'},'출처·라이선스 자세히 보기')));
+  }
+  if(pane.lastElementChild!==s) pane.append(s);
+}
+/* A4: 간단히 보기에서 감출 세부 설정 칸(data-adv)과, 그 자리를 알려 주는 안내 한 줄 */
+const ADV_RE=/^(축 범위|칸 정리)/;   // 글꼴·무늬는 자주 다듬는 설정이라 간단히에서도 보인다
+function advMark(pane){
+  let n=0;
+  pane.querySelectorAll(':scope>.sec').forEach(s=>{ const t=s.querySelector(':scope>.sec-title, :scope>.sec-head .sec-title, :scope>summary .sec-title'); const on=!!t&&ADV_RE.test(t.textContent.trim()); if(on){ n++; if(!s.hasAttribute('data-adv')) s.setAttribute('data-adv',''); } else if(s.hasAttribute('data-adv')) s.removeAttribute('data-adv'); });
+  let p=pane.querySelector(':scope>.adv-hint');
+  if(!n){ if(p) p.remove(); return; }
+  if(!p){ p=h('p',{class:'note adv-hint'},'축 범위·칸 정리는 ',h('button',{type:'button',class:'adv-go','data-mode-go':'detail'},'자세히'),' 보기에서 바꿀 수 있어요.'); }
+  const src=pane.querySelector(':scope>.sec-src');
+  if(src){ if(p.nextElementSibling!==src) src.before(p); } else if(pane.lastElementChild!==p) pane.append(p);
+}
 function watchPane(id,box,pane,key){
-  if(!pane) return; foldPane(id,pane,key);
-  new MutationObserver(()=>foldPane(id,pane,key)).observe(pane,{childList:true});
+  if(!pane) return;
+  if(key==='opts'){ sourceSec(id,pane); advMark(pane); }
+  foldPane(id,pane,key);
+  new MutationObserver(()=>{ if(key==='opts'){ sourceSec(id,pane); advMark(pane); } foldPane(id,pane,key); }).observe(pane,{childList:true});
 }
 
 /* ───────── 4) 표 크게 보기 ───────── */
@@ -211,7 +266,7 @@ function watchTable(id,box){
     else { em.before(tools,wrap); dk.hidden=true; sec&&sec.classList.remove('docked'); box.classList.remove('tb-docked'); }
     sync(); window.dispatchEvent(new Event('resize'));   // 미리 보기 크기를 다시 맞춤
   };
-  dockPref[id]=dockPref[id]!==false;
+  dockPref[id]=dockPref[id]===true;   // 기본은 표를 미리 보기 아래로 옮기지 않음(‘아래로 넓게’를 누를 때만)
   toggle.addEventListener('click',()=>{ dockPref[id]=false; place(false); });
   left.addEventListener('click',()=>{ dockPref[id]=true; if(!em.hidden) return; place(true); });
   big.addEventListener('click',()=>openSheet(box,wrap,tools,big));
@@ -265,7 +320,7 @@ document.addEventListener('hub:mounted',e=>{
     chooser(id,box,opt);
     const run=()=>box.querySelectorAll('select').forEach(s=>gridify(box,id,s));
     run(); new MutationObserver(run).observe(box,{childList:true,subtree:true});
-    watchPane(id,box,box.querySelector('.pane.data'),'data'); watchPane(id,box,box.querySelector('.pane.opts'),'opts');
+    watchPane(id,box,box.querySelector('.pane.data'),'data'); watchPane(id,box,box.querySelector('.pane.opts'),'opts'); pickLink(id,box);
     bigTable(id,box); watchTable(id,box); sideFold(id,box);
   }catch(err){ console.error('graphui',err); }
 });

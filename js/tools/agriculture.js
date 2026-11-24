@@ -514,7 +514,7 @@ function draw(){
   $('#deskEmpty').hidden=!!r;
   let w=r?warnings():[]; if(!r&&doc.kind==='sc'&&doc.data.rows.length&&!D_hasPairs()) w=['산점도는 품목마다 (가로축, 세로축) 짝이 있어야 해요. 왼쪽 ‘두 지표’로 표를 만들어 주세요.'];
   const dw=$('#deskWarn'); dw.hidden=!w.length; dw.textContent=w.join(' ');
-  if(r){ const Wd=r.R.W+2*GG.M, Hd=r.R.H+2*GG.M; $('#sizeInfo').textContent=`${Wd.toFixed(1)} × ${Hd.toFixed(1)} mm · ${Math.round(Wd/25.4*dpi)} × ${Math.round(Hd/25.4*dpi)} px`; } else $('#sizeInfo').textContent='';
+  if(r){ const Wd=r.R.W+2*GG.M, Hd=r.R.H+2*GG.M; const sz=`${Wd.toFixed(1)} × ${Hd.toFixed(1)} mm · ${Math.round(Wd/25.4*dpi)} × ${Math.round(Hd/25.4*dpi)} px`; $('#sizeInfo').textContent=sz; $('#pngBtn').title=sz; } else { $('#sizeInfo').textContent=''; $('#pngBtn').title=''; }
   ['pngBtn','svgBtn','copyBtn'].forEach(id=>$('#'+id).disabled=!r);
   for(const f of axisRefresh) f();
   clearTimeout(draw.f); draw.f=setTimeout(()=>GG.ensureFonts(doc),250);

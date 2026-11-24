@@ -205,12 +205,27 @@ function bindOpen(){
   });
 }
 
+/* ───────── 간단히 / 자세히: 화면에 보이는 설정만 바꾸고, 그림과 작업 내용은 그대로 ───────── */
+const MODE_KEY='gm-mode-v1';
+function setMode(m,save){
+  m=m==='detail'?'detail':'simple';
+  document.body.dataset.mode=m;
+  document.querySelectorAll('#hubMode [data-m]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.m===m)));
+  if(save){ try{ localStorage.setItem(MODE_KEY,m); }catch(e){} window.dispatchEvent(new Event('resize')); }
+}
+function bindMode(){
+  let m='simple'; try{ if(localStorage.getItem(MODE_KEY)==='detail') m='detail'; }catch(e){}
+  setMode(m,false);
+  const seg=$('#hubMode'); if(seg) seg.addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(b) setMode(b.dataset.m,true); });
+  document.addEventListener('click',e=>{ const b=e.target.closest('[data-mode-go]'); if(!b) return; setMode(b.dataset.modeGo,true); toast('세부 설정을 모두 보여 줘요. 위쪽 ‘간단히’를 누르면 다시 줄어들어요.'); });
+}
+
 function start(){
-  bindTabs(); bindMenus(); bindLinks(); bindOpen();
+  bindMode(); bindTabs(); bindMenus(); bindLinks(); bindOpen();
   let first=null;
   const h=(location.hash||'').replace(/^#/,''); if(toolOf(h)) first=h;
   show(first||TOOLS[0].id).catch(()=>{});
 }
 
-return {def,start,show,openWork,get apis(){ return apis; },get current(){ return current; }};
+return {def,start,show,openWork,setMode,get apis(){ return apis; },get current(){ return current; }};
 })();

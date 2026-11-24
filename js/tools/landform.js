@@ -64,7 +64,7 @@ function draw(){
   g.items.innerHTML=doc.items.map(it=>`<g data-id="${GG.esc(it.id)}">${LG.itemSVG(doc,it)}</g>`).join('');
   drawSel();
   $('#deskEmpty').hidden=!!(B||doc.items.length);
-  const dpi=ui.dpi; $('#sizeInfo').textContent=`${pb.w.toFixed(1)} × ${pb.h.toFixed(1)} mm · ${Math.round(pb.w/25.4*dpi)} × ${Math.round(pb.h/25.4*dpi)} px`;
+  const dpi=ui.dpi; const sz=`${pb.w.toFixed(1)} × ${pb.h.toFixed(1)} mm · ${Math.round(pb.w/25.4*dpi)} × ${Math.round(pb.h/25.4*dpi)} px`; $('#sizeInfo').textContent=sz; $('#pngBtn').title=sz;
   { const ib=$('#itemSendBtn'); if(ib) ib.hidden=!document.getElementById('hub-tab-item')||!doc.items.some(i=>i.t==='sym'||i.t==='leader'); }
   ['pngBtn','svgBtn','copyBtn'].forEach(id=>$('#'+id).disabled=!(B||doc.items.length));
   wrap.dataset.tool=ui.tool;

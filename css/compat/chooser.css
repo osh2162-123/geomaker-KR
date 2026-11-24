@@ -68,6 +68,7 @@
 .tool .sec.folded>.sec-head>*:not(.sec-title){display:none!important}
 .tool .sec.folded{padding-top:12px;padding-bottom:12px;gap:0}
 .tool .sec-head{align-items:center}
+.tool .sec.ask .ask-pick{align-self:flex-start;margin-top:-2px}
 .tool .sec-head .fold-title{flex:1}
 
 /* 표 크게 보기 */

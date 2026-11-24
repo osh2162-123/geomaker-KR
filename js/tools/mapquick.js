@@ -40,7 +40,7 @@ function render(){
   if(!doc) return;
   WG.paintSheet(doc,cv,{desk:deskColor(),pad:28});
   const k=dpi/25.4, M=WG.M;
-  $('#sizeInfo').textContent=`틀 ${doc.frame.w} × ${doc.frame.h} mm · ${dpi} dpi로 ${Math.round((doc.frame.w+WG.sheetExtra(doc).ex+2*M)*k).toLocaleString()} × ${Math.round((doc.frame.h+WG.sheetExtra(doc).ey+2*M)*k).toLocaleString()} px`;
+  const sz=`틀 ${doc.frame.w} × ${doc.frame.h} mm · ${dpi} dpi로 ${Math.round((doc.frame.w+WG.sheetExtra(doc).ex+2*M)*k).toLocaleString()} × ${Math.round((doc.frame.h+WG.sheetExtra(doc).ey+2*M)*k).toLocaleString()} px`; $('#sizeInfo').textContent=sz; $('#pngBtn').title=sz;
 }
 let rq=0; function requestRender(){ if(!rq) rq=requestAnimationFrame(()=>{ rq=0; render(); }); }
 

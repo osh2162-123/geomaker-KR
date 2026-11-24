@@ -35,3 +35,9 @@
   .hub-top{flex-wrap:wrap;gap:6px 14px;padding:8px 14px}
   .hub-tabs{order:3;flex-basis:100%}
 }
+/* 간단히 / 자세히 전환(A4) */
+.hub-mode{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:var(--r-s);background:var(--c-blue-wash)}
+.hub-mode button{border:0;background:transparent;color:var(--c-tx-3);font:inherit;font-size:var(--fs-cap);font-weight:500;padding:4px 11px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.hub-mode button:hover{color:var(--c-tx-1)}
+.hub-mode button[aria-pressed="true"]{background:var(--c-white);color:var(--c-blue);font-weight:var(--fw-strong);box-shadow:0 1px 3px rgba(6,63,142,.12)}
+.hub-mode button:focus-visible{box-shadow:var(--focus);outline:none}

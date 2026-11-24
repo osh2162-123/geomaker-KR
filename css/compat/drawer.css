@@ -26,3 +26,14 @@
 .tool .fold.open>.fold-h .fold-c{transform:rotate(-135deg);margin-bottom:-3px}
 .tool .fold-b{display:flex;flex-direction:column;gap:8px;padding-top:6px}
 .tool .fold-b[hidden]{display:none}
+
+/* A3: 수치 꼬리표 기본 숨김. DOM·값 갱신은 유지되고, 크기·픽셀 정보는 내보내기 단추 title로 보여 준다.
+   #tbInfo=표 정보, 도킹 표 헤더의 inf 사본(.tbd-h>small), #sizeInfo=크기 정보(kmap의 #sizeOut은 유지) */
+#tbInfo,#sizeInfo,.tbd-h>small{display:none}
+
+/* A4: 간단히 보기에서는 세부 설정(data-adv)을 감추고 안내 한 줄을 보인다. 자세히 보기에서는 안내를 감춘다. */
+body[data-mode="simple"] [data-adv]{display:none!important}
+body:not([data-mode="simple"]) .adv-hint{display:none}
+.adv-hint .adv-go{border:0;background:none;padding:0;font:inherit;color:var(--c-blue);text-decoration:underline;cursor:pointer}
+.adv-hint .adv-go:focus-visible{box-shadow:var(--focus);outline:none;border-radius:3px}
+.tool .pane.opts>.adv-hint{margin:0;padding:12px 18px;font-size:var(--fs-cap);line-height:var(--lh-cap);color:var(--c-tx-3);border-bottom:1px solid var(--c-blue-line)}

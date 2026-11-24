@@ -42,7 +42,7 @@
   <header class="hub-top">
     <div class="hub-brand"><span class="hub-mark" aria-hidden="true"></span><h1>지리 자료 제작기</h1></div>
     <nav class="hub-tabs" role="tablist" aria-label="도구"><div class="hub-group hub-homeg" role="presentation"><button type="button" class="hub-gl hub-tab" role="tab" id="hub-tab-home" aria-controls="hub-tool-home" aria-selected="false" tabindex="-1" aria-label="홈">홈</button></div><div class="hub-group" data-g="백지도" role="presentation"><button type="button" class="hub-gl" aria-haspopup="menu" aria-expanded="false">백지도<i aria-hidden="true"></i></button><div class="hub-sub" role="presentation"><button type="button" class="hub-tab" role="tab" id="hub-tab-mapquick" aria-controls="hub-tool-mapquick" aria-selected="false" tabindex="-1" aria-label="백지도 자동 생성기">자동 생성</button><button type="button" class="hub-tab" role="tab" id="hub-tab-mapedit" aria-controls="hub-tool-mapedit" aria-selected="false" tabindex="-1" aria-label="백지도 편집기">편집기</button><button type="button" class="hub-tab" role="tab" id="hub-tab-kmap" aria-controls="hub-tool-kmap" aria-selected="false" tabindex="-1" aria-label="한국지리 백지도">한국지리</button></div><div class="hub-menu" role="menu" aria-label="백지도 도구"><button type="button" role="menuitem" class="hub-mi" data-go="mapquick" style="--i:0"><b>자동 생성</b><small>문장 한 줄로 세계 백지도를 만들어요</small></button><button type="button" role="menuitem" class="hub-mi" data-go="mapedit" style="--i:1"><b>편집기</b><small>점·글자·도형을 손으로 다듬어요</small></button><button type="button" role="menuitem" class="hub-mi" data-go="kmap" style="--i:2"><b>한국지리</b><small>시·도·시군구 백지도에 색과 기호를 달아요</small></button></div></div><div class="hub-group" data-g="모식도" role="presentation"><button type="button" class="hub-gl" aria-haspopup="menu" aria-expanded="false">모식도<i aria-hidden="true"></i></button><div class="hub-sub" role="presentation"><button type="button" class="hub-tab" role="tab" id="hub-tab-landform" aria-controls="hub-tool-landform" aria-selected="false" tabindex="-1" aria-label="지형 모식도 편집기">지형</button></div><div class="hub-menu" role="menu" aria-label="모식도 도구"><button type="button" role="menuitem" class="hub-mi" data-go="landform" style="--i:0"><b>지형</b><small>지형 모식도에 기호와 지시선을 달아요</small></button></div></div><div class="hub-group" data-g="그래프" role="presentation"><button type="button" class="hub-gl" aria-haspopup="menu" aria-expanded="false">그래프<i aria-hidden="true"></i></button><div class="hub-sub" role="presentation"><button type="button" class="hub-tab" role="tab" id="hub-tab-climate" aria-controls="hub-tool-climate" aria-selected="false" tabindex="-1" aria-label="기후 그래프 편집기">기후</button><button type="button" class="hub-tab" role="tab" id="hub-tab-energy" aria-controls="hub-tool-energy" aria-selected="false" tabindex="-1" aria-label="에너지 그래프 편집기">에너지</button><button type="button" class="hub-tab" role="tab" id="hub-tab-religion" aria-controls="hub-tool-religion" aria-selected="false" tabindex="-1" aria-label="종교 그래프 편집기">종교</button><button type="button" class="hub-tab" role="tab" id="hub-tab-population" aria-controls="hub-tool-population" aria-selected="false" tabindex="-1" aria-label="인구 그래프 편집기">인구</button><button type="button" class="hub-tab" role="tab" id="hub-tab-agriculture" aria-controls="hub-tool-agriculture" aria-selected="false" tabindex="-1" aria-label="농업 그래프 편집기">농업</button></div><div class="hub-menu" role="menu" aria-label="그래프 도구"><button type="button" role="menuitem" class="hub-mi" data-go="climate" style="--i:0"><b>기후</b><small>기후 그래프·월별 그래프·표</small></button><button type="button" role="menuitem" class="hub-mi" data-go="energy" style="--i:1"><b>에너지</b><small>에너지 자원별 소비·생산 그래프</small></button><button type="button" role="menuitem" class="hub-mi" data-go="religion" style="--i:2"><b>종교</b><small>나라별 종교 구성 그래프</small></button><button type="button" role="menuitem" class="hub-mi" data-go="population" style="--i:3"><b>인구</b><small>인구 구조·변화·도시화 그래프</small></button><button type="button" role="menuitem" class="hub-mi" data-go="agriculture" style="--i:4"><b>농업</b><small>작물·가축 생산과 교역 그래프</small></button></div></div><div class="hub-group" data-g="문항" role="presentation"><button type="button" class="hub-gl" aria-haspopup="menu" aria-expanded="false">문항<i aria-hidden="true"></i></button><div class="hub-sub" role="presentation"><button type="button" class="hub-tab" role="tab" id="hub-tab-item" aria-controls="hub-tool-item" aria-selected="false" tabindex="-1" aria-label="문항 설계">설계</button></div><div class="hub-menu" role="menu" aria-label="문항 도구"><button type="button" role="menuitem" class="hub-mi" data-go="item" style="--i:0"><b>설계</b><small>경기도교육청 방식 6단계로 문항을 설계해요</small></button></div></div></nav>
-    <div class="hub-actions"><label class="hub-btn" title="이 통합판에서 저장한 작업 파일을 알맞은 탭으로 열어요">작업 파일 열기<input type="file" id="hubOpen" accept=".json,application/json"></label></div>
+    <div class="hub-actions"><div class="hub-mode" id="hubMode" role="group" aria-label="화면 보기" title="간단히: 자주 쓰는 설정만 · 자세히: 글꼴·해상도·눈금 같은 세부 설정까지"><button type="button" data-m="simple" aria-pressed="true">간단히</button><button type="button" data-m="detail" aria-pressed="false">자세히</button></div><label class="hub-btn" title="이 통합판에서 저장한 작업 파일을 알맞은 탭으로 열어요">작업 파일 열기<input type="file" id="hubOpen" accept=".json,application/json"></label></div>
   </header>
   <main class="hub-main">
 <div class="tool t-home" id="hub-tool-home" role="tabpanel" aria-labelledby="hub-tab-home" hidden></div>
@@ -96,7 +96,7 @@
       <div id="exList" style="display:flex;flex-direction:column;gap:6px"></div>
     </section>
 
-    <details class="settings">
+    <details class="settings" data-adv>
       <summary>글꼴 · 크기 · 해상도</summary>
       <div class="grid">
         <div class="row"><label for="qk-fontSel">라벨 글꼴</label><select id="qk-fontSel"></select></div>
@@ -109,6 +109,7 @@
       </div>
     </details>
 
+    <p class="note adv-hint">글꼴·크기·해상도는 <button type="button" class="adv-go" data-mode-go="detail">자세히</button> 보기에서 바꿀 수 있어요.</p>
     <p class="mode-note" id="modeNote">Claude 연결을 확인하는 중이에요.</p>
   </section>
 
@@ -160,7 +161,7 @@
     <canvas id="cv" aria-label="백지도 편집 화면"></canvas>
     <div class="hint" id="hint"><span id="hintText"></span></div>
     <div class="loading" id="loading">지도 데이터를 불러오는 중…</div>
-    <div class="status"><span id="stPos">지도 위에 마우스를 올리면 좌표가 나와요</span><span id="stInfo"></span></div>
+    <div class="status" data-adv><span id="stPos">지도 위에 마우스를 올리면 좌표가 나와요</span><span id="stInfo"></span></div>
   </main>
 
   <aside class="panel">
@@ -224,7 +225,7 @@
           <div id="seaList" class="checks"></div>
           <p class="note">지금 지도에서 바다 위 빈자리를 찾아 넣어요. 넣은 뒤에는 끌어서 옮길 수 있어요.</p>
         </div></div></details>
-      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16V4M4 16h12M7 16v-2M10 16v-2M13 16v-2M4 7h2M4 10h2M4 13h2"/></svg><span class="dw-t"><b>가장자리 눈금</b><small>위도·경도 눈금</small></span></summary><div class="dw-b">
+      <details class="dw" name="m" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16V4M4 16h12M7 16v-2M10 16v-2M13 16v-2M4 7h2M4 10h2M4 13h2"/></svg><span class="dw-t"><b>가장자리 눈금</b><small>위도·경도 눈금</small></span></summary><div class="dw-b">
         <div class="list" id="tickList"></div>
         <div class="row">
           <select id="tkKind" aria-label="눈금 종류"><option value="lat">위도</option><option value="lon">경도</option></select>
@@ -236,6 +237,7 @@
       <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3c4 3-2 5 2 8s-1 4 3 6M11 3c3 2 1 4 4 6"/></svg><span class="dw-t"><b>하천</b><small>이름으로 찾아 그리기</small></span></summary><div class="dw-b">
         <input id="riverQ" class="field" type="search" placeholder="하천 이름 (예: 라인, 메콩)" aria-label="하천 검색">
         <div class="riverlist" id="riverList"></div></div></details>
+      <p class="note adv-hint">가장자리 눈금은 <button type="button" class="adv-go" data-mode-go="detail">자세히</button> 보기에서 바꿀 수 있어요.</p>
     </div>
 
     <div class="pane" id="pane-style" hidden>
@@ -257,16 +259,17 @@
         <div class="row"><label for="latinSel">영문·숫자</label><select id="latinSel" class="grow"><option value="same">라벨 글꼴 그대로</option><option value="times">Times New Roman</option></select></div>
         <div class="btnrow"><label class="btn filebtn">글꼴 파일 불러오기 (.ttf .otf)<input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2"></label></div>
         <p class="note">시험지는 한양신명조(HY신명조) 계열을 써요. 목록에서 ‘없음’으로 나오면 C:\Windows\Fonts에 있는 글꼴 파일을 직접 불러오면 돼요. 파일은 이 창 안에서만 쓰이고 어디로도 올라가지 않아요.</p></div></details>
-      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15h6M12 15h5M6 15V9M14.5 15V6"/></svg><span class="dw-t"><b>크기</b><small>라벨 글자, 점, 선 굵기</small></span></summary><div class="dw-b">
+      <details class="dw" name="s" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15h6M12 15h5M6 15V9M14.5 15V6"/></svg><span class="dw-t"><b>크기</b><small>라벨 글자, 점, 선 굵기</small></span></summary><div class="dw-b">
         <div class="row"><label for="fsz">라벨 글자</label><input type="range" id="fsz" min="6" max="14" step="0.5"><span class="val" id="fszV"></span></div>
         <div class="row"><label for="dsz">점 지름</label><input type="range" id="dsz" min="0.6" max="3" step="0.1"><span class="val" id="dszV"></span></div>
         <div class="row"><label for="rsz">빈 원 지름</label><input type="range" id="rsz" min="0.8" max="4" step="0.1"><span class="val" id="rszV"></span></div>
         <div class="row"><label for="lsc">선 굵기</label><input type="range" id="lsc" min="0.6" max="2" step="0.05"><span class="val" id="lscV"></span></div></div></details>
-      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></svg><span class="dw-t"><b>명암</b><small>바다·국가 음영 농도</small></span></summary><div class="dw-b">
+      <details class="dw" name="s" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></svg><span class="dw-t"><b>명암</b><small>바다·국가 음영 농도</small></span></summary><div class="dw-b">
         <div class="row"><label for="seaG">바다</label><input type="range" id="seaG" min="190" max="255" step="1"><span class="val" id="seaGV"></span></div>
         <div class="row"><label for="shG">국가 음영</label><input type="range" id="shG" min="110" max="215" step="1"><span class="val" id="shGV"></span></div>
-        <p class="note">기본값은 시험지 이미지에서 잰 값이에요 (바다 229, 음영 178 / 255).</p></div></details>
-      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="14" height="9" rx="2"/><path d="M6 9h1M9 9h1M12 9h1M6 12h8"/></svg><span class="dw-t"><b>단축키</b><small>V·D·O·T·S·L·E 와 방향키</small></span></summary><div class="dw-b"><div class="keys"><kbd>V</kbd><span>선택·이동</span><kbd>D</kbd><span>점</span><kbd>O</kbd><span>빈 원</span><kbd>T</kbd><span>글자</span><kbd>S</kbd><span>국가 음영</span><kbd>L</kbd><span>지시선 추가</span><kbd>E</kbd><span>점선 영역</span><kbd>Delete</kbd><span>선택 항목 지우기</span><kbd>방향키</kbd><span>라벨 0.2 mm씩 (Shift: 1 mm)</span><kbd>Ctrl+Z</kbd><span>되돌리기</span><kbd>더블클릭</kbd><span>라벨 글자 바로 고치기</span></div></div></details>
+        <p class="note">기본값은 시험지와 같은 밝기예요.</p></div></details>
+      <details class="dw" name="s" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="14" height="9" rx="2"/><path d="M6 9h1M9 9h1M12 9h1M6 12h8"/></svg><span class="dw-t"><b>단축키</b><small>V·D·O·T·S·L·E 와 방향키</small></span></summary><div class="dw-b"><div class="keys"><kbd>V</kbd><span>선택·이동</span><kbd>D</kbd><span>점</span><kbd>O</kbd><span>빈 원</span><kbd>T</kbd><span>글자</span><kbd>S</kbd><span>국가 음영</span><kbd>L</kbd><span>지시선 추가</span><kbd>E</kbd><span>점선 영역</span><kbd>Delete</kbd><span>선택 항목 지우기</span><kbd>방향키</kbd><span>라벨 0.2 mm씩 (Shift: 1 mm)</span><kbd>Ctrl+Z</kbd><span>되돌리기</span><kbd>더블클릭</kbd><span>라벨 글자 바로 고치기</span></div></div></details>
+      <p class="note adv-hint">크기·명암·단축키는 <button type="button" class="adv-go" data-mode-go="detail">자세히</button> 보기에서 바꿀 수 있어요.</p>
     </div>
 
     <div class="pane" id="pane-out" hidden>
@@ -356,8 +359,9 @@
     </div>
     <div class="kpane" data-pane="style" hidden>
       <details class="dw" name="s" open><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-3 5 2 4-1v10l-5 2-5-2-4 1z"/></svg><span class="dw-t"><b>색칠</b><small>시·군 색과 무늬</small></span></summary><div class="dw-b"><div id="shadeBox"></div></div></details>
-      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16 9 4l5 12M6 12h6"/></svg><span class="dw-t"><b>글자 · 선 모양</b><small>기호 글자, 선 굵기, 점선 모양</small></span></summary><div class="dw-b"><div id="styleBox"></div></div></details>
-      <details class="dw" name="s"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="14" height="9" rx="2"/><path d="M6 9h1M9 9h1M12 9h1M6 12h8"/></svg><span class="dw-t"><b>단축키</b><small>V·P·D·S·L·E·A·I·R·T</small></span></summary><div class="dw-b"><p class="sub">V 고르기 · P 색칠 · D 점 · S 기호 · L 지시선 · E 점선 원 · A 화살표 · I 선 · R 가림 상자 · T 글상자 · Delete 지우기 · Ctrl+D 복제 · Ctrl+Z 되돌리기 · 휠로 확대 · 빈 곳을 끌면 화면 이동 · 0 화면에 맞추기</p></div></details>
+      <details class="dw" name="s" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16 9 4l5 12M6 12h6"/></svg><span class="dw-t"><b>글자 · 선 모양</b><small>기호 글자, 선 굵기, 점선 모양</small></span></summary><div class="dw-b"><div id="styleBox"></div></div></details>
+      <details class="dw" name="s" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="14" height="9" rx="2"/><path d="M6 9h1M9 9h1M12 9h1M6 12h8"/></svg><span class="dw-t"><b>단축키</b><small>V·P·D·S·L·E·A·I·R·T</small></span></summary><div class="dw-b"><p class="sub">V 고르기 · P 색칠 · D 점 · S 기호 · L 지시선 · E 점선 원 · A 화살표 · I 선 · R 가림 상자 · T 글상자 · Delete 지우기 · Ctrl+D 복제 · Ctrl+Z 되돌리기 · 휠로 확대 · 빈 곳을 끌면 화면 이동 · 0 화면에 맞추기</p></div></details>
+      <p class="note adv-hint">글자·선 모양과 단축키는 <button type="button" class="adv-go" data-mode-go="detail">자세히</button> 보기에서 바꿀 수 있어요.</p>
     </div>
     <div class="kpane" data-pane="out" hidden>
       <section class="sec">
@@ -442,7 +446,7 @@
       <button class="btn primary" id="pngBtn" type="button">PNG 저장</button>
       <button class="btn" id="svgBtn" type="button">SVG 저장</button>
       <button class="btn" id="copyBtn" type="button">이미지 복사</button>
-      <div class="seg" id="dpiSeg" role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
+      <div class="seg" id="dpiSeg" data-adv role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
       <div class="zoom"><button class="ico" id="zOut" type="button" title="작게" aria-label="작게">−</button><button class="btn small" id="zFit" type="button" title="화면에 맞추기">맞춤</button><button class="ico" id="zIn" type="button" title="크게" aria-label="크게">+</button></div>
       <span class="info" id="sizeInfo"></span>
     </div>
@@ -478,7 +482,7 @@
 <template id="hub-tpl-climate">
 <div class="gapp">
   <header class="top">
-    <div class="brand"><h1>기후 그래프 편집기</h1><small>ClimatView 평년값으로 시험지 양식 그래프</small></div>
+    <div class="brand"><h1>기후 그래프 편집기</h1><small>기온·강수 평년값으로 시험지 양식 그래프</small></div>
     <div class="seg kinds" id="kindSeg" role="group" aria-label="그래프 종류">
       <button type="button" data-v="climo">기후 그래프</button>
       <button type="button" data-v="line">월별 그래프</button>
@@ -554,7 +558,7 @@
       <button class="btn primary" id="pngBtn" type="button">PNG 저장</button>
       <button class="btn" id="svgBtn" type="button">SVG 저장</button>
       <button class="btn" id="copyBtn" type="button">이미지 복사</button>
-      <div class="seg" id="dpiSeg" role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
+      <div class="seg" id="dpiSeg" data-adv role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
       <span class="info" id="sizeInfo"></span>
     </div>
     <p class="desk-warn" id="deskWarn" hidden></p>
@@ -571,7 +575,7 @@
 <template id="hub-tpl-energy">
 <div class="gapp eapp">
   <header class="top">
-    <div class="brand"><h1>에너지 그래프 편집기</h1><small>EI 세계 에너지 통계로 시험지 양식 도표</small></div>
+    <div class="brand"><h1>에너지 그래프 편집기</h1><small>세계 에너지 통계로 시험지 양식 도표</small></div>
     <div class="seg kinds" id="kindSeg" role="group" aria-label="그래프 종류">
       <button type="button" data-v="stack">누적 막대</button>
       <button type="button" data-v="donut">도넛</button>
@@ -637,7 +641,7 @@
       <button class="btn primary" id="pngBtn" type="button">PNG 저장</button>
       <button class="btn" id="svgBtn" type="button">SVG 저장</button>
       <button class="btn" id="copyBtn" type="button">이미지 복사</button>
-      <div class="seg" id="dpiSeg" role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
+      <div class="seg" id="dpiSeg" data-adv role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
       <span class="info" id="sizeInfo"></span>
     </div>
     <p class="desk-warn" id="deskWarn" hidden></p>
@@ -654,7 +658,7 @@
 <template id="hub-tpl-religion">
 <div class="gapp eapp">
   <header class="top">
-    <div class="brand"><h1>종교 그래프 편집기</h1><small>Pew 세계 종교 인구 자료로 시험지 양식 도표</small></div>
+    <div class="brand"><h1>종교 그래프 편집기</h1><small>세계 종교 인구 자료로 시험지 양식 도표</small></div>
     <div class="seg kinds" id="kindSeg" role="group" aria-label="그래프 종류">
       <button type="button" data-v="rank">순위 표</button>
       <button type="button" data-v="stack">누적 막대</button>
@@ -721,7 +725,7 @@
       <button class="btn primary" id="pngBtn" type="button">PNG 저장</button>
       <button class="btn" id="svgBtn" type="button">SVG 저장</button>
       <button class="btn" id="copyBtn" type="button">이미지 복사</button>
-      <div class="seg" id="dpiSeg" role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
+      <div class="seg" id="dpiSeg" data-adv role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
       <span class="info" id="sizeInfo"></span>
     </div>
     <p class="desk-warn" id="deskWarn" hidden></p>
@@ -738,7 +742,7 @@
 <template id="hub-tpl-population">
 <div class="gapp eapp">
   <header class="top">
-    <div class="brand"><h1>인구 그래프 편집기</h1><small>UN 세계 인구 전망 2024로 시험지 양식 도표</small></div>
+    <div class="brand"><h1>인구 그래프 편집기</h1><small>세계 인구 전망 자료로 시험지 양식 도표</small></div>
     <div class="seg kinds" id="kindSeg" role="group" aria-label="그래프 종류">
       <button type="button" data-v="sc">산점도</button>
       <button type="button" data-v="line">꺾은선</button>
@@ -808,7 +812,7 @@
       <button class="btn primary" id="pngBtn" type="button">PNG 저장</button>
       <button class="btn" id="svgBtn" type="button">SVG 저장</button>
       <button class="btn" id="copyBtn" type="button">이미지 복사</button>
-      <div class="seg" id="dpiSeg" role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
+      <div class="seg" id="dpiSeg" data-adv role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
       <span class="info" id="sizeInfo"></span>
     </div>
     <p class="desk-warn" id="deskWarn" hidden></p>
@@ -825,7 +829,7 @@
 <template id="hub-tpl-agriculture">
 <div class="gapp eapp">
   <header class="top">
-    <div class="brand"><h1>농업 그래프 편집기</h1><small>FAOSTAT 생산·교역 자료로 시험지 양식 도표</small></div>
+    <div class="brand"><h1>농업 그래프 편집기</h1><small>생산·교역 자료로 시험지 양식 도표</small></div>
     <div class="seg kinds" id="kindSeg" role="group" aria-label="그래프 종류">
       <button type="button" data-v="stack">누적 막대</button>
       <button type="button" data-v="donut">원그래프</button>
@@ -893,7 +897,7 @@
       <button class="btn primary" id="pngBtn" type="button">PNG 저장</button>
       <button class="btn" id="svgBtn" type="button">SVG 저장</button>
       <button class="btn" id="copyBtn" type="button">이미지 복사</button>
-      <div class="seg" id="dpiSeg" role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
+      <div class="seg" id="dpiSeg" data-adv role="group" aria-label="해상도"><button type="button" data-v="300">300 dpi</button><button type="button" data-v="600">600 dpi</button></div>
       <span class="info" id="sizeInfo"></span>
     </div>
     <p class="desk-warn" id="deskWarn" hidden></p>
