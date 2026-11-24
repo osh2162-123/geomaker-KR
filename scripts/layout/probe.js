@@ -43,13 +43,19 @@ const segLen=o=>o.pts&&o.pts.length===2?Math.hypot(o.pts[1][0]-o.pts[0][0],o.pts
 const isDataLine=o=>o.t==='line'&&!o.dash&&o.pts&&(o.pts.length>2||segLen(o)>1.5);
 const isFilled=o=>(o.t==='rect'||o.t==='poly'||o.t==='region')&&(o.fill||o.pat);
 
+/* 돌린 글자는 상자가 실제보다 넓으므로, 돌린 사각형(네 모서리)끼리 분리축 판정을 한다 */
+function quad(o){ if(o.t!=='text'||!o.rot) { const b=o.box; return [[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]]; }
+  const m=o.m, W=m.W, bx=o.align==='center'?-W/2:o.align==='right'?-W:0; const c=Math.cos(o.rot), sn=Math.sin(o.rot);
+  return [[bx,-m.A],[bx+W,-m.A],[bx+W,m.D],[bx,m.D]].map(([a,b])=>[o.x+a*c-b*sn,o.y+a*sn+b*c]); }
+function quadOverlap(P,Q){ for(const poly of [P,Q]) for(let i=0;i<4;i++){ const a=poly[i], b=poly[(i+1)%4]; const nx=b[1]-a[1], ny=a[0]-b[0]; const L=Math.hypot(nx,ny)||1;
+    const pr=pp=>pp.map(p=>(p[0]*nx+p[1]*ny)/L); const p1=pr(P), p2=pr(Q); const gap=Math.min(Math.max(...p1),Math.max(...p2))-Math.max(Math.min(...p1),Math.min(...p2)); if(gap<=EPS) return false; } return true; }
 function lint(R){
   const L=R.ops.list, issues=[];
   const texts=L.filter(o=>o.t==='text'&&o.box&&o.box.w>0);
   const lg=L.filter(o=>o.grp==='legend');
   const add=(rule,a,b,area,extra)=>issues.push(Object.assign({rule,a:short(a),b:b?short(b):'',area:+(area||0).toFixed(3),boxA:boxOf(a),boxB:b?boxOf(b):null},extra||{}));
   /* T: 글자–글자 */
-  for(let i=0;i<texts.length;i++) for(let j=i+1;j<texts.length;j++){ const a=texts[i], b=texts[j]; if(a.rot||b.rot) { /* 돌린 글자는 상자가 넉넉하므로 넓이 기준을 크게 */ const ar=inter(a.box,b.box); if(ar>0.6) add('T',a,b,ar); continue; } const ar=inter(a.box,b.box); if(ar>0) add('T',a,b,ar);
+  for(let i=0;i<texts.length;i++) for(let j=i+1;j<texts.length;j++){ const a=texts[i], b=texts[j]; if(a.rot||b.rot){ if(inter(a.box,b.box)>0&&quadOverlap(quad(a),quad(b))) add('T',a,b,inter(a.box,b.box)); continue; } const ar=inter(a.box,b.box); if(ar>0) add('T',a,b,ar);
     else { /* G: 같은 줄에서 너무 가까움 */ const sameLine=Math.abs((a.box.y+a.box.h/2)-(b.box.y+b.box.h/2))<Math.min(a.box.h,b.box.h)*0.5; if(sameLine){ const gap=Math.max(b.box.x-(a.box.x+a.box.w),a.box.x-(b.box.x+b.box.w)); if(gap>-EPS&&gap<GAP&&!(a.grp==='legend'&&b.grp==='legend')&&a.role!=='unit'&&b.role!=='unit') add('G',a,b,0,{gap:+gap.toFixed(3)});   /* '100(%)'처럼 단위를 붙이는 것은 시험지 표기 */ } } }
   /* L: 범례 영역 – 범례가 아닌 데이터·글자 */
   if(lg.length){ let a=Infinity,b=Infinity,c=-Infinity,d=-Infinity; for(const o of lg){ const bb=boxOf(o); if(!bb) continue; a=Math.min(a,bb.x); b=Math.min(b,bb.y); c=Math.max(c,bb.x+bb.w); d=Math.max(d,bb.y+bb.h); }
