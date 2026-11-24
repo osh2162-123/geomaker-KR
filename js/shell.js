@@ -101,6 +101,7 @@ function mount(id,opt){
       if(current===id) wait('이 도구를 여는 중에 문제가 생겼어요. 새로고침해 주세요.');
       throw e;
     }
+    try{ compactBars(id,box); }catch(e){ console.error('compactBars',e); }
     try{ document.dispatchEvent(new CustomEvent('hub:mounted',{detail:{id,box,opt:opt||null}})); }catch(e){ console.error(e); }
     if(current===id) unwait();
     return apis[id];
@@ -204,6 +205,28 @@ function bindOpen(){
     inp.value='';
   });
 }
+
+/* ───────── 저장·파일 메뉴 모으기(F3): 모든 도구에서 [PNG 저장] [더 보기 ▾], 상단 [파일 ▾] ─────────
+   단추를 새로 만들지 않고 기존 단추를 메뉴 안으로 옮기기만 한다(도구 코드의 동작·id는 그대로) */
+const MORE_SEL=['#svgBtn','#copyBtn','#jsonBtn','#dpiSeg'];
+const FILE_SEL=['#saveJson','label.filebtn:has(#loadJson)','#resetBtn','#newBtn'];
+function menu(label,cls,items){
+  const d=document.createElement('details'); d.className='mx '+cls;
+  const sm=document.createElement('summary'); sm.className='btn'; sm.textContent=label; sm.setAttribute('aria-haspopup','menu');
+  const pop=document.createElement('div'); pop.className='mx-pop'; pop.setAttribute('role','menu');
+  d.append(sm,pop); items.forEach(el=>pop.append(el));
+  pop.addEventListener('click',e=>{ const b=e.target.closest('button,a,label'); if(!b||b.closest('.seg')) return; setTimeout(()=>{ d.open=false; },0); });
+  return d;
+}
+function compactBars(id,box){
+  if(id==='home'||id==='item') return;
+  const png=box.querySelector('.desk-bar #pngBtn')||box.querySelector('.top .top-actions #pngBtn'); if(png&&!box.querySelector('.mx-more')){ const area=png.parentElement;
+    const items=MORE_SEL.map(s=>area.querySelector(':scope>'+s)).filter(Boolean); if(items.length) png.after(menu('더 보기','mx-more',items)); }
+  const ta=box.querySelector('.top .top-actions'); if(ta&&!ta.querySelector('.mx-file')){ const items=FILE_SEL.map(s=>ta.querySelector(':scope>'+s)).filter(Boolean);
+    if(items.length>1){ const m=menu('파일','mx-file',[]); items[0].before(m); items.forEach(el=>m.querySelector('.mx-pop').append(el)); } }
+}
+document.addEventListener('click',e=>{ document.querySelectorAll('details.mx[open]').forEach(d=>{ if(!d.contains(e.target)) d.open=false; }); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('details.mx[open]').forEach(d=>{ d.open=false; d.querySelector('summary').focus(); }); });
 
 /* ───────── 간단히 / 자세히: 화면에 보이는 설정만 바꾸고, 그림과 작업 내용은 그대로 ───────── */
 const MODE_KEY='gm-mode-v1';
