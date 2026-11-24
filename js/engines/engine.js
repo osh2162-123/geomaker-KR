@@ -271,7 +271,9 @@ function prep(raw){
   const rivers=new Map();
   riversAll.forEach(f=>{const en=f.properties.en; const k=RIVER_OF[en]||en; if(!k) return; f.properties.key=k; if(!rivers.has(k)) rivers.set(k,[]); rivers.get(k).push(f);});
   return {countries,byId:new Map(countries.map(f=>[f.id,f])),land:{type:'FeatureCollection',features:countries},
-    coast:cutAntimeridian(topojson.mesh(cT,obj,(a,b)=>a===b)),borders:topojson.mesh(cT,obj,(a,b)=>a!==b),lakes,rivers,riversAll};
+    coast:cutAntimeridian(topojson.mesh(cT,obj,(a,b)=>a===b)),borders:topojson.mesh(cT,obj,(a,b)=>a!==b),lakes,rivers,riversAll,
+    /* 칠한 나라의 국경만: 국경선을 끈 지도에서도 칠한 나라는 경계가 보여야 한다 */
+    bordersOf:(()=>{ const cache=new Map(); return ids=>{ const k=[...ids].sort().join(','); if(!cache.has(k)) cache.set(k,topojson.mesh(cT,obj,(a,b)=>a!==b&&(ids.has(a.id)||ids.has(b.id)))); return cache.get(k); }; })()};
 }
 function loadLod(l){
   if(geo[l]) return Promise.resolve(geo[l]);
@@ -717,7 +719,9 @@ function drawBase(doc,ctx,P,fw,fh,withFrame){
     if(ly.major) g.riversAll.forEach(f=>{ if((f.properties.sr||9)<=maxSr) rv.push(f); });
     for(const k of ly.rivers){ const a=g.rivers.get(k); if(a) rv.push(...a); }
     if(rv.length){ ctx.beginPath(); rv.forEach(f=>path(f)); ctx.lineWidth=0.11*L; ctx.stroke(); }
-    if(ly.borders){ ctx.beginPath(); path(g.borders); ctx.setLineDash([0.5,0.32]); ctx.lineWidth=0.1*L; ctx.lineCap='butt'; ctx.stroke(); ctx.setLineDash([]); ctx.lineCap='round'; }
+    const shadedIds=new Set(doc.items.filter(it=>it.t==='shade').map(it=>it.cid));
+    const bd=ly.borders?g.borders:shadedIds.size?g.bordersOf(shadedIds):null;
+    if(bd){ ctx.beginPath(); path(bd); ctx.setLineDash([0.5,0.32]); ctx.lineWidth=0.1*L; ctx.lineCap='butt'; ctx.stroke(); ctx.setLineDash([]); ctx.lineCap='round'; }
     ctx.beginPath(); path(g.coast); ctx.lineWidth=0.12*L; ctx.stroke();
     drawKoreaIslands(doc,ctx,P,g,fw,fh);
     if(lakes.length){ ctx.beginPath(); lakes.forEach(f=>path(f)); ctx.lineWidth=0.1*L; ctx.stroke(); }
@@ -1134,7 +1138,7 @@ function buildInk(doc,P,fw,fh){
   if(g){
     x.lineWidth=0.3;
     x.beginPath(); path(g.coast); x.stroke();
-    if(ly.borders){ x.beginPath(); path(g.borders); x.stroke(); }
+    { const ids=new Set(doc.items.filter(it=>it.t==='shade').map(it=>it.cid)); const bd=ly.borders?g.borders:ids.size?g.bordersOf(ids):null; if(bd){ x.beginPath(); path(bd); x.stroke(); } }
     if(ly.lakes){ const minA=0.3/(P.scale()*P.scale()); x.beginPath(); g.lakes.filter(f=>f.area>minA).forEach(f=>path(f)); x.stroke(); }
     const rv=[]; const maxSr={xlo:2,lo:3,hi:4}[currentLodName(doc)]||3;
     if(ly.major) g.riversAll.forEach(f=>{ if((f.properties.sr||9)<=maxSr) rv.push(f); });
@@ -1543,10 +1547,14 @@ function labelTok(t){
   if(/^[ㄱ-ㅎ]$/.test(s)||/^[㉠-㉭]$/.test(s)) return s;
   return null;
 }
+/* 동작 낱말의 여러 활용형(칠하고, 표시해서, 넣어 주세요 …)은 지명이 아니므로 '못 알아들은 말'에 넣지 않는다.
+   지명(칠레, 그리스 등)과 헷갈리지 않게 어미를 좁게 정한다 */
+const VERB_RE=/^(칠|색칠|음영|음영처리|찍|표시|그려|그리|만들|넣|달|붙|보여|보이|나타내|가리|구분|강조|채우|채워)(하고|하여|해|해서|해요|해줘|해주세요|해주고|하기|하자|하면|한|할|고|어|어서|어요|어줘|어주세요|어주고|기|줘|주세요|아|아서|아줘|아주세요|여|여줘|면|고서)?$/;
+const JOIN=new Set(['주고','주면','주어','주시고','주세요','주십시오','부탁해','부탁해요','부탁합니다','그리고','및','또','또는','혹은','그다음','다음','그','이','저','각각','모두','전부','같이','함께','처럼','하고','와','과']);
 function matchThing(t,ctx){
   // 반환: {kind:'river'|'country'|'place'|'stop', ...}
   for(const c of stripPart(t)){
-    if(STOP.has(c)) return {kind:'stop'};
+    if(STOP.has(c)||JOIN.has(c)||(VERB_RE.test(c)&&c!=='그리')) return {kind:'stop'};
     if(c==='티그리스유프라테스강'){ const a=resolveRiver('티그리스강'), b=resolveRiver('유프라테스강'); if(a&&b) return {kind:'river',key:b,keys:[a,b]}; }
     if(/(강|운하)$/.test(c)){ const k=resolveRiver(c); if(k) return {kind:'river',key:k}; }
     const f=findCountry(c); if(f&&c.length>=2){ return {kind:'country',f,word:c}; }
