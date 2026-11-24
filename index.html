@@ -178,7 +178,7 @@
 
     <div class="pane" id="pane-map">
       <section class="grp"><h3>지역</h3><div class="chips" id="presets"></div></section>
-      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a7 7 0 1 0 14 0 7 7 0 0 0-14 0M10 3c-3 3-3 11 0 14M10 3c3 3 3 11 0 14M3 10h14"/></svg><span class="dw-t"><b>도법 · 틀</b><small>도법, 중앙 경선, 틀 크기, 해안선 자세히</small></span></summary><div class="dw-b">
+      <details class="dw" name="m" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a7 7 0 1 0 14 0 7 7 0 0 0-14 0M10 3c-3 3-3 11 0 14M10 3c3 3 3 11 0 14M3 10h14"/></svg><span class="dw-t"><b>도법 · 틀</b><small>도법, 중앙 경선, 틀 크기, 해안선 자세히</small></span></summary><div class="dw-b">
         <div class="row"><label for="proj">도법</label><select id="proj" class="grow"></select></div>
         <div class="row"><label for="rot">중앙 경선</label><input id="rot" type="number" step="1"><span class="unit">° (동경 +, 서경 −)</span></div>
         <div class="row"><span class="lab">틀 크기</span><input id="fw" type="number" min="20" max="190" step="1" aria-label="틀 가로 mm"><span class="unit">×</span><input id="fh" type="number" min="15" max="270" step="1" aria-label="틀 세로 mm"><span class="unit">mm</span></div>
@@ -194,17 +194,17 @@
           <label class="check"><input type="checkbox" id="lyMajor">주요 하천 전부</label>
         </div>
         </div></details>
-      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h14M3 13h14M7 3v14M13 3v14"/></svg><span class="dw-t"><b>경위선망 · 축척</b><small>경위선망, 축척 막대</small></span></summary><div class="dw-b"><div class="row"><label for="grat">경위선망</label><select id="grat"><option value="0">없음</option><option value="10">10° 간격</option><option value="15">15° 간격</option><option value="20">20° 간격</option><option value="30">30° 간격</option></select></div>
+      <details class="dw" name="m" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h14M3 13h14M7 3v14M13 3v14"/></svg><span class="dw-t"><b>경위선망 · 축척</b><small>경위선망, 축척 막대</small></span></summary><div class="dw-b"><div class="row"><label for="grat">경위선망</label><select id="grat"><option value="0">없음</option><option value="10">10° 간격</option><option value="15">15° 간격</option><option value="20">20° 간격</option><option value="30">30° 간격</option></select></div>
         <div class="row"><label for="scaleSel">축척 막대</label><select id="scaleSel"><option value="none">없음</option><option value="auto">자동 위치</option><option value="bl">왼쪽 아래</option><option value="br">오른쪽 아래</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option></select></div>
         <p class="seqwarn" id="scaleWarn" role="note" hidden></p>
         <div class="checks"><label class="check" title="경위선망을 켠 북극 중심 지도에서 30°N·60°N을 경선을 따라 적고, 0° 경선 끝에 0°를 적어요"><input type="checkbox" id="lyPolarLbl">북극 중심 지도에 위도·0° 글자</label></div></div></details>
-      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6c4-2 10 2 14 0M3 11c4-2 10 2 14 0M3 16c4-2 10 2 14 0"/></svg><span class="dw-t"><b>기후 지역</b><small>쾨펜 기후 구분 무늬</small></span></summary><div class="dw-b">
+      <details class="dw" name="m" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6c4-2 10 2 14 0M3 11c4-2 10 2 14 0M3 16c4-2 10 2 14 0"/></svg><span class="dw-t"><b>기후 지역</b><small>쾨펜 기후 구분 무늬</small></span></summary><div class="dw-b">
         <div id="zoneBelts" class="zone-belts"></div>
         <div id="zoneTones" class="zone-tones"></div>
         <div class="row" id="zoneLegRow" hidden><label for="zoneLeg">범례</label><select id="zoneLeg"><option value="bl">왼쪽 아래</option><option value="br">오른쪽 아래</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option><option value="outR">지도 밖 오른쪽</option><option value="outB">지도 밖 아래</option><option value="none">없음</option></select></div>
         <p class="note" id="zoneNote" hidden>쾨펜 기후 구분(Beck 외 2023, 1991~2020년 평년) 지도를 단순화한 것이라 시험지 지도와 가장자리가 조금 다를 수 있어요. 무늬가 7가지라 여러 기후를 함께 켜면 겹치는 무늬가 생길 수 있으니 이름 옆 칸에서 바꿔 주세요. 아주 좁은 지역(Csc·Cwc 등)은 단순화 과정에서 빠졌어요.</p>
         </div></details>
-      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14l4-6 3 4 3-7 4 9"/></svg><span class="dw-t"><b>판 · 산지</b><small>판의 경계, 습곡 산지, 안정 육괴</small></span></summary><div class="dw-b"><div class="checks">
+      <details class="dw" name="m" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14l4-6 3 4 3-7 4 9"/></svg><span class="dw-t"><b>판 · 산지</b><small>판의 경계, 습곡 산지, 안정 육괴</small></span></summary><div class="dw-b"><div class="checks">
           <label class="check"><input type="checkbox" id="plOn">판의 경계</label>
           <label class="check"><input type="checkbox" id="plTyped">수렴·발산·보존 구분</label>
           <label class="check"><input type="checkbox" id="plNames">판 이름</label>
@@ -219,7 +219,7 @@
           <p class="note">교과서 분류에 따른 시험 지도 수준의 모식 경계예요(산맥: Natural Earth, 발트·아프리카·아라비아는 직접 그린 모식 경계).</p>
         </div>
         </div></details>
-      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8c2-2 3 2 5 0s3 2 5 0 3 2 5 0M2 13c2-2 3 2 5 0s3 2 5 0 3 2 5 0"/></svg><span class="dw-t"><b>바다 이름</b><small>대양·바다 이름 넣기</small></span></summary><div class="dw-b"><div id="seaBox">
+      <details class="dw" name="m" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8c2-2 3 2 5 0s3 2 5 0 3 2 5 0M2 13c2-2 3 2 5 0s3 2 5 0 3 2 5 0"/></svg><span class="dw-t"><b>바다 이름</b><small>대양·바다 이름 넣기</small></span></summary><div class="dw-b"><div id="seaBox">
           <div class="checks"><label class="check"><input type="checkbox" id="seaSpace">글자 사이 띄우기(태 평 양)</label></div>
           <div class="row"><label for="seaK">글자 크기</label><select id="seaK"><option value="1">기호 글자와 같게</option><option value="0.8">조금 작게</option><option value="0.65">작게</option></select></div>
           <div id="seaList" class="checks"></div>
@@ -234,10 +234,10 @@
           <button class="btn" id="tkAdd">추가</button>
         </div>
         <p class="note">값은 북위·동경을 +, 남위·서경을 −로 적어요. 0은 “0°”로 표시돼요.</p></div></details>
-      <details class="dw" name="m"><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3c4 3-2 5 2 8s-1 4 3 6M11 3c3 2 1 4 4 6"/></svg><span class="dw-t"><b>하천</b><small>이름으로 찾아 그리기</small></span></summary><div class="dw-b">
+      <details class="dw" name="m" data-adv><summary><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3c4 3-2 5 2 8s-1 4 3 6M11 3c3 2 1 4 4 6"/></svg><span class="dw-t"><b>하천</b><small>이름으로 찾아 그리기</small></span></summary><div class="dw-b">
         <input id="riverQ" class="field" type="search" placeholder="하천 이름 (예: 라인, 메콩)" aria-label="하천 검색">
         <div class="riverlist" id="riverList"></div></div></details>
-      <p class="note adv-hint">가장자리 눈금은 <button type="button" class="adv-go" data-mode-go="detail">자세히</button> 보기에서 바꿀 수 있어요.</p>
+      <p class="note adv-hint">도법·틀, 경위선망·축척, 기후 지역, 판·산지, 바다 이름, 하천, 가장자리 눈금은 <button type="button" class="adv-go" data-mode-go="detail">자세히</button> 보기에서 바꿀 수 있어요.</p>
     </div>
 
     <div class="pane" id="pane-style" hidden>
@@ -433,7 +433,8 @@
       <p class="sub" id="kNote"></p>
     </section>
 
-    <section class="sec" aria-labelledby="landform-impTitle">
+    <p class="note adv-hint">내 그림·PDF에서 잘라 오기는 <button type="button" class="adv-go" data-mode-go="detail">자세히</button> 보기에서 할 수 있어요.</p>
+    <section class="sec" aria-labelledby="landform-impTitle" data-adv>
       <h2 class="sec-title" id="landform-impTitle">그림 불러오기</h2>
       <div class="paste-row"><label class="btn filebtn">이미지 파일<input type="file" id="imgFile" accept="image/*"></label><label class="btn filebtn">PDF에서 잘라 오기<input type="file" id="pdfFile" accept="application/pdf,.pdf"></label></div>
       <p class="sub">PNG·JPG·SVG를 불러오거나, 기출 PDF를 열어 그림 부분만 끌어서 잘라 와요. 화면을 누른 뒤 Ctrl+V로 복사한 그림을 붙여 넣을 수도 있어요. 그림은 이 컴퓨터 안에서만 쓰이고 어디로도 올라가지 않아요.</p>

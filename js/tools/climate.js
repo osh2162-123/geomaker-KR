@@ -104,9 +104,10 @@ function renderStations(){
     const up=h('button',{class:'ico',type:'button','aria-label':'위로',title:'위로',disabled:i===0},'↑'); up.addEventListener('click',()=>mv(-1));
     const dn=h('button',{class:'ico',type:'button','aria-label':'아래로',title:'아래로',disabled:i===doc.stations.length-1},'↓'); dn.addEventListener('click',()=>mv(1));
     const x=h('button',{class:'ico x',type:'button','aria-label':`${s.name} 지우기`,title:'지우기'},'×'); x.addEventListener('click',()=>{ doc.stations.splice(i,1); delete doc.line.sty[s.id]; relabelIfAuto(); changed('all'); toast(`${s.name}을(를) 지웠어요.`); });
-    li.append(h('div',{class:'st-row'},lbl,name,h('div',{class:'st-tools'},ref,up,dn,x),h('div',{class:'st-sum'},sm1,l2?sm2:null)));
+    [ref,up,dn].forEach(b=>b.setAttribute('data-adv',''));
+    li.append(h('div',{class:'st-row'},lbl,name,h('div',{class:'st-tools'},ref,up,dn,x),h('div',{class:'st-sum','data-adv':''},sm1,l2?sm2:null)));
     /* 월별 값 */
-    const det=h('details',null,h('summary',null,'월별 값 보기·고치기')); det.open=openIds.has(s.id);
+    const det=h('details',{'data-adv':''},h('summary',null,'월별 값 보기·고치기')); det.open=openIds.has(s.id);
     det.addEventListener('toggle',()=>{ if(det.open) openIds.add(s.id); else openIds.delete(s.id); });
     const tb=h('table',{class:'mtab'}); tb.append(h('thead',null,h('tr',null,h('th',null,'월'),h('th',null,`기온(${deg()})`),h('th',null,'강수량(mm)'))));
     const body=h('tbody');
@@ -148,7 +149,7 @@ $('#blankBtn').addEventListener('click',()=>{ const s=GG.addStation(doc,{name:`�
 const sampleCap=(window.claude&&typeof window.claude.use==='function')?window.claude.use('sample').catch(()=>null):Promise.resolve(null);
 const KIND_KO={climo:'기후 그래프',line:'월별 그래프',cat:'지역별 막대·점',sc:'산점도',rd:'방사형 그래프',tb:'표'};
 let undoDoc=null;
-function askMsg(kind,text){ const m=$('#askMsg'); m.className='msg '+kind; m.textContent=text; m.hidden=!text; }
+function askMsg(kind,text){ const m=$('#askMsg'); const ex=kind==='err'&&text&&ROOT.querySelector('.ex'); if(ex) text+=' 이렇게 써 보세요: '+ex.textContent.trim(); m.className='msg '+kind; m.textContent=text; m.hidden=!text; }
 function cleanSpec(o){
   if(!o||typeof o!=='object') return null;
   const kinds=GG.KINDS;

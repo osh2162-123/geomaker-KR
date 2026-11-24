@@ -268,7 +268,7 @@ function shuffleRows(){ const D=doc.data; const idx=D.rows.map((_,i)=>i); for(le
 /* ───────── 문장으로 만들기 ───────── */
 const sampleCap=(window.claude&&typeof window.claude.use==='function')?window.claude.use('sample').catch(()=>null):Promise.resolve(null);
 let undoDoc=null;
-function askMsg(kind,text){ const m=$('#askMsg'); m.className='msg '+kind; m.textContent=text; m.hidden=!text; }
+function askMsg(kind,text){ const m=$('#askMsg'); const ex=kind==='err'&&text&&ROOT.querySelector('.ex'); if(ex) text+=' 이렇게 써 보세요: '+ex.textContent.trim(); m.className='msg '+kind; m.textContent=text; m.hidden=!text; }
 function describe(d){
   const D=d.data; const R=D.rows.filter(r=>!r.hide), C=D.cols.filter(c=>!c.hide);
   let t=`${AG.KIND_KO[d.kind]} · ${R.slice(0,8).map(r=>r.lbl&&r.lbl!==r.name?`${r.lbl} ${r.name}`:r.name).join(', ')}${R.length>8?' …':''}`;
@@ -300,7 +300,7 @@ async function run(){
   if(!d.data.rows.length||!d.data.cols.length){ askMsg('err','고른 품목·지표·나라의 값이 자료에 없어요. 시점이나 지표를 바꿔 보세요.'); undoDoc=null; return; }
   doc=AG.normalizeDoc(d); lastType=doc.preset&&doc.preset.type; syncTop(); changed('all');
   const miss=[...new Set([...(info.missing||[]),...missing])];
-  let text=describe(doc)+'.'; if(miss.length) text+=` ${miss.join(', ')}은(는) 자료에 없어 빠졌어요.`; if(info.lost&&info.lost.length) text+=` ${info.lost.join(', ')}은(는) 이 지표 자료가 없어 뺐어요.`;
+  let text=describe(doc)+'.'; if(miss.length) text+=` ${miss.join('·')}: 이 자료에서 찾지 못해 그림에 넣지 않았어요. 나라·지역 이름을 확인해 주세요.`; if(info.lost&&info.lost.length) text+=` ${info.lost.join(', ')}은(는) 이 지표 자료가 없어 뺐어요.`;
   if(spec.tp&&info.tp&&info.tp.label!==spec.tp) text+=` ${spec.tp} 자료가 없어 ${info.tp.label}${/~/.test(info.tp.label)?'':'년'}으로 그렸어요.`;
   text+=riceNote(spec.items||[],spec.els||[]);
   if(SY.pairs.length) text+=symNote(SY.pairs,symMiss);

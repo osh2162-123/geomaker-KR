@@ -264,6 +264,12 @@ function renderLeft(){
       if((m.ts||m.nb)&&hasUl&&m.ulleung==='box') V.append(h('p',{class:'sub'},'울릉도·독도 영해선은 울릉도를 ‘제자리’로 두었을 때 그려져요.')); } }
   V.append(row('지도 너비',num(()=>m.width,v=>m.width=v,{min:30,max:250,step:1,aria:'지도 너비(mm)',on:'change',after:()=>{ mapChanged(); fit(); }}),h('span',{class:'unit'},'mm')));
   V.append(row('경계 기준',sel(Object.entries(KM.data().vers).map(([k,v])=>[k,v.label]).reverse(),()=>m.ver,v=>{ m.ver=v; m.verPick=true; m.shade={}; },()=>{ mapChanged(); fit(); },'경계 기준')));
+  /* 간단히 보기(F7): 하천·고속 국도·영해와 그 세부 줄, 경계 기준은 '자세히'에서만 보인다 */
+  { const kids=[...V.children], lab=e=>{ const l=e.querySelector&&e.querySelector(':scope>label,:scope>.lab,:scope>span'); return l?l.textContent.trim():''; };
+    const i0=kids.findIndex(e=>lab(e)==='하천'), i1=kids.findIndex(e=>lab(e)==='지도 너비');
+    if(i0>=0) kids.slice(i0,i1>i0?i1:kids.length).forEach(e=>e.setAttribute('data-adv',''));
+    kids.filter(e=>lab(e)==='경계 기준').forEach(e=>e.setAttribute('data-adv',''));
+    V.append(h('p',{class:'note adv-hint'},'하천·고속 국도·영해·경계 기준은 ',h('button',{type:'button',class:'adv-go','data-mode-go':'detail'},'자세히'),' 보기에서 바꿀 수 있어요.')); }
   /* 색칠 */
   const H=$('#shadeBox'); H.textContent='';
   const tones=KM.TONE_ORDER.map(t=>[t,KM.TONES[t].ko]);

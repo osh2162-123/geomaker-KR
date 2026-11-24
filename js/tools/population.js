@@ -282,7 +282,7 @@ function shuffleRows(){ const D=doc.data; const idx=D.rows.map((_,i)=>i); for(le
 /* ───────── 문장으로 만들기 ───────── */
 const sampleCap=(window.claude&&typeof window.claude.use==='function')?window.claude.use('sample').catch(()=>null):Promise.resolve(null);
 let undoDoc=null;
-function askMsg(kind,text){ const m=$('#askMsg'); m.className='msg '+kind; m.textContent=text; m.hidden=!text; }
+function askMsg(kind,text){ const m=$('#askMsg'); const ex=kind==='err'&&text&&ROOT.querySelector('.ex'); if(ex) text+=' 이렇게 써 보세요: '+ex.textContent.trim(); m.className='msg '+kind; m.textContent=text; m.hidden=!text; }
 function describe(d){
   const D=d.data; const R=D.rows.filter(r=>!r.hide), C=D.cols.filter(c=>!c.hide);
   if(d.preset&&d.preset.type==='pyr'){ const g=[]; for(const c of C) if(c.ent&&!g.some(x=>x[1]===c.ent)) g.push([c.grp,c.ent]); return `${PG.KIND_KO[d.kind]} · ${g.map(([l,n])=>l&&l!==n?`${l} ${n}`:n).join(', ')} · ${d.preset.year}년`; }
@@ -316,7 +316,7 @@ async function run(){
   doc=PG.normalizeDoc(d); lastType=doc.preset&&doc.preset.type; syncTop(); changed('all');
   if(info.template){ ui.pb='paste'; ui.paste.text=PG.PYR_TEMPLATE; saveLocal(); renderPB(); }
   const miss=[...new Set([...(info.missing||[]),...missing])];
-  let text=describe(doc)+'.'; if(miss.length) text+=` ${miss.join(', ')}은(는) 자료에 없어 빠졌어요.`;
+  let text=describe(doc)+'.'; if(miss.length) text+=` ${miss.join('·')}: 이 자료에서 찾지 못해 그림에 넣지 않았어요. 나라·지역 이름을 확인해 주세요.`;
   if(info.yearNote) text+=' '+info.yearNote;
   if(info.lost&&info.lost.length) text+=` ${EG.josa(info.lost.join(', '),'은','는')} ${info.rev}년판에 따로 실리지 않아 빈칸이에요.${info.rev==='2024'?' 지난 기출(2020년판) 값은 문장에 ‘2020년판’을 넣으면 나와요.':''}`;
   if(info.rev) text+=` (국제 이주자 통계 ${info.rev}년판)`;

@@ -37,3 +37,7 @@ body:not([data-mode="simple"]) .adv-hint{display:none}
 .adv-hint .adv-go{border:0;background:none;padding:0;font:inherit;color:var(--c-blue);text-decoration:underline;cursor:pointer}
 .adv-hint .adv-go:focus-visible{box-shadow:var(--focus);outline:none;border-radius:3px}
 .tool .pane.opts>.adv-hint{margin:0;padding:12px 18px;font-size:var(--fs-cap);line-height:var(--lh-cap);color:var(--c-tx-3);border-bottom:1px solid var(--c-blue-line)}
+.tool .pane>.adv-hint,.tool .side>.adv-hint{margin:0;padding:10px 18px;font-size:var(--fs-cap);line-height:var(--lh-cap);color:var(--c-tx-3)}
+
+/* 직접 고르기로 펼친 자료 선택기는 간단히 보기에서도 사용할 수 있어요. */
+body[data-mode=simple] .simple-pick.folded{display:none}

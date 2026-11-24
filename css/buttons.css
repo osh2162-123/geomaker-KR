@@ -5,3 +5,15 @@
 .hub-btn:focus-within{box-shadow:var(--focus)}
 .hub-x{border:0;background:none;color:var(--c-tx-3);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px}
 .hub-link{border:0;background:var(--c-blue-soft);color:var(--c-blue);border-radius:var(--r-s);padding:3px 10px;font:inherit;font-weight:var(--fw-strong);cursor:pointer;margin-right:auto}
+/* 저장·파일 메뉴(F3): details.mx > summary.btn + .mx-pop */
+.mx{position:relative;display:inline-flex}
+.mx>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.mx>summary::-webkit-details-marker{display:none}
+.mx>summary::after{content:"";width:6px;height:6px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg) translate(-1px,-1px);opacity:.6}
+.mx[open]>summary::after{transform:rotate(225deg) translate(-1px,-1px)}
+.mx-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:90;display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:170px;padding:6px;background:var(--c-white);border:1px solid var(--c-blue-line);border-radius:var(--r-m);box-shadow:0 8px 24px rgba(6,63,142,.14)}
+.top-actions .mx-pop{left:auto;right:0}
+.mx-pop>.btn,.mx-pop>label.btn{justify-content:flex-start;width:100%}
+.mx-pop>.seg{align-self:flex-start}
+
+.mx:not([open])>.mx-pop{display:none}
