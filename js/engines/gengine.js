@@ -614,7 +614,7 @@ Ops.prototype={
   mark(x,y,shape,size,o){ if(shape==='none') return; o=o||{}; this.list.push({t:'mark',x,y,shape,size,sw:o.sw||0.15,g:o.g||'#8c8c8c'}); },
   text(s,x,y,role,o){ o=o||{}; if(s==null||s==='') return null; const font=(o.bold?'bold ':'')+fontOf(this.doc,role,o.scale); const m=metrics(font,String(s));
     const align=o.align||'left'; const bx=align==='center'?x-m.W/2:align==='right'?x-m.W:x;
-    const it={t:'text',s:String(s),x,y,font,align,box:{x:bx,y:y-m.A,w:m.W,h:m.H},m}; if(o.halo) it.halo=o.halo; if(o.c) it.c=o.c;
+    const it={t:'text',s:String(s),x,y,font,align,box:{x:bx,y:y-m.A,w:m.W,h:m.H},m,role}; if(o.halo) it.halo=o.halo; if(o.c) it.c=o.c;
     if(o.rot){ /* (x, y)를 축으로 돌린 글자: 상자는 돌린 네 모서리를 감싸는 사각형 */ it.rot=o.rot; const c=Math.cos(o.rot), sn=Math.sin(o.rot); const x0=bx-x, x1=bx-x+m.W, y0=-m.A, y1=m.D;
       const P=[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].map(([a,b])=>[x+a*c-b*sn,y+a*sn+b*c]); const xs=P.map(p=>p[0]), ys=P.map(p=>p[1]);
       it.box={x:Math.min(...xs),y:Math.min(...ys),w:Math.max(...xs)-Math.min(...xs),h:Math.max(...ys)-Math.min(...ys)}; }
@@ -921,8 +921,10 @@ function legendOps(doc,items,mode,role){
     if(mode==='row') x+=swW+1.0+m.W+3.4;
   });
   if(mode==='boxed'||mode==='row'){ const b=ops.bounds(); ops.rect(b.x-1.2,b.y-0.9,b.w+2.4,b.h+1.8,{stroke:'#000000',sw:W(doc,0.12)}); }
-  return ops;
+  return tagGrp(ops,'legend');
 }
+/* 겹침 검사용 묶음 표식(그리기에는 쓰지 않음) */
+function tagGrp(ops,g){ for(const o of ops.list) o.grp=g; return ops; }
 function catUnitOf(doc,key){ return unitText(doc,METRICS[key]?METRICS[key].unit:'p'); }
 function composeCat(doc){
   const o=doc.cat, S=plotted(doc); if(!S.length) return null;
@@ -1365,7 +1367,7 @@ async function saveFile(name,data,mime){
 async function copyPng(doc,opts){ const item=new ClipboardItem({'image/png':renderPng(doc,opts)}); await navigator.clipboard.write([item]); }
 function sizeOf(doc){ const R=compose(doc); return R?{w:R.W+2*M,h:R.H+2*M}:null; }
 
-return {clean,MMPT,M,clamp,uid,esc,fin,fmt,fmtVal,MINUS,KN,FONTS,userFonts,fontDef,fontAvailable,needsWeb,registerUserFont,
+return {tagGrp,clean,MMPT,M,clamp,uid,esc,fin,fmt,fmtVal,MINUS,KN,FONTS,userFonts,fontDef,fontAvailable,needsWeb,registerUserFont,
   METRICS,METRIC_GROUPS,metricOf,metricLabel,unitText,SEQS,FILLS,MARKS,LINE_STY,KINDS,LINE_V,fmtNum,freshDoc,normalizeDoc,normStation,plotted,refStation,relabel,nextLabel,addStation,
   clearMetrics:()=>mCache.clear(),valueOf,monthlyOf,parseClimate,lastAxes:()=>Object.assign({},LAST),hintOf,setStationDict,stationList,searchStations,koppenOf,koppenStations,KOP_TYPES,stationData,parseRequest,specToDoc,buildPrompt,autoAxis,axisOf,climoAxes,compose,autoNotes,noteLines,paintSheet,paintOps,renderPng,svgString,saveFile,copyPng,sizeOf,readyForExport,ensureFonts,lineStyle,
   mapRows,mapSend,register,Ops,PATS,patOf,fillColor,fontOf,metrics,W,gray,legendOps,ticksOf,niceStep,decOf,yAxis,drawMark,overlap,splitTitle,wave,sum,avg,

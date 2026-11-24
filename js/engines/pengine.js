@@ -134,10 +134,10 @@ function arrowHead(ops,doc,x0,y0,x1,y1){ const L=Math.hypot(x1-x0,y1-y0); if(L<0
 function tpLegend(doc,items,join,horiz){
   const ops=new Ops(doc); const f=fontOf(doc,'legend'); const lh=Math.max(metrics(f,'가').H,1.6)+1.6;
   if(horiz){ let x=0; items.forEach(it=>{ mark(ops,doc,x,0,it.mk,1.25); const m=metrics(f,it.text); ops.text(it.text,x+1.6,(m.A-m.D)/2,'legend'); x+=1.6+m.W+3.2; });
-    const b=ops.bounds(); ops.rect(b.x-1.2,b.y-0.9,b.w+2.4,b.h+1.8,{stroke:'#000000',sw:W(doc,0.12)}); return ops; }
+    const b=ops.bounds(); ops.rect(b.x-1.2,b.y-0.9,b.w+2.4,b.h+1.8,{stroke:'#000000',sw:W(doc,0.12)}); return GG.tagGrp(ops,'legend'); }
   items.forEach((it,i)=>{ const y=i*lh; mark(ops,doc,0,y,it.mk,1.25); const m=metrics(f,it.text); ops.text(it.text,1.6,y+(m.A-m.D)/2,'legend'); });
   if(join&&items.length>1) ops.seg(0,0.65,0,(items.length-1)*lh-0.65,W(doc,0.2));
-  const b=ops.bounds(); ops.rect(b.x-1.2,b.y-0.9,b.w+2.4,b.h+1.8,{stroke:'#000000',sw:W(doc,0.12)}); return ops;
+  const b=ops.bounds(); ops.rect(b.x-1.2,b.y-0.9,b.w+2.4,b.h+1.8,{stroke:'#000000',sw:W(doc,0.12)}); return GG.tagGrp(ops,'legend');
 }
 /* 축 범위·눈금 공통: 테두리, 점선 격자, 0 선, 눈금 숫자 */
 function frameXY(ops,doc,w,h,ax,ay,o){

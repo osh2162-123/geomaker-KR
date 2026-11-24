@@ -148,7 +148,7 @@ function legend(doc,items,mode,maxW){
     pos.push({it,x,y,role,m}); x+=w+sep; });
   for(const p of pos){ ops.rect(p.x,p.y,sw,sh,fillOpts(doc,p.it.fill)); ops.text(p.it.text,p.x+sw+gap,p.y+sh/2+(p.m.A-p.m.D)/2,p.role); }
   const b=ops.bounds(); ops.rect(b.x-1.3,b.y-1.0,b.w+2.6,b.h+2.0,{stroke:'#000000',sw:W(doc,0.12)});
-  return ops;
+  return GG.tagGrp(ops,'legend');
 }
 
 /* ───────── ① 누적 막대 ───────── */
