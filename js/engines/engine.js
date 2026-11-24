@@ -273,7 +273,7 @@ function prep(raw){
   return {countries,byId:new Map(countries.map(f=>[f.id,f])),land:{type:'FeatureCollection',features:countries},
     coast:cutAntimeridian(topojson.mesh(cT,obj,(a,b)=>a===b)),borders:topojson.mesh(cT,obj,(a,b)=>a!==b),lakes,rivers,riversAll,
     /* 칠한 나라의 국경만: 국경선을 끈 지도에서도 칠한 나라는 경계가 보여야 한다 */
-    bordersOf:(()=>{ const cache=new Map(); return ids=>{ const k=[...ids].sort().join(','); if(!cache.has(k)) cache.set(k,topojson.mesh(cT,obj,(a,b)=>a!==b&&(ids.has(a.id)||ids.has(b.id)))); return cache.get(k); }; })()};
+    bordersOf:(()=>{ const cache=new Map(); return ids=>{ const k=[...ids].sort().join(','); if(!cache.has(k)) cache.set(k,topojson.mesh(cT,obj,(a,b)=>a!==b&&(ids.has(a.properties.id)||ids.has(b.properties.id)))); return cache.get(k); }; })()};
 }
 function loadLod(l){
   if(geo[l]) return Promise.resolve(geo[l]);
@@ -1355,6 +1355,8 @@ async function specToDoc(spec,opts){
   if([0,10,15,20,30].includes(spec.grat)) doc.layers.grat=spec.grat; else if(doc.view.proj==='polar') doc.layers.grat=30;   // 북극 중심 지도는 경위선망 30°가 기본
   if(spec.noLbl) for(const it of doc.items) if(!it.sea) it.lbl='';
   if(typeof spec.borders==='boolean') doc.layers.borders=spec.borders;
+  /* 나라를 칠한 지도는 국경선을 함께 보인다(시험지 관례, 사용자 결정 2026-11-24). 문장에서 '국경 없이'처럼 끄라고 한 경우(spec.bordersOff)만 예외 */
+  if(!spec.bordersOff&&doc.items.some(it=>it.t==='shade')) doc.layers.borders=true;
   await ensureGeo(doc).catch(()=>{});
   { const P=makeProj(doc.view,doc.frame.w,doc.frame.h);
     for(const it of doc.items) if(it.t==='shade'){ const st=it.style||chooseCountryStyle(doc,it,P); applyCountryStyle(doc,it,st,P); } }
@@ -1727,6 +1729,7 @@ function parseRules(q){
   }
   if(!spec.labelSeq){ const any=things.find(x=>x.label); spec.labelSeq=any?seqOfLabel(any.label):'latin'; }
   const count=(spec.seas?1:0)+spec.points.length+spec.countries.length+spec.areas.length+spec.rivers.length+(spec.zone?1:0)+(spec.plates?1:0)+(spec.relief?1:0);
+  if(/국경(선)?\s*(은|는|을|를)?\s*(없이|빼|끄|지우|안\s*그)/.test(q)) spec.bordersOff=true;
   return {spec,unknown,count,understood:unknown.length===0&&count>0};
 }
 

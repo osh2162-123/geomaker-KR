@@ -209,15 +209,33 @@ function sourceSec(id,pane){
   if(pane.lastElementChild!==s) pane.append(s);
 }
 /* A4: 간단히 보기에서 감출 세부 설정 칸(data-adv)과, 그 자리를 알려 주는 안내 한 줄 */
-const ADV_RE=/^(축 범위|칸 정리)/;   // 글꼴·무늬는 자주 다듬는 설정이라 간단히에서도 보인다
 function advMark(pane){
   let n=0;
-  pane.querySelectorAll(':scope>.sec').forEach(s=>{ const t=s.querySelector(':scope>.sec-title, :scope>.sec-head .sec-title, :scope>summary .sec-title'); const on=!!t&&ADV_RE.test(t.textContent.trim()); if(on){ n++; if(!s.hasAttribute('data-adv')) s.setAttribute('data-adv',''); } else if(s.hasAttribute('data-adv')) s.removeAttribute('data-adv'); });
+  pane.querySelectorAll(':scope>.sec').forEach((s,i)=>{ const t=s.querySelector(':scope>.sec-title, :scope>.sec-head .sec-title, :scope>summary .sec-title'); const on=i!==0&&!!t&&!/^(제목|주석)/.test(t.textContent.trim()); if(on){ n++; if(!s.hasAttribute('data-adv')) s.setAttribute('data-adv',''); } else if(s.hasAttribute('data-adv')) s.removeAttribute('data-adv'); });
   let p=pane.querySelector(':scope>.adv-hint');
   if(!n){ if(p) p.remove(); return; }
-  if(!p){ p=h('p',{class:'note adv-hint'},'축 범위·칸 정리는 ',h('button',{type:'button',class:'adv-go','data-mode-go':'detail'},'자세히'),' 보기에서 바꿀 수 있어요.'); }
+  if(!p){ p=h('p',{class:'note adv-hint'},'글꼴·축·발문 단서·자료 출처는 ',h('button',{type:'button',class:'adv-go','data-mode-go':'detail'},'자세히'),' 보기에서 바꿀 수 있어요.'); }
   const src=pane.querySelector(':scope>.sec-src');
   if(src){ if(p.nextElementSibling!==src) src.before(p); } else if(pane.lastElementChild!==p) pane.append(p);
+}
+function compactData(box){
+  const bar=box.querySelector('.desk-bar'), pane=box.querySelector('.pane.data'); if(!bar||!pane) return;
+  const sections=[...pane.querySelectorAll(':scope>.sec')].filter(s=>/-(is|ms)Title$/.test(s.querySelector('.sec-title')?.id||''));
+  pane.querySelectorAll('#mapSend,#itemSend').forEach(s=>{ if(!sections.some(p=>p.contains(s))) sections.push(s); });
+  if(sections.length){
+    const menu=h('details',{class:'mx'}), summary=h('summary',{class:'btn'},'이 자료로 ▾');
+    const body=h('div',{class:'mx-pop'}); menu.append(summary,body); bar.append(menu);
+    sections.forEach(s=>{ s.classList.remove('folded'); const t=s.querySelector('.sec-title'); if(t) t.setAttribute('aria-expanded','true'); body.append(s); });
+    menu.addEventListener('keydown',e=>{ if(e.key==='Escape'){ menu.open=false; summary.focus(); } });
+    document.addEventListener('click',e=>{ if(menu.open&&!menu.contains(e.target)) menu.open=false; });
+    body.addEventListener('click',e=>{ if(e.target.closest('a,button')&&!e.target.closest('.sec-title')) menu.open=false; });
+  }
+  pane.querySelectorAll(':scope>.sec').forEach(s=>{
+    const title=s.querySelector('.sec-title'), id=title?.id||'';
+    if(/-tbTitle$/.test(id)) s.setAttribute('data-adv','');
+    if(/-pbTitle$/.test(id)) s.classList.add('simple-pick');
+    if(title&&title.textContent.trim()==='지점 추가') s.setAttribute('data-adv','');
+  });
 }
 function watchPane(id,box,pane,key){
   if(!pane) return;
@@ -321,7 +339,7 @@ document.addEventListener('hub:mounted',e=>{
     const run=()=>box.querySelectorAll('select').forEach(s=>gridify(box,id,s));
     run(); new MutationObserver(run).observe(box,{childList:true,subtree:true});
     watchPane(id,box,box.querySelector('.pane.data'),'data'); watchPane(id,box,box.querySelector('.pane.opts'),'opts'); pickLink(id,box);
-    bigTable(id,box); watchTable(id,box); sideFold(id,box);
+    bigTable(id,box); watchTable(id,box); sideFold(id,box); compactData(box);
   }catch(err){ console.error('graphui',err); }
 });
 document.addEventListener('hub:show',()=>closePicker());

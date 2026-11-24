@@ -226,6 +226,12 @@ function compactBars(id,box){
     if(items.length>1){ const m=menu('파일','mx-file',[]); items[0].before(m); items.forEach(el=>m.querySelector('.mx-pop').append(el)); } }
 }
 document.addEventListener('click',e=>{ document.querySelectorAll('details.mx[open]').forEach(d=>{ if(!d.contains(e.target)) d.open=false; }); });
+/* 메뉴가 열릴 때 화면(휴대폰 폭 포함) 밖으로 나가지 않게 가로 위치를 맞춘다 */
+document.addEventListener('toggle',e=>{ const d=e.target; if(!(d instanceof HTMLDetailsElement)||!d.classList.contains('mx')||!d.open) return;
+  const p=d.querySelector('.mx-pop'); if(!p) return; p.style.left=''; p.style.right=''; p.style.maxWidth='calc(100vw - 16px)';
+  const r=p.getBoundingClientRect(), W=document.documentElement.clientWidth, s=d.getBoundingClientRect();
+  if(r.right>W-8) { p.style.left=(W-8-r.width-s.left)+'px'; p.style.right='auto'; }
+  else if(r.left<8){ p.style.left=(8-s.left)+'px'; p.style.right='auto'; } },true);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('details.mx[open]').forEach(d=>{ d.open=false; d.querySelector('summary').focus(); }); });
 
 /* ───────── 간단히 / 자세히: 화면에 보이는 설정만 바꾸고, 그림과 작업 내용은 그대로 ───────── */

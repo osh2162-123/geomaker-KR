@@ -259,7 +259,10 @@ function toggleShade(f){
   if(ex){ doc.items=doc.items.filter(i=>i!==ex); if(sel&&sel.id===ex.id) setSel(null); commit(); return; }
   const c=countryCentroid(f);
   const it={id:uid(),t:'shade',cid:f.id,name:f.properties.ko,tone:'mid',lbl:doc.style.shadeAuto?nextLabel():'',lon:r3(c[0]),lat:r3(c[1]),dx:0,dy:0,leader:'auto',halo:true,extra:[]};
-  doc.items.push(it); setSel({id:it.id,part:'shade'},{noTab:true}); commit();
+  doc.items.push(it);
+  /* 나라를 칠하면 국경선을 켠다(시험지 관례). 이미 켜져 있으면 그대로, 사용자가 다시 끌 수 있다 */
+  if(!doc.layers.borders){ doc.layers.borders=true; const cb=$('#lyBorders'); if(cb) cb.checked=true; }
+  setSel({id:it.id,part:'shade'},{noTab:true}); commit();
 }
 
 /* ───────── 키보드 ───────── */

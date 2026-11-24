@@ -55,7 +55,7 @@ function renderList(){
   const box=$('#items');
   $('#via').textContent=meta.via==='claude'?'Claude 해석':meta.via==='rules'?'지명 직접 인식':meta.via==='saved'?'지난 작업':meta.via==='climate'?'기후 탭 지점':meta.via==='table'?'표의 나라':'';
   const ans=$('#answer'); ans.hidden=!meta.answer; ans.textContent=meta.answer||'';
-  const w=$('#warn'); const ws=[...(meta.warnings||[]),...((meta.unknown||[]).length?[`못 알아들은 말: ${meta.unknown.join(', ')}`]:[])];
+  const w=$('#warn'); const ws=[...(meta.warnings||[]),...((meta.unknown||[]).length?[`찾지 못한 이름: ${meta.unknown.join(', ')}. 이름을 확인한 뒤 다시 적어 주세요.`]:[])];
   w.hidden=!ws.length; w.innerHTML=ws.map(x=>`<li>${esc(x)}</li>`).join('');
   if(!doc||(!doc.items.length&&!doc.layers.rivers.length)){ box.innerHTML='<p class="empty" style="padding:10px">아직 지도에 올린 것이 없어요.</p>'; return; }
   const rows=doc.items.map((it,i)=>{
@@ -123,8 +123,12 @@ async function run(q,opts){
       return;
     }
     if(!sample){
-      if(r.count>0&&await show(r.spec,{q,via:'rules',answer:'',unknown:r.unknown})) setStatus('warn','알아들은 이름만 지도에 올렸어요. 아래 ‘못 알아들은 말’을 확인해 주세요.');
-      else setStatus('err','지명을 찾지 못했어요. 도시·국가 이름을 직접 적어 주세요.');
+      if(r.count>0&&await show(r.spec,{q,via:'rules',answer:'',unknown:r.unknown})){
+        const names=[...new Set([...doc.items.map(it=>it.name).filter(Boolean),...doc.layers.rivers])];
+        const placed=names.length?`${names.join('·')}: 지도에 표시했어요.`:'찾은 지도 요소를 표시했어요.';
+        setStatus('warn',`${placed} ${r.unknown.length?r.unknown.join('·')+': 찾지 못했어요. ':''}이렇게 써 보세요: 브라질, 인도를 칠해 주세요.`);
+      }
+      else setStatus('err','지도에 표시할 이름을 찾지 못했어요. 이렇게 써 보세요: 브라질, 인도를 칠해 주세요.');
       return;
     }
   }

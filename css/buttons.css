@@ -15,3 +15,5 @@
 .top-actions .mx-pop{left:auto;right:0}
 .mx-pop>.btn,.mx-pop>label.btn{justify-content:flex-start;width:100%}
 .mx-pop>.seg{align-self:flex-start}
+
+.mx:not([open])>.mx-pop{display:none}
