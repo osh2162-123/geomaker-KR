@@ -146,8 +146,12 @@ function frameXY(ops,doc,w,h,ax,ay,o){
   if(o.zero){ if(ax.lo<0&&ax.hi>0) ops.seg(X(0),0,X(0),h,W(doc,0.12)); if(ay.lo<0&&ay.hi>0) ops.seg(0,Y(0),w,Y(0),W(doc,0.12)); }
   ops.rect(0,0,w,h,{stroke:'#000000',sw:lw});
   const dx=decOf(ax.step), dy=decOf(ay.step); const tm=metrics(fontOf(doc,'tick'),'0'); let lastX=null, topY=null;
-  for(const t of ticksOf(ax)) lastX=ops.text(fmt(t,dx),X(t),h+0.9+tm.A,'tick',{align:'center'});
-  for(const t of ticksOf(ay)){ const it=ops.textMid(fmt(t,dy),-0.9,Y(t),'tick',{align:'right'}); if(t===ticksOf(ay).slice(-1)[0]) topY=it; }
+  const xt=[], yt=[];
+  for(const t of ticksOf(ax)){ lastX=ops.text(fmt(t,dx),X(t),h+0.9+tm.A,'tick',{align:'center'}); xt.push(lastX); }
+  for(const t of ticksOf(ay)){ const it=ops.textMid(fmt(t,dy),-0.9,Y(t),'tick',{align:'right'}); yt.push(it); if(t===ticksOf(ay).slice(-1)[0]) topY=it; }
+  /* 원점 부근의 두 축 숫자가 실제로 겹치면 세로축 숫자만 왼쪽으로 뺀다. */
+  let left=0; for(const a of xt) for(const b of yt) if(Math.min(a.box.x+a.box.w,b.box.x+b.box.w)-Math.max(a.box.x,b.box.x)>0.05&&Math.min(a.box.y+a.box.h,b.box.y+b.box.h)-Math.max(a.box.y,b.box.y)>0.05) left=Math.max(left,b.box.x+b.box.w-a.box.x+0.6);
+  if(left) for(const t of yt){ t.x-=left; t.box.x-=left; }
   if(o.xUnit&&lastX) ops.text(`(${o.xUnit})`,lastX.box.x+lastX.box.w+0.3,h+0.9+tm.A,'unit');
   if(o.yUnit&&topY) ops.text(`(${o.yUnit})`,topY.box.x+topY.box.w/2,topY.box.y-1.0,'unit',{align:'center'});
   return {X,Y};
@@ -162,30 +166,60 @@ function pairsOf(C){
 function segBox(a,b,box,pad){ pad=pad||0; const x0=box.x-pad, y0=box.y-pad, x1=box.x+box.w+pad, y1=box.y+box.h+pad; let t0=0, t1=1; const dx=b.x-a.x, dy=b.y-a.y;
   for(const [pp,qq] of [[-dx,a.x-x0],[dx,x1-a.x],[-dy,a.y-y0],[dy,y1-a.y]]){ if(Math.abs(pp)<1e-12){ if(qq<0) return false; continue; } const r=qq/pp; if(pp<0){ if(r>t1) return false; if(r>t0) t0=r; } else { if(r<t0) return false; if(r<t1) t1=r; } }
   return t0<=t1; }
+function layoutClashes(ops){
+  const all=ops.list, ts=all.filter(t=>t.t==='text'&&t.box), ov=(a,b)=>Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)>0.05&&Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)>0.05;
+  let n=0; for(let i=0;i<ts.length;i++){ const t=ts[i], b=t.box; for(let j=i+1;j<ts.length;j++) if(ov(b,ts[j].box)) n++;
+    if(t.grp==='legend') continue;
+    for(const q of all){ if(q.grp==='legend') continue;
+      if(q.t==='mark'&&ov(b,{x:q.x-q.size/2,y:q.y-q.size/2,w:q.size,h:q.size})) n++;
+      if(q.t==='line'&&!q.dash&&q.pts&&(q.pts.length>2||Math.hypot(q.pts[1][0]-q.pts[0][0],q.pts[1][1]-q.pts[0][1])>1.5)){
+        const pts=q.closed?q.pts.concat([q.pts[0]]):q.pts; for(let k=1;k<pts.length;k++) if(segBox({x:pts[k-1][0],y:pts[k-1][1]},{x:pts[k][0],y:pts[k][1]},b,-0.05)){ n++; break; } }
+      if(q.t==='rect'&&!q.fill&&!q.pat&&q.w>2&&q.h>2&&ov(b,q)&&!(b.x>=q.x-0.05&&b.y>=q.y-0.05&&b.x+b.w<=q.x+q.w+0.05&&b.y+b.h<=q.y+q.h+0.05)) n++;
+    } }
+  const lg=all.filter(t=>t.grp==='legend'); if(lg.length){ const bounds=lg.map(t=>t.box||(t.t==='rect'?t:t.t==='mark'?{x:t.x-t.size/2,y:t.y-t.size/2,w:t.size,h:t.size}:null)).filter(Boolean);
+    const x=Math.min(...bounds.map(b=>b.x)), y=Math.min(...bounds.map(b=>b.y)), b={x,y,w:Math.max(...bounds.map(b=>b.x+b.w))-x,h:Math.max(...bounds.map(b=>b.y+b.h))-y};
+    for(const t of all){ if(t.grp==='legend') continue;
+      if(t.t==='text'&&ov(b,t.box)) n++;
+      if(t.t==='mark'&&ov(b,{x:t.x-t.size/2,y:t.y-t.size/2,w:t.size,h:t.size})) n++;
+      if(t.t==='line'&&!t.dash&&t.pts) for(let k=1;k<t.pts.length;k++) if(segBox({x:t.pts[k-1][0],y:t.pts[k-1][1]},{x:t.pts[k][0],y:t.pts[k][1]},b,-0.05)){ n++; break; }
+    } }
+  return n;
+}
 function composeSc(doc){
+  const first=composeSc1(doc,1); if(!first||!layoutClashes(first.ops)) return first;
+  let best=first, scale=1, score=layoutClashes(first.ops);
+  for(const s of [1,1.5,2,3]){ const t=composeSc1(doc,s,true), bad=layoutClashes(t.ops); if(bad<score){ best=t; score=bad; scale=s; } if(!score) break; }
+  return best===first?composeSc1(doc,1):composeSc1(doc,scale,true);
+}
+function composeSc1(doc,scale,smart){
   const o=doc.sc; const {R,C,M}=derive(doc); const P=pairsOf(C); if(!R.length||!P.length) return null;
   const xs=[], ys=[]; R.forEach((_,i)=>P.forEach(p=>{ if(fin(M[i][p.x])) xs.push(M[i][p.x]); if(fin(M[i][p.y])) ys.push(M[i][p.y]); }));
   if(!xs.length||!ys.length) return null;
   const ax=axisFrom(o.x,xs,{zero:o.zero,target:5}), ay=axisFrom(o.y,ys,{zero:o.zero,target:5}); LAST.scx=ax; LAST.scy=ay;
-  const ops=new Ops(doc); const w=o.w, h=o.h; const cx=C[P[0].x], cy=C[P[0].y];
+  const ops=new Ops(doc); const w=o.w*scale, h=o.h*scale; const cx=C[P[0].x], cy=C[P[0].y];
   const xUnit=cx.unit||'', yUnit=cy.unit||''; const {X,Y}=frameXY(ops,doc,w,h,ax,ay,{grid:o.grid,zero:o.zero,xUnit,yUnit});
   if(o.diag){ const lo=Math.max(ax.lo,ay.lo), hi=Math.min(ax.hi,ay.hi); if(hi>lo) ops.seg(X(lo),Y(lo),X(hi),Y(hi),W(doc,0.15)); }
   const nT=P.length; const mkOf=k=>nT===1?(P[0].z>=0?'oc':'fc'):k===0?'oc':k===nT-1?'fc':'oc';
   /* 버블: 세 번째 지표(role z)가 있으면 원의 면적이 값에 비례 */
   const hasZ=P[0].z>=0; const zs=[]; if(hasZ) R.forEach((_,i)=>P.forEach(p=>{ if(p.z>=0&&fin(M[i][p.z])&&M[i][p.z]>0) zs.push(M[i][p.z]); }));
   const zmax=zs.length?Math.max(...zs):1; const bd=o.bd||8; const szf=v=>Math.max(1.0,bd*Math.sqrt(v/zmax));
-  const pts=[]; const segs=[]; const allM=[];
+  const pts=[]; const segs=smart?ops.list.filter(t=>t.t==='line'&&!t.dash&&t.pts&&t.pts.length===2).map(t=>t.pts.map(p=>({x:p[0],y:p[1]}))):[]; const allM=[];
   R.forEach((r,i)=>{ const q=P.map((p,k)=>fin(M[i][p.x])&&fin(M[i][p.y])?{x:X(clamp(M[i][p.x],ax.lo,ax.hi)),y:Y(clamp(M[i][p.y],ay.lo,ay.hi)),mk:mkOf(k),sz:hasZ&&p.z>=0&&fin(M[i][p.z])&&M[i][p.z]>0?szf(M[i][p.z]):o.mks}:null).filter(Boolean);
     if(o.conn&&q.length>1){ ops.line(q.map(p=>[p.x,p.y]),W(doc,0.2)); if(o.arrow){ const a=q[q.length-2], b=q[q.length-1]; arrowHead(ops,doc,a.x,a.y,b.x-(b.x-a.x)*0.06,b.y-(b.y-a.y)*0.06); } for(let k=0;k+1<q.length;k++) segs.push([q[k],q[k+1]]); }
     q.forEach(p=>allM.push(p)); pts.push({r,q}); });
   allM.sort((a,b)=>b.sz-a.sz).forEach(p=>mark(ops,doc,p.x,p.y,p.mk,p.sz));
+  if(smart){ const ticks=ops.list.filter(t=>t.t==='text'&&t.role==='tick');
+    for(const t of ticks){ let dx=0,dy=0; for(const p of allM){ const b=t.box, r={x:p.x-p.sz/2,y:p.y-p.sz/2,w:p.sz,h:p.sz};
+        if(Math.min(b.x+b.w,r.x+r.w)-Math.max(b.x,r.x)>0.05&&Math.min(b.y+b.h,r.y+r.h)-Math.max(b.y,r.y)>0.05){ if(b.y>=h) dy=Math.max(dy,r.y+r.h+0.6-b.y); else if(b.x<0) dx=Math.min(dx,r.x-0.6-b.x-b.w); } }
+      t.x+=dx; t.y+=dy; t.box.x+=dx; t.box.y+=dy; } }
   /* 점 이름: 선 가운데(두 시기) 또는 점 옆, 다른 점·선·이름을 피해서. 가까운 자리가 모두 겹치면 조금 떨어뜨리고 지시선으로 잇는다 */
-  if(o.lbl){ const placed=pts.flatMap(p=>p.q.map(a=>({x:a.x-a.sz/2-0.25,y:a.y-a.sz/2-0.25,w:a.sz+0.5,h:a.sz+0.5})));
+  if(o.lbl){ const placed=pts.flatMap(p=>p.q.map(a=>({x:a.x-a.sz/2-0.25,y:a.y-a.sz/2-0.25,w:a.sz+0.5,h:a.sz+0.5}))).concat(smart?ops.list.filter(t=>t.t==='text').map(t=>t.box):[]);
     const segHit=box=>segs.some(([a,b])=>segBox(a,b,box,0.2));
     const allPts=pts.flatMap(p=>p.q.map(a=>({x:a.x,y:a.y,p})));
     const dBox=(box,x,y)=>Math.hypot(Math.max(box.x-x,0,x-box.x-box.w),Math.max(box.y-y,0,y-box.y-box.h));
     /* 겹침 + 선 + 틀 밖 + ‘다른 점에 더 가까움’(어느 점 이름인지 헷갈림) */
-    const score=(box,own)=>{ let v=placed.reduce((a,q)=>a+GG.overlap(q,box,0.2),0)+(segHit(box)?3:0)+(box.x<0||box.y<0||box.x+box.w>w||box.y+box.h>h?4:0);
+    const score=(box,own)=>{ const outside=box.x<0||box.y<0||box.x+box.w>w||box.y+box.h>h, clear=box.x+box.w<=-0.2||box.y+box.h<=-0.2||box.x>=w+0.2||box.y>=h+0.2;
+      let v=placed.reduce((a,q)=>a+GG.overlap(q,box,0.2),0)+(segHit(box)?3:0)+(outside&&!(smart&&clear)?4:0);
       if(own){ const dOwn=Math.min(...own.q.map(a=>dBox(box,a.x,a.y))); if(allPts.some(a=>a.p!==own&&dBox(box,a.x,a.y)+0.15<dOwn)) v+=1.2; } return v; };
     /* 지시선 끝: 글자 상자 둘레에서 지점 쪽 */
     const edge=(box,px,py)=>{ const cx=box.x+box.w/2, cy=box.y+box.h/2, dx=px-cx, dy=py-cy; const sx=dx?(box.w/2+0.25)/Math.abs(dx):1e9, sy=dy?(box.h/2+0.2)/Math.abs(dy):1e9; const k=Math.min(sx,sy,1); return [cx+dx*k,cy+dy*k]; };
@@ -223,6 +257,16 @@ function composeSc(doc){
     for(const L of labs){ if(L.lead){ const [ax0,ay0,bx,by]=L.lead; const len=Math.hypot(bx-ax0,by-ay0)||1; const st=Math.min(L.st,len*0.4); const ux=(bx-ax0)/len, uy=(by-ay0)/len;
         ops.seg(ax0+ux*st,ay0+uy*st,bx,by,W(doc,0.12)); }
       textAt(ops,doc,L.s,L.cx,L.cy,L.role,{halo:'w'}); } }
+  if(smart) for(const t of ops.list.filter(t=>t.t==='text'&&t.role==='tick')){
+    for(let pass=0;pass<ops.list.length;pass++){ let dx=0,dy=0; for(const q of ops.list){
+        if(q.t==='text'&&q!==t){ const a=t.box,b=q.box; if(Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)>0.05&&Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)>0.05){
+            if(a.y>=h) dy=Math.max(dy,b.y+b.h+0.6-a.y); else if(a.x<0) dx=Math.min(dx,b.x-0.6-a.x-a.w); } }
+        if(q.t!=='line'||q.dash||!q.pts) continue;
+        for(let k=1;k<q.pts.length;k++){ const a={x:q.pts[k-1][0],y:q.pts[k-1][1]}, b={x:q.pts[k][0],y:q.pts[k][1]};
+          if(Math.hypot(b.x-a.x,b.y-a.y)<=1.5||!segBox(a,b,t.box,-0.05)) continue;
+          if(t.box.y>=h) dy=Math.max(dy,Math.max(a.y,b.y)+0.6-t.box.y); else if(t.box.x<0) dx=Math.min(dx,Math.min(a.x,b.x)-0.6-t.box.x-t.box.w); }
+      } if(!dx&&!dy) break; t.x+=dx; t.y+=dy; t.box.x+=dx; t.box.y+=dy; }
+  }
   /* 크기 범례: 기준 값 두 개의 원 */
   if(hasZ&&zs.length&&o.zleg!==false){ const zc=C[P[0].z]; const nice=v=>{ const p=Math.pow(10,Math.floor(Math.log10(v))); const m=v/p; return (m>=5?5:m>=2?2:1)*p; };
     const r1=nice(zmax), r2=r1/4; const fv=v=>(+v.toPrecision(3)).toLocaleString('en-US',{maximumFractionDigits:2}); const lg=new Ops(doc);
@@ -297,7 +341,10 @@ function composeDumb(doc){
   const o=doc.dumb; const {R,C,M}=derive(doc); if(!R.length||!C.length) return null;
   const vals=M.flat().filter(fin); if(!vals.length) return null;
   const ay=axisFrom(o.y,vals,{zero:o.zero,target:5}); LAST.dumb=ay;
-  const ops=new Ops(doc); const n=R.length; const w=Math.max(o.w,n*8), h=o.h; const X=i=>(i+0.5)*w/n, Y=v=>h-(clamp(v,ay.lo,ay.hi)-ay.lo)/(ay.hi-ay.lo)*h; const lw=W(doc,0.15);
+  const ops=new Ops(doc); const n=R.length; let w=Math.max(o.w,n*8); const h=o.h;
+  for(let i=1;i<n;i++){ const a=metrics(fontOf(doc,roleOf(lblOf(R[i-1]))==='label'?'label':'cat'),lblOf(R[i-1])), b=metrics(fontOf(doc,roleOf(lblOf(R[i]))==='label'?'label':'cat'),lblOf(R[i])); const need=(a.W+b.W)/2;
+    if(need-w/n>0.05) w=n*(need+0.6); }
+  const X=i=>(i+0.5)*w/n, Y=v=>h-(clamp(v,ay.lo,ay.hi)-ay.lo)/(ay.hi-ay.lo)*h; const lw=W(doc,0.15);
   if(o.grid) for(const t of ticksOf(ay)) if(t>ay.lo+1e-9&&t<ay.hi-1e-9) ops.seg(0,Y(t),w,Y(t),W(doc,0.1),{dash:GRID_DASH});
   if(o.zero&&ay.lo<0&&ay.hi>0) ops.seg(0,Y(0),w,Y(0),W(doc,0.12));
   if(o.sep) for(let i=1;i<n;i++) ops.seg(i*w/n,0,i*w/n,h,W(doc,0.1));
@@ -311,7 +358,8 @@ function composeDumb(doc){
     const s=lblOf(r); const role=roleOf(s)==='label'?'label':'cat'; ops.text(s,X(i),h+1.0+tm.A,role,{align:'center'}); });
   if(C.length>1&&o.legend!=='none'){ const lg=tpLegend(doc,C.map((c,k)=>({text:lblOf(c),mk:mkOf(k)})),o.conn!==false); const lb=lg.bounds();
     const obs=[]; R.forEach((_,i)=>C.forEach((__,k)=>{ if(fin(M[i][k])) obs.push({x:X(i)-1.5,y:Y(M[i][k])-1.5,w:3,h:3}); })); if(o.conn!==false) R.forEach((_,i)=>{ const ok=C.map((__,k)=>M[i][k]).filter(fin).map(Y); if(ok.length>1) obs.push({x:X(i)-0.5,y:Math.min(...ok),w:1,h:Math.max(...ok)-Math.min(...ok)}); });
-    let at=null; if(o.legend==='in') for(const [x,y] of [[w-1.6-lb.w,1.6],[1.6,1.6],[w-1.6-lb.w,h-1.6-lb.h],[1.6,h-1.6-lb.h]]){ const box={x,y,w:lb.w,h:lb.h}; if(!obs.some(q=>GG.overlap(q,box,0.3)>0)){ at=[x,y]; break; } }
+    const separators=ops.list.filter(t=>t.t==='line'&&!t.dash&&t.pts&&t.pts.length===2);
+    let at=null; if(o.legend==='in') for(const [x,y] of [[w-1.6-lb.w,1.6],[1.6,1.6],[w-1.6-lb.w,h-1.6-lb.h],[1.6,h-1.6-lb.h]]){ const box={x,y,w:lb.w,h:lb.h}; if(!obs.some(q=>GG.overlap(q,box,0.3)>0)&&!separators.some(t=>segBox({x:t.pts[0][0],y:t.pts[0][1]},{x:t.pts[1][0],y:t.pts[1][1]},box,-0.05))){ at=[x,y]; break; } }
     if(!at&&o.legend==='below'){ const b=ops.bounds(); const lg2=tpLegend(doc,C.map((c,k)=>({text:lblOf(c),mk:mkOf(k)})),false,true); const l2=lg2.bounds(); ops.absorb(lg2,w/2-l2.w/2-l2.x,b.y+b.h+2.2-l2.y); at='done'; }
     if(!at) at=[w+3,h/2-lb.h/2]; if(at!=='done') ops.absorb(lg,at[0]-lb.x,at[1]-lb.y); }
   return {ops,plot:{x:0,y:0,w,h},legend:'none',items:[],notes:[]};
@@ -334,7 +382,10 @@ function composePyr(doc){
   const mx=Math.max(...V.flatMap(v=>v.m.concat(v.f)),0.1);
   let step=+o.step>0?+o.step:GG.niceStep(mx,3), hi=o.auto!==false?Math.ceil(mx/step)*step:+o.max||Math.ceil(mx/step)*step; if(o.auto!==false){ step=GG.niceStep(hi,3); hi=Math.ceil(mx/step)*step; } LAST.pyr={lo:0,hi,step};
   const ages=R.map(r=>ageOf(r.name)); const asc=ages.length>1&&fin(ages[0])&&fin(ages[1])?ages[1]>ages[0]:true;
-  const n=R.length, w=o.w, h=o.h, half=w/2, bh=h/n; const lw=W(doc,0.15), bw=W(doc,0.1);
+  const n=R.length; let w=o.w; const ticks=ticksOf({lo:0,hi,step});
+  for(let i=1;i<ticks.length;i++){ const a=metrics(fontOf(doc,'tick'),fmt(ticks[i-1],decOf(step))).W, b=metrics(fontOf(doc,'tick'),fmt(ticks[i],decOf(step))).W, need=(a+b)/2;
+    if(need-(ticks[i]-ticks[i-1])/hi*w/2>0.05) w=2*(need+0.6)*hi/(ticks[i]-ticks[i-1]); }
+  const h=o.h, half=w/2, bh=h/n; const lw=W(doc,0.15), bw=W(doc,0.1);
   const out=new Ops(doc); let x0=0; const plots=[];
   P.forEach((p,pi)=>{ const ops=new Ops(doc); const v=V[pi]; const XL=val=>half-val/hi*half, XR=val=>half+val/hi*half;
     R.forEach((_,i)=>{ const row=asc?n-1-i:i; const y=row*bh; /* 아래쪽이 어린 나이 */
@@ -370,26 +421,49 @@ function cubeInfo(doc){
   return {R,C,M,thr,at,warn};
 }
 function composeCube(doc){
+  const first=composeCube1(doc,false); if(!first||!layoutClashes(first.ops)) return first;
+  const smart=composeCube1(doc,true); return layoutClashes(smart.ops)<layoutClashes(first.ops)?smart:first;
+}
+function composeCube1(doc,smart){
   const o=doc.cube; const info=cubeInfo(doc); if(!info) return null; const {C,at}=info;
   const s=o.s, dx=s*0.5, dy=s*0.42, lw=W(doc,0.2); const P=(x,y,z)=>[x*s+z*dx,(1-y)*s-z*dy];
   const ops=new Ops(doc); const hid=p=>p[0]===0&&p[1]===0&&p[2]===1;
   const E=[]; for(const a of [0,1]) for(const b of [0,1]){ E.push([[0,a,b],[1,a,b]]); E.push([[a,0,b],[a,1,b]]); E.push([[a,b,0],[a,b,1]]); }
   for(const [p,q] of E){ const h=hid(p)||hid(q); ops.line([P(...p),P(...q)],h?W(doc,0.15):lw,{dash:h?GRID_DASH:null}); }
-  const ctr=P(0.5,0.5,0.5);
+  const ctr=P(0.5,0.5,0.5), names=[];
   for(const [k,rows] of Object.entries(at)){ const v=k.split('').map(Number); const [px,py]=P(v[0],v[1],v[2]); mark(ops,doc,px,py,'fc',1.7);
     const t=rows.map(r=>lblOf(r)).join(', '); const role=roleOf(t)==='label'?'label':'cat'; const m=metrics(fontOf(doc,role),t);
-    const ux=ctr[0]>px?1:-1, uy=ctr[1]>py?1:-1; textAt(ops,doc,t,px+ux*(1.1+m.W/2),py+uy*(0.6+m.H/2),role,{halo:'w'}); }
+    const ux=ctr[0]>px?1:-1, uy=ctr[1]>py?1:-1; const it=textAt(ops,doc,t,px+ux*(1.1+m.W/2),py+uy*(0.6+m.H/2),role,{halo:'w'}); names.push({items:[it],anchor:[px,py]}); }
   const [wHi,wLo]=CUBE_HW[o.hw]||CUBE_HW.hl; const wd=o.words!==false; const tk=metrics(fontOf(doc,'tick'),'가'); const ttl=j=>lblOf(C[j]);
   /* 가로축(앞면 아래 모서리) */
   const yw=s+1.3+tk.H/2; if(wd){ textAt(ops,doc,`(${wLo})`,0.8,yw,'tick',{align:'left'}); textAt(ops,doc,`(${wHi})`,s-0.8,yw,'tick',{align:'right'}); }
   textAt(ops,doc,ttl(0),s/2,yw+(wd?tk.H+0.7:0),'axis');
   /* 세로축(앞면 왼쪽 모서리) */
   let lx=-1.4; if(wd){ const a=metrics(fontOf(doc,'tick'),`(${wHi})`), b=metrics(fontOf(doc,'tick'),`(${wLo})`); ops.text(`(${wHi})`,lx,0+(a.A-a.D)/2,'tick',{align:'right'}); ops.text(`(${wLo})`,lx,s+(b.A-b.D)/2,'tick',{align:'right'}); lx-=Math.max(a.W,b.W)+2.0; }
-  ops.vtext(ttl(1),lx,s/2,'axis');
+  const startV=ops.list.length; ops.vtext(ttl(1),lx,s/2,'axis'); const vertical=ops.list.slice(startV);
   /* 깊이축(오른쪽 아래 모서리) */
   const [nx,ny]=P(1,0,0), [fx,fy]=P(1,0,1); const rx=1.8;
   if(wd){ ops.text(`(${wLo})`,nx+rx,ny+0.9+(tk.A-tk.D)/2,'tick'); ops.text(`(${wHi})`,fx+rx,fy+(tk.A-tk.D)/2,'tick'); }
   const mid=metrics(fontOf(doc,'axis'),ttl(2)); ops.text(ttl(2),(nx+fx)/2+rx+(wd?4.5:1.5),(ny+fy)/2+(mid.A-mid.D)/2,'axis');
+  if(smart){
+    const ov=(a,b)=>Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)>0.05&&Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)>0.05;
+    const named=new Set(names.flatMap(g=>g.items)), groups=[{items:vertical},...ops.list.filter(t=>t.t==='text'&&!named.has(t)&&!vertical.includes(t)).map(t=>({items:[t]})),...names];
+    for(const g of groups){ const hit=(dx,dy)=>g.items.some(t=>{ const b={x:t.box.x+dx,y:t.box.y+dy,w:t.box.w,h:t.box.h}; return ops.list.some(q=>{
+        if(g.items.includes(q)) return false;
+        if(q.t==='text') return ov(b,q.box);
+        if(q.t==='mark') return ov(b,{x:q.x-q.size/2,y:q.y-q.size/2,w:q.size,h:q.size});
+        if(q.t==='line'&&!q.dash&&q.pts) return q.pts.slice(1).some((p,k)=>segBox({x:q.pts[k][0],y:q.pts[k][1]},{x:p[0],y:p[1]},b,-0.05)); return false; }); });
+      if(!hit(0,0)) continue; let pick=null;
+      for(const r of [0.8,1.5,2.5,4,6,9,13,19,28,40,60,85]){ for(let k=0;k<32;k++){ const a=k*Math.PI/16, dx=Math.cos(a)*r, dy=Math.sin(a)*r; if(hit(dx,dy)) continue;
+          if(g.anchor){ const t=g.items[0], b={x:t.box.x+dx,y:t.box.y+dy,w:t.box.w,h:t.box.h}; const end={x:clamp(g.anchor[0],b.x,b.x+b.w),y:clamp(g.anchor[1],b.y,b.y+b.h)};
+            if(ops.list.some(q=>q.t==='text'&&!g.items.includes(q)&&segBox({x:g.anchor[0],y:g.anchor[1]},end,q.box,-0.05))) continue; }
+          pick=[dx,dy]; break; } if(pick) break; }
+      if(!pick) continue;
+      for(const t of g.items){ t.x+=pick[0]; t.y+=pick[1]; t.box.x+=pick[0]; t.box.y+=pick[1]; }
+      if(g.anchor){ const b=g.items[0].box; const ex=clamp(g.anchor[0],b.x,b.x+b.w), ey=clamp(g.anchor[1],b.y,b.y+b.h), len=Math.hypot(ex-g.anchor[0],ey-g.anchor[1]);
+        if(len>2.5){ const off=1.05/len; ops.seg(g.anchor[0]+(ex-g.anchor[0])*off,g.anchor[1]+(ey-g.anchor[1])*off,ex,ey,W(doc,0.12)); } }
+    }
+  }
   return {ops,plot:{x:0,y:-dy,w:s+dx,h:s+dy},legend:'none',items:[],notes:[]};
 }
 function compose(doc){

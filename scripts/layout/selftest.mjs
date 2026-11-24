@@ -1,0 +1,23 @@
+/* 판정기의 오탐과 실제 충돌을 구분하는 작은 회귀 사례. Node 내장 모듈만 사용. */
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const ctx={window:{}};
+vm.createContext(ctx);
+vm.runInContext(fs.readFileSync(new URL('./probe.js',import.meta.url),'utf8'),ctx);
+const lint=list=>ctx.window.__LAY.lint({ops:{list}});
+const has=(list,rule)=>lint(list).some(x=>x.rule===rule);
+const text=(x,y,w,h)=>({t:'text',s:'시험',role:'cat',box:{x,y,w,h}});
+const rotated={...text(-0.708,-0.708,8.486,8.486),x:0,y:0,rot:Math.PI/4,align:'left',m:{W:10,A:1,D:1}};
+assert.equal(has([rotated,{t:'line',pts:[[0,6],[2,6]]}],'M'),false,'회전 상자만 교차하는 선은 제외');
+assert.equal(has([rotated,{t:'line',pts:[[0,3],[5,3]]}],'M'),true,'회전된 글자를 실제로 지나는 선');
+assert.equal(has([{...rotated,rot:0},{t:'line',pts:[[0,6],[2,6]]}],'M'),true,'비회전 판정 유지');
+const legends=[{t:'rect',x:0,y:0,w:3,h:3,grp:'legend',grpId:1},{t:'rect',x:20,y:0,w:3,h:3,grp:'legend',grpId:2}];
+assert.equal(has([...legends,{t:'mark',x:11,y:1,size:1}],'L'),false,'다른 패널 범례 사이의 자료는 가려지지 않음');
+assert.equal(has([...legends,{t:'mark',x:1,y:1,size:1}],'L'),true,'한 범례가 실제로 점을 가림');
+assert.equal(has([text(0,0,3,3),text(2,2,3,3)],'T'),true,'글자 실제 교차');
+assert.equal(has([text(0,0,3,3),text(3,0,3,3)],'T'),false,'맞닿기만 한 글자는 겹침 아님');
+const frame={t:'rect',x:0,y:0,w:10,h:10,stroke:'#000'};
+assert.equal(has([frame,text(8,4,3,2)],'O'),true,'틀 경계 침범');
+assert.equal(has([frame,text(4,4,3,2)],'O'),false,'틀 안에 있는 글자');
+console.log('layout selftest: 9 cases passed');

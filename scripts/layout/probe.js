@@ -40,6 +40,12 @@ function segHitsBox(p,q,b){ /* 선분이 상자 안쪽(가장자리 EPS 제외)�
 }
 const short=o=>o.t==='frame'?'틀 테두리':o.t==='text'?`글자「${o.s}」(${o.role||'?'})`:o.t==='mark'?`점(${o.shape})`:o.t==='rect'?'막대·면':o.t==='line'?'선':o.t==='poly'?'다각형':o.t;
 const segLen=o=>o.pts&&o.pts.length===2?Math.hypot(o.pts[1][0]-o.pts[0][0],o.pts[1][1]-o.pts[0][1]):0;
+function segHitsText(p,q,t){
+  if(!t.rot) return segHitsBox(p,q,t.box);
+  const c=Math.cos(t.rot), s=Math.sin(t.rot), un=a=>{ const x=a[0]-t.x,y=a[1]-t.y; return [x*c+y*s,-x*s+y*c]; };
+  const m=t.m, x=t.align==='center'?-m.W/2:t.align==='right'?-m.W:0;
+  return segHitsBox(un(p),un(q),{x,y:-m.A,w:m.W,h:m.A+m.D});
+}
 const isDataLine=o=>o.t==='line'&&!o.dash&&o.pts&&(o.pts.length>2||segLen(o)>1.5);
 const isFilled=o=>(o.t==='rect'||o.t==='poly'||o.t==='region')&&(o.fill||o.pat);
 
@@ -58,7 +64,7 @@ function lint(R){
   for(let i=0;i<texts.length;i++) for(let j=i+1;j<texts.length;j++){ const a=texts[i], b=texts[j]; if(a.rot||b.rot){ if(inter(a.box,b.box)>0&&quadOverlap(quad(a),quad(b))) add('T',a,b,inter(a.box,b.box)); continue; } const ar=inter(a.box,b.box); if(ar>0) add('T',a,b,ar);
     else { /* G: 같은 줄에서 너무 가까움 */ const sameLine=Math.abs((a.box.y+a.box.h/2)-(b.box.y+b.box.h/2))<Math.min(a.box.h,b.box.h)*0.5; if(sameLine){ const gap=Math.max(b.box.x-(a.box.x+a.box.w),a.box.x-(b.box.x+b.box.w)); if(gap>-EPS&&gap<GAP&&!(a.grp==='legend'&&b.grp==='legend')&&a.role!=='unit'&&b.role!=='unit') add('G',a,b,0,{gap:+gap.toFixed(3)});   /* '100(%)'처럼 단위를 붙이는 것은 시험지 표기 */ } } }
   /* L: 범례 영역 – 범례가 아닌 데이터·글자 */
-  if(lg.length){ let a=Infinity,b=Infinity,c=-Infinity,d=-Infinity; for(const o of lg){ const bb=boxOf(o); if(!bb) continue; a=Math.min(a,bb.x); b=Math.min(b,bb.y); c=Math.max(c,bb.x+bb.w); d=Math.max(d,bb.y+bb.h); }
+  for(const group of new Set(lg.map(o=>o.grpId||0))){ let a=Infinity,b=Infinity,c=-Infinity,d=-Infinity; for(const o of lg.filter(o=>(o.grpId||0)===group)){ const bb=boxOf(o); if(!bb) continue; a=Math.min(a,bb.x); b=Math.min(b,bb.y); c=Math.max(c,bb.x+bb.w); d=Math.max(d,bb.y+bb.h); }
     const LB={x:a,y:b,w:c-a,h:d-b}; const lgObj={t:'legend',box:LB};
     for(const o of L){ if(o.grp==='legend') continue;
       if(o.t==='text'||o.t==='mark'||isFilled(o)){ const bb=boxOf(o); if(!bb) continue; /* 틀 전체를 덮는 배경 면은 제외 */ if(isFilled(o)&&contains(bb,LB)&&bb.w*bb.h>LB.w*LB.h*4) continue; const ar=inter(LB,bb); if(ar>0) issues.push({rule:'L',a:'범례',b:short(o),area:+ar.toFixed(3),boxA:LB,boxB:bb}); }
@@ -67,7 +73,7 @@ function lint(R){
   for(const t of texts){ if(t.grp==='legend') continue;
     for(const o of L){ if(o.grp==='legend'||o===t) continue;
       if(o.t==='mark'){ const ar=inter(t.box,boxOf(o)); if(ar>0.02) add('M',t,o,ar); }
-      else if(isDataLine(o)){ for(let k=0;k<o.pts.length-1;k++) if(segHitsBox(o.pts[k],o.pts[k+1],t.box)){ add('M',t,o,0); break; } }
+      else if(isDataLine(o)){ for(let k=0;k<o.pts.length-1;k++) if(segHitsText(o.pts[k],o.pts[k+1],t)){ add('M',t,o,0); break; } }
       else if(isFilled(o)&&o.t==='rect'){ const bb=boxOf(o); const ar=inter(t.box,bb); if(ar>0.02&&!contains(bb,t.box)) add('E',t,o,ar); } } }
   /* O: 글자가 틀(채움 없는 테두리 상자: 그래프 틀·패널·표 칸)의 선을 가로지름 — 완전히 안쪽·바깥쪽은 정상 */
   const frames=L.filter(o=>o.t==='rect'&&o.stroke&&!o.fill&&!o.pat&&o.grp!=='legend'&&o.w>2&&o.h>2);
@@ -76,7 +82,7 @@ function lint(R){
   return issues;
 }
 
-async function waitDoc(api,before,ms){ const t0=performance.now(); while(performance.now()-t0<ms){ const s=JSON.stringify(api.getDoc()); if(s!==before) return s; await sleep(120); } return null; }
+async function waitDoc(api,before,ms,msg){ const t0=performance.now(); while(performance.now()-t0<ms){ const s=JSON.stringify(api.getDoc()); if(s!==before||(msg&&!msg.hidden&&msg.classList.contains('ok'))) return s; await sleep(120); } return null; }
 async function md5ish(s){ const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(s)); return [...new Uint8Array(b)].slice(0,8).map(x=>x.toString(16).padStart(2,'0')).join(''); }
 
 const docCache=new Map();
@@ -85,7 +91,7 @@ async function baseDoc(sc){
   if(docCache.has(key)) return JSON.parse(docCache.get(key));
   const api=await HUB.show(sc.app); await sleep(150);
   if(sc.q){ const box=document.getElementById('hub-tool-'+sc.app); const q=box.querySelector('#q'), go=box.querySelector('#goBtn');
-    const before=JSON.stringify(api.getDoc()); seed=1; q.value=sc.q; go.click(); const s=await waitDoc(api,before,6000);
+    const before=JSON.stringify(api.getDoc()), status=box.querySelector('#askMsg'); if(status){ status.textContent=''; status.className='msg'; status.hidden=true; } seed=1; q.value=sc.q; go.click(); const s=await waitDoc(api,before,6000,status);
     if(!s){ const msg=box.querySelector('#askMsg'); return {__parseFail:true,msg:msg&&!msg.hidden?msg.textContent:''}; }
     await sleep(200); }
   const s=JSON.stringify(api.getDoc()); docCache.set(key,s); return JSON.parse(s);
@@ -103,7 +109,7 @@ async function run(sc){
   const issues=lint(R);
   let svg=''; try{ svg=await GG.svgString(doc); }catch(e){ svg='ERR '+e.message; }
   window.__lastDoc=doc; window.__lastR=R; window.__lastIssues=issues;
-  return {ok:true,kind:doc.kind,W:+R.W.toFixed(2),H:+R.H.toFixed(2),issues,svgHash:await md5ish(svg),nText:R.ops.list.filter(o=>o.t==='text').length};
+  return {ok:true,kind:doc.kind,W:+R.W.toFixed(2),H:+R.H.toFixed(2),issues,svgHash:await md5ish(svg),nText:R.ops.list.filter(o=>o.t==='text').length,nRows:doc.stations?doc.stations.filter(s=>!s.hide&&!s.ref).length:doc.data.rows.filter(r=>!r.hide).length,nCols:doc.data&&doc.data.cols?doc.data.cols.filter(c=>!c.hide).length:0};
 }
 
 /* 걸린 사례 그림: 문제 상자를 빨강(A)·파랑(B)으로 덧그린 PNG */

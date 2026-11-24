@@ -209,7 +209,17 @@ function applySymbols(doc,pairs){ const D=doc.data; const miss=[];
 function shareTxt(o,v,first){ let s=fmt(v,o.dec); if(o.pct==='all'||(o.pct==='first'&&first)) s+='%'; return o.paren?`(${s})`:s; }
 function segText(doc,o,C,j,v,norm,row){ const name=cellName(doc,row,C[j]); const val=fmt(v,o.dec); const z=zeroTxt(v,o.dec);
   return o.inLbl==='name'?[name]:o.inLbl==='value'?(z?[]:[val]):o.inLbl==='both'?(z?[name]:[name,val]):[]; }
+/* 가로 누적 막대: 지시선 글자를 겹침 없이 놓지 못하면 놓는 순서 뒤집기(rev) → 위아래 여백 한 층 추가(extra) 순으로 다시 그려 본다.
+   모두 실패하면 처음 그림을 그대로 쓴다(나빠지지 않게). 겹침 없이 놓인 그림은 처음 그림 그대로다. */
 function composeStack(doc){
+  const first=composeStack1(doc,0,false,false,true); if(!first||!first.fellBack) return first;   /* 원래 방식 그대로 그린 그림에 실제 겹침이 없으면 그대로 쓴다 */
+  const tries=[[0,true],[1,false],[1,true],[2,false],[2,true]];
+  for(const [e,r] of tries){ const t=composeStack1(doc,e,r); if(t&&!t.fellBack){ LAST.stack=t.ax; return t; } }
+  /* 그래도 안 되면: 겹치는 자리에 억지로 놓지 않고, 놓을 수 없는 작은 조각의 글자만 생략한다(사용자 결정 2026-11-24). 생략이 가장 적은 경우를 고른다 */
+  let best=null; for(const [e,r] of [[0,false],...tries]){ const t=composeStack1(doc,e,r,true); if(t&&(!best||t.ax.hidden.length<best.ax.hidden.length)) best=t; }
+  LAST.stack=best.ax; return best;
+}
+function composeStack1(doc,extra,rev,omit,orig){ extra=extra||0;   /* orig: 원래 방식(실제 겹침만 표시) · omit: 엄격 기준으로 자리를 못 찾은 지시선 글자는 그리지 않고 안내로 알린다 */
   const o=doc.stack; let {R,C,M}=derive(doc);
   if(o.trans){ const t=R; R=C; C=t; M=transpose(M); }
   if(!R.length||!C.length) return null;
@@ -218,7 +228,11 @@ function composeStack(doc){
   const totals=V.map(r=>sum(r.filter(fin)));
   const ax=stackAxis(o,norm,totals); LAST.stack=ax; ax.hidden=[];
   const ops=new Ops(doc); const hz=o.dir!=='v'; const dim=hz?o.h:o.v;
-  const n=R.length, bw=dim.barW, g=dim.gap, L=dim.len; let m=Math.max(1.2,g*0.62);
+  const n=R.length, bw=dim.barW, L=dim.len; let g=dim.gap;
+  for(let i=1;i<R.length;i++){ const a=metrics(fontOf(doc,'cat'),lblOf(R[i-1])), b=metrics(fontOf(doc,'cat'),lblOf(R[i]));
+    const need=hz?(a.H+b.H)/2:(a.W+b.W)/2;
+    if(need-(bw+g)>0.05) g=need+0.6-bw; }
+  let m=Math.max(1.2,g*0.62);
   const pos=v=>(clamp(v,ax.lo,ax.hi)-ax.lo)/(ax.hi-ax.lo)*L;           // 값 축 위치(0~L)
   /* 가로 막대에 테두리가 있고 첫 막대에 지시선 글자가 올라가면, 글자가 테두리에 걸리지 않게 위아래 여백을 넓힌다 */
   if(hz&&o.frame&&o.leader&&o.inLbl!=='none'){ let need=0, cnt=0;
@@ -227,6 +241,10 @@ function composeStack(doc){
       const len=v/(ax.hi-ax.lo)*L; if(!fitLabel(doc,t,role,len-0.7,bw-0.5,scale,0.85)){ need=Math.max(need,tm(doc,role,t,scale).H); cnt++; } });
     /* 지시선 글자는 한 층에 좌우로 둘씩, 많으면 위로 쌓인다 */
     if(need){ const lev=Math.min(3,Math.ceil(cnt/2)); m=Math.max(m,lev*(need+0.6)+1.0); } }
+  if(extra){ if(hz) m+=extra*(tm(doc,'seg','가').H+0.6);
+    else { /* 세로 막대: 지시선 글자는 막대 옆으로 나가므로, 가장 긴 조각 글자 폭만큼 양끝 여백과 막대 사이를 넓힌다 */
+      let mw=0; R.forEach((r,i)=>C.forEach((_,j)=>{ const v=V[i][j]; if(!(v>0)) return; const ls=segText(doc,o,C,j,v,norm,o.trans?null:r); if(ls.length) mw=Math.max(mw,tm(doc,'seg',ls.join(' ')).W); }));
+      const add=extra*(mw+2.4)/2; m+=add; g+=add; } }
   const span=n*bw+(n-1)*g+2*m;
   const P=hz?(a,b)=>[a,b]:(a,b)=>[b,L-a];                               // (값, 범주) → (x, y)
   const lw=W(doc,0.15), tl=0.8;
@@ -258,7 +276,14 @@ function composeStack(doc){
   if(o.minor){ for(let k=0;k<T.length-1;k++) tick((T[k]+T[k+1])/2,false); }
   const tickM=metrics(fontOf(doc,'tick'),'0');
   if(hz){ const yb=span+(o.frame?0:tl)+0.9+tickM.A;
-    T.forEach((t,k)=>{ const it=ops.text(fmt(t,dec),pos(t),yb,'tick',{align:'center'}); if(k===T.length-1&&unit&&it) ops.text(`(${unit})`,it.box.x+it.box.w+0.25,yb,'unit'); }); }
+    /* 글자가 실제로 겹칠 때만 숫자를 솎는다. 눈금선과 축 범위는 유지한다. */
+    const boxes=T.map(t=>{ const m=metrics(fontOf(doc,'tick'),fmt(t,dec)); return {x:pos(t)-m.W/2,w:m.W}; });
+    const clash=(a,b)=>Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)>0.05;
+    let keep=T.map((_,k)=>k);
+    if(boxes.some((a,k)=>k&&clash(boxes[k-1],a))){ keep=[0];
+      for(let k=1;k<T.length-1;k++) if(!clash(boxes[keep[keep.length-1]],boxes[k])&&!clash(boxes[k],boxes[T.length-1])) keep.push(k);
+      if(T.length>1) keep.push(T.length-1); }
+    keep.forEach(k=>{ const t=T[k], it=ops.text(fmt(t,dec),pos(t),yb,'tick',{align:'center'}); if(k===T.length-1&&unit&&it) ops.text(`(${unit})`,it.box.x+it.box.w+0.25,yb,'unit'); }); }
   else { let right=-(o.frame?0:tl)-0.8; let topLbl=null;
     T.forEach(t=>{ const it=ops.textMid(fmt(t,dec),right,L-pos(t),'tick',{align:'right'}); if(t===T[T.length-1]) topLbl=it; });
     if(unit&&topLbl){ const um=metrics(fontOf(doc,'unit'),`(${unit})`); ops.text(`(${unit})`,topLbl.box.x+topLbl.box.w/2+0.3,topLbl.box.y-1.0,'unit',{align:'center'}); void um; } }
@@ -282,23 +307,50 @@ function composeStack(doc){
   const hit=(box,own)=>placed.some(p=>GG.overlap(p,box,0.6)>0)||bars.some((_,k)=>k!==own&&GG.overlap(barBox(k),box,0.3)>0)||(hz?false:box.x+box.w>plot.w+40);
   leaders.sort((p,q)=>p.i-q.i||(hz?p.cx-q.cx:q.cy-p.cy));
   leaders.forEach((ld,k)=>{ const same=leaders.filter(x=>x.i===ld.i); ld.first=same[0]===ld&&same.length>1; void k; });
+  if(rev) leaders.reverse();
+  /* 지시선 글자 자리: 먼저 '틀 테두리에 걸치지 않고, 다른 글자(눈금·범주 이름 등)와 겹치지 않고, 지시선끼리 글자를 지나지 않는' 자리를 찾고,
+     없으면 예전 기준(hit)으로 찾는다. 예전 기준에서도 문제가 없던 자리는 그대로 고르므로 그림이 바뀌지 않는다. */
+  const inPl=b=>b.x>=0.3&&b.y>=0.3&&b.x+b.w<=plot.w-0.3&&b.y+b.h<=plot.h-0.3;
+  const outPl=b=>b.x+b.w<=-0.3||b.x>=plot.w+0.3||b.y+b.h<=-0.3||b.y>=plot.h+0.3;
+  const segBox=(p,q,bx)=>{ const x0=bx.x+0.05,y0=bx.y+0.05,x1=bx.x+bx.w-0.05,y1=bx.y+bx.h-0.05; if(x1<=x0||y1<=y0) return false; let t0=0,t1=1; const dx=q[0]-p[0], dy=q[1]-p[1];
+    for(const [P,Q] of [[-dx,p[0]-x0],[dx,x1-p[0]],[-dy,p[1]-y0],[dy,y1-p[1]]]){ if(Math.abs(P)<1e-12){ if(Q<0) return false; } else { const r=Q/P; if(P<0){ if(r>t1) return false; if(r>t0) t0=r; } else { if(r<t0) return false; if(r<t1) t1=r; } } } return t1-t0>1e-6; };
+  const pathHits=(path,bx)=>{ for(let k=0;k<path.length-1;k++) if(segBox(path[k],path[k+1],bx)) return true; return false; };
+  const ldPaths=[]; let fellBack=false;
+  /* realHit: 실제로 겹치는가(검사기와 같은 0.05 mm 기준). 예전 기준으로 놓은 자리가 실제로 겹칠 때만 다시 그린다 */
+  /* 검사기(scripts/layout/probe.js)와 같은 기준: 가로·세로 모두 0.05 mm 넘게 겹쳐야 겹침 */
+  const ov=(a,c)=>Math.min(a.x+a.w,c.x+c.w)-Math.max(a.x,c.x)>0.05&&Math.min(a.y+a.h,c.y+c.h)-Math.max(a.y,c.y)>0.05;
+  const inside=(c,a)=>a.x>=c.x-0.05&&a.y>=c.y-0.05&&a.x+a.w<=c.x+c.w+0.05&&a.y+a.h<=c.y+c.h+0.05;
+  const PL={x:0,y:0,w:plot.w,h:plot.h};
+  const realHit=(box,path)=>(o.frame&&ov(box,PL)&&!inside(PL,box))||ops.list.some(t=>t.t==='text'&&ov(t.box,box))||placed.some(p=>pathHits(path,p))||ldPaths.some(q=>pathHits(q,box));
+  const strictHit=(box,own,path)=>hit(box,own)||(o.frame&&!inPl(box)&&!outPl(box))||ops.list.some(t=>t.t==='text'&&GG.overlap(t.box,box,0.3)>0)
+    ||placed.some(p=>pathHits(path,p))||ldPaths.some(q=>pathHits(q,box));
   for(const ld of leaders){ const m2=tm(doc,ld.role,ld.txt,ld.scale); const lw2=W(doc,0.12);
     if(hz){ const yTop=ld.c0; let done=false;
-      for(let lev=0;lev<3&&!done;lev++){ const yl=yTop-1.0-lev*(m2.H+0.6);
-        for(const side of (ld.first?[-1,1]:[1,-1])){ const x0=ld.cx+side*1.7; const bx=side>0?x0+0.3:x0-0.3-m2.W; const box={x:bx,y:yl-m2.A,w:m2.W,h:m2.H};
-          if(hit(box,ld.i)) continue;
-          const ym=yl-m2.A/2+m2.D/2; ops.line([[ld.cx,ld.cy],[ld.cx,ym],[x0,ym]],lw2);
+      for(const strict of (orig?[false]:omit?[true]:[true,false])){
+      for(let lev=0;lev<3+extra&&!done;lev++){ const yl=yTop-1.0-lev*(m2.H+0.6); const ym=yl-m2.A/2+m2.D/2;
+        const cands=[]; for(const side of (ld.first?[-1,1]:[1,-1])){ cands.push({side,x0:ld.cx+side*1.7});
+          /* 엄격 단계에서만: 오른쪽 끝(85% 넘는 곳)에 몰린 조각은 틀 바깥 오른쪽에 둔다(긴 지시선이 그래프를 가로지르지 않게) */
+          if(strict&&side>0&&o.frame&&ld.cx>plot.w*0.85&&ld.cx+1.7<plot.w+0.6) cands.push({side,x0:plot.w+0.6}); }
+        for(const {side,x0} of cands){ const bx=side>0?x0+0.3:x0-0.3-m2.W; const box={x:bx,y:yl-m2.A,w:m2.W,h:m2.H}; const path=[[ld.cx,ld.cy],[ld.cx,ym],[x0,ym]];
+          if(strict?strictHit(box,ld.i,path):hit(box,ld.i)) continue;
+          if(!strict&&realHit(box,path)) fellBack=true;
+          ops.line(path,lw2); ldPaths.push(path);
           put(ops,doc,ld.txt,side>0?x0+0.3:x0-0.3,yl,ld.role,{align:side>0?'left':'right',scale:ld.scale}); placed.push(box); done=true; break; } }
+      if(done) break; }
       if(!done) ax.hidden.push(ld.txt); }
     else { let done=false;
+      for(const strict of (orig?[false]:omit?[true]:[true,false])){
       for(const side of [1,-1]){ if(done) break; const xe=side>0?ld.c0+bw:ld.c0; for(let k=0;k<7&&!done;k++){ const dy=[0,-1,1,-2,2,-3,3][k]*(m2.H+0.5); const yc=ld.cy+dy;
-          const tx=xe+side*1.9; const box={x:side>0?tx:tx-m2.W,y:yc-m2.H/2,w:m2.W,h:m2.H}; if(hit(box,ld.i)) continue;
-          ops.line([[ld.cx,ld.cy],[xe+side*0.5,ld.cy],[xe+side*1.5,yc]],lw2); put(ops,doc,ld.txt,tx,yc+(m2.A-m2.D)/2,ld.role,{align:side>0?'left':'right',scale:ld.scale}); placed.push(box); done=true; } }
+          const tx=xe+side*1.9; const box={x:side>0?tx:tx-m2.W,y:yc-m2.H/2,w:m2.W,h:m2.H}; const path=[[ld.cx,ld.cy],[xe+side*0.5,ld.cy],[xe+side*1.5,yc]];
+          if(strict?strictHit(box,ld.i,path):hit(box,ld.i)) continue;
+          if(!strict&&realHit(box,path)) fellBack=true;
+          ops.line(path,lw2); ldPaths.push(path); put(ops,doc,ld.txt,tx,yc+(m2.A-m2.D)/2,ld.role,{align:side>0?'left':'right',scale:ld.scale}); placed.push(box); done=true; } }
+      if(done) break; }
       if(!done) ax.hidden.push(ld.txt); } }
   /* 범례 */
   let items=C.map((c,j)=>TR.shown[j]?{text:lblOf(c),fill:c.fill||'white'}:null).filter(Boolean);
   if(!hz&&o.legend==='right') items=items.slice().reverse();
-  return {ops,plot,legend:o.legend,items,stackNote:norm};
+  return {ops,plot,legend:o.legend,items,stackNote:norm,fellBack,ax};
 }
 
 /* ───────── ② 도넛 ───────── */
@@ -345,6 +397,7 @@ function composeDonut(doc){
       const top=arr.filter(ld=>ld.want<0), bot=arr.filter(ld=>ld.want>=0);
       let prev=Infinity; for(let k=top.length-1;k>=0;k--){ top[k].y=Math.min(top[k].want,prev-mH); prev=top[k].y; }
       prev=-Infinity; for(const ld of bot){ ld.y=Math.max(ld.want,prev+mH); prev=ld.y; }
+      let last=null; for(const ld of arr){ const h=tm(doc,ld.role,ld.txt,ld.scale).H; if(last&&((last.h+h)/2-(ld.y-last.y)>0.05)) ld.y=last.y+(last.h+h)/2+0.6; last={y:ld.y,h}; }
       for(const ld of arr){ const m2=tm(doc,ld.role,ld.txt,ld.scale); const ex=key==='L'?-(Rr+2.2):(Rr+2.2); const ym=ld.y;
         const edge=key==='L'?Math.min(ex,ld.p[0]-1.2):Math.max(ex,ld.p[0]+1.2);
         sub.line([[ld.p[0],ld.p[1]],[ld.p[0],ym],[edge,ym]],W(doc,0.12));
@@ -357,7 +410,10 @@ function composeDonut(doc){
   for(let r0=0;r0<subs.length;r0+=per){ /* 한 줄의 원 중심(0, 0)을 같은 높이에 */ const row=subs.slice(r0,r0+per); const bs=row.map(s=>s.bounds());
     const up=Math.max(...bs.map(b=>-b.y)), down=Math.max(...bs.map(b=>b.y+b.h)); let x=0;
     const tm1=metrics(fontOf(doc,'cat',1.1),'가'); const th=row.some(s=>s.topLbl)?tm1.H+1.6:0;
-    row.forEach((sub,k)=>{ const b=bs[k]; const lb=sub.topLbl; ops.absorb(sub,x-b.x,y+th+up); if(lb) ops.text(lb,x-b.x,y+th-1.6-tm1.D,'cat',{align:'center',scale:1.1}); x+=b.w+gap; }); y+=th+up+down+gap; }
+    let lastTop=null;
+    row.forEach((sub,k)=>{ const b=bs[k]; const lb=sub.topLbl;
+      if(lb&&lastTop){ const width=metrics(fontOf(doc,'cat',1.1),lb).W, left=x-b.x-width/2; if(lastTop.x+lastTop.w-left>0.05) x+=lastTop.x+lastTop.w+0.6-left; }
+      ops.absorb(sub,x-b.x,y+th+up); if(lb){ const t=ops.text(lb,x-b.x,y+th-1.6-tm1.D,'cat',{align:'center',scale:1.1}); lastTop=t.box; } x+=b.w+gap; }); y+=th+up+down+gap; }
   const B=ops.bounds();
   return {ops,plot:{x:B.x,y:B.y,w:B.w,h:B.h},legend:o.legend,items:C.map((c,j)=>TR.shown[j]?{text:lblOf(c),fill:c.fill||'white'}:null).filter(Boolean),donut:true};
 }
@@ -430,19 +486,42 @@ function composeTree(doc){
     subs.push(sub); });
   if(!subs.length) return null;
   const per=o.cols>0?o.cols:subs.length; let x=0,y=0,rowH=0,col=0;
-  subs.forEach(sub=>{ const b=sub.bounds(); if(col>=per){ col=0; x=0; y+=rowH+o.gap+2; rowH=0; } ops.absorb(sub,x,y); x+=S+o.gap; rowH=Math.max(rowH,b.h); col++; });
+  subs.forEach(sub=>{ const b=sub.bounds(); if(col>=per){ col=0; x=0; y+=rowH+o.gap+2; rowH=0; }
+    /* 옆 패널의 긴 이름과 겹칠 때만 패널 간격을 넓힌다. */
+    const prior=ops.list.filter(t=>t.t==='text'&&t.box), next=sub.list.filter(t=>t.t==='text'&&t.box);
+    for(let n=0;n<=prior.length;n++){ let shift=0;
+      for(const a of prior) for(const t of next){ const c={x:t.box.x+x,y:t.box.y+y,w:t.box.w,h:t.box.h}, p=a.box;
+        if(Math.min(p.x+p.w,c.x+c.w)-Math.max(p.x,c.x)>0.05&&Math.min(p.y+p.h,c.y+c.h)-Math.max(p.y,c.y)>0.05) shift=Math.max(shift,p.x+p.w+0.6-c.x); }
+      if(!shift) break; x+=shift; }
+    ops.absorb(sub,x,y); x+=S+o.gap; rowH=Math.max(rowH,b.h); col++; });
   const B=ops.bounds();
   return {ops,plot:{x:B.x,y:B.y,w:B.w,h:B.h},legend:o.legend||'none',items:C.map((c,j)=>TR.shown[j]?{text:lblOf(c),fill:c.fill||'light'}:null).filter(Boolean)};
 }
 
 /* ───────── ④ 묶은 막대 ───────── */
 function axisFrom(conf,vals,o){ if(conf&&conf.auto===false&&fin(+conf.lo)&&fin(+conf.hi)&&+conf.hi>+conf.lo&&+conf.step>0) return {lo:+conf.lo,hi:+conf.hi,step:+conf.step}; return autoAxis(vals,o); }
+/* 묶은 막대: 막대 위 값·이름 글자가 서로 겹치거나 옆 막대에 걸치면, 글자 폭에 맞춰 막대 사이·묶음 사이·양끝 여백을 넓혀 다시 그린다.
+   겹치지 않던 그림은 처음 그림 그대로다(막대 폭은 바꾸지 않음). */
 function composeGroup(doc){
+  const first=composeGroup1(doc,null); if(!first||(!first.clash&&!first.topOver)) return first;
+  let r=first;
+  if(r.clash){ const t=composeGroup1(doc,first.need); if(t&&!t.clash) r=t; }
+  /* 값 글자가 위 테두리를 넘으면: 축이 자동이면 위로 한 눈금 늘린다. 직접 정한 축은 그대로 두고 편집기에 안내한다 */
+  if(r.topOver&&!(doc.group.axis&&doc.group.axis.auto===false)){ const t=composeGroup1(doc,r.widen,{up:true}); if(t&&!t.topOver&&!t.clash) r=t; }
+  if(r.topOver){ const t=composeGroup1(doc,r.widen,{raise:true}); if(t&&!t.topOver&&!t.clash) r=t; }
+  if(r.topOver) LAST.group.topOver=true;   /* 직접 정한 축은 바꾸지 않고 안내만 한다 */
+  if(r===first){ const t=composeGroup1(doc,null); if(t.topOver) LAST.group.topOver=true; return t; }   /* LAST.group을 처음 그림 기준으로 */
+  return r;
+}
+function composeGroup1(doc,widen,fix){ fix=fix||{};
   const o=doc.group; const {R,C,M}=derive(doc); if(!R.length||!C.length) return null;
-  const vals=M.flat().filter(fin); const ax=axisFrom(o.axis,[0,...vals],{zero:true,target:3,head:true}); LAST.group=ax;
-  const ops=new Ops(doc); const k=C.length, bw=o.barW, inner=o.inner||0, gw=k*bw+(k-1)*inner; const n=R.length;
+  const vals=M.flat().filter(fin); let ax=axisFrom(o.axis,[0,...vals],{zero:true,target:3,head:true}); if(fix.up) ax={lo:ax.lo,hi:ax.hi+ax.step,step:ax.step}; LAST.group=ax;
+  const ops=new Ops(doc); const k=C.length, bw=o.barW; const n=R.length;
+  /* 막대 위 글자 중 가장 넓은 것(값 또는 열 이름) */
+  const topW=(()=>{ let w=0; R.forEach((r,i)=>C.forEach((c,j)=>{ const v=M[i][j]; if(!fin(v)) return; if(o.values) w=Math.max(w,metrics(fontOf(doc,'value'),fmtNum(v,o.dec,true)).W); else if(o.barLbl){ const t=lblOf(c); w=Math.max(w,metrics(fontOf(doc,roleOf(t)==='label'?'label':'value'),t).W); } })); return w; })();
+  const inner=widen?Math.max(o.inner||0,widen.inner):(o.inner||0), gw=k*bw+(k-1)*inner;
   const lw1=t=>metrics(fontOf(doc,'cat'),t).W; const two=t=>{ const ch=[...t.replace(/\s+/g,'')]; if(ch.length<4) return lw1(t); const ws=t.split(/\s+/).filter(Boolean); if(ws.length>1){ return Math.max(...lineSets(ws,2)[0].L.map(lw1)); } const h2=Math.ceil(ch.length/2); return Math.max(lw1(ch.slice(0,h2).join('')),lw1(ch.slice(h2).join(''))); };
-  const need=Math.max(...R.map(r=>{ const t=lblOf(r); return Math.min(lw1(t),two(t)); })); const g=Math.max(o.gap,need+0.8-gw); const m=g*0.55;
+  const need=Math.max(...R.map(r=>{ const t=lblOf(r); return Math.min(lw1(t),two(t)); })); const g=Math.max(o.gap,need+0.8-gw,widen?widen.g:0); const m=Math.max(g*0.55,widen?widen.m:0);
   const span=m*2+n*gw+(n-1)*g; const H=o.len; const yv=v=>H-(clamp(v,ax.lo,ax.hi)-ax.lo)/(ax.hi-ax.lo)*H; const lw=W(doc,0.15);
   if(o.grid) for(const t of ticksOf(ax)){ if(t<=ax.lo+1e-9||t>=ax.hi-1e-9) continue; ops.seg(0,yv(t),span,yv(t),W(doc,0.1),{dash:GRID_DASH}); }
   const y0=yv(Math.max(ax.lo,Math.min(0,ax.hi)));
@@ -454,9 +533,17 @@ function composeGroup(doc){
   const dec=decOf(ax.step); let top=null;
   for(const t of ticksOf(ax)){ const y=yv(t); if(t>ax.lo+1e-9&&t<ax.hi-1e-9) ops.seg(0,y,o.frame?0.8:-0.8,y,lw); const it=ops.textMid(fmt(t,dec),-0.9,y,'tick',{align:'right'}); if(t===ax.hi) top=it; }
   if(top&&doc.data.unit){ const u=`(${doc.data.unit})`; ops.text(u,top.box.x,top.box.y-1.0,'unit'); }
+  if(fix.raise) for(const t of ops.list.filter(t=>t.t==='text'&&(t.role==='value'||t.role==='label'))){ if(t.box.y<-0.05&&t.box.y+t.box.h>0.05){ const dy=-0.6-t.box.y-t.box.h; t.y+=dy; t.box.y+=dy; } }
   for(let i=0;i<n-1;i++){ const x=m+i*(gw+g)+gw+g/2; ops.seg(x,H,x,H-0.8,lw); }
   const rects=[]; R.forEach((r,i)=>{ const gx=m+i*(gw+g); C.forEach((c,j)=>{ const v=M[i][j]; if(fin(v)) rects.push({x:gx+j*(bw+inner),y:Math.min(yv(v),y0),w:bw,h:Math.abs(y0-yv(v))}); }); });
-  return {ops,plot:{x:0,y:0,w:span,h:H},legend:o.legend,items:C.map(c=>({text:lblOf(c),fill:c.fill||'white'})),obstacles:rects};
+  /* 막대 위 글자끼리, 또는 글자가 막대 경계에 걸치는지 */
+  let clash=false; if(o.values||o.barLbl){ const T=ops.list.filter(t=>t.t==='text'&&(t.role==='value'||t.role==='label')&&t.box.y<H);
+    for(let a=0;a<T.length&&!clash;a++){ for(let b=a+1;b<T.length;b++) if(GG.overlap(T[a].box,T[b].box,0)>0.0025){ clash=true; break; }
+      if(!clash) for(const rc of rects){ const bx=T[a].box; if(GG.overlap(bx,rc,0)>0.0025&&!(bx.x>=rc.x-0.05&&bx.x+bx.w<=rc.x+rc.w+0.05&&bx.y>=rc.y-0.05&&bx.y+bx.h<=rc.y+rc.h+0.05)){ clash=true; break; } } } }
+  /* 넓힐 값: 이웃 글자 중심 간격 ≥ 글자 폭+0.4, 양끝은 글자 반쪽이 틀 안에 */
+  const needW={inner:Math.max(0,topW+0.4-bw),g:Math.max(0,topW+0.4-bw),m:Math.max(0,topW/2-bw/2+0.6)};
+  const topOver=!!o.frame&&(o.values||o.barLbl)&&ops.list.some(t=>t.t==='text'&&(t.role==='value'||t.role==='label')&&t.box.y<-0.05&&t.box.y+t.box.h>0.05);
+  return {ops,plot:{x:0,y:0,w:span,h:H},legend:o.legend,items:C.map(c=>({text:lblOf(c),fill:c.fill||'white'})),obstacles:rects,clash,need:needW,topOver,widen};
 }
 
 /* ───────── ⑤ 상댓값 소형 막대 ───────── */
@@ -524,6 +611,7 @@ function distinctFills(doc){ const C=doc.data.cols.filter(c=>!c.hide&&!c.other);
   C.forEach((c,j)=>c.fill=F[j%F.length]); return true; }
 /* 칸 글자가 비율뿐이면 무엇인지 알 수 없다: 편집기 경고 */
 function labelWarn(doc){ const k=doc.kind;
+  if(k==='group'&&LAST.group&&LAST.group.topOver) return ['막대 위 값 글자가 그래프 위 테두리를 넘어요. 축 범위에서 최댓값을 늘리거나 테두리를 꺼 주세요.'];
   if(k==='stack'){ const H=LAST.stack&&LAST.stack.hidden||[]; return H.length?[`좁은 칸 ${H.length}개(${H.slice(0,4).join(', ')}${H.length>4?' …':''})는 지시선 글자를 놓을 자리가 없어 비웠어요. 막대 간격을 넓히거나 범례를 켜 주세요.`]:[]; }
   if(k!=='tree'&&k!=='donut') return []; const o=doc[k];
   const hid=k==='tree'&&LAST.tree&&LAST.tree.hidden.length?[`${[...new Set(LAST.tree.hidden)].join(', ')} 칸은 좁아서 글자를 넣지 못했어요. 한 변을 키우거나, 칸 글자를 ‘이름’만 쓰거나, 범례를 켜 주세요.`]:[];

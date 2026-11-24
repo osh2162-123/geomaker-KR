@@ -1,0 +1,1131 @@
+[
+ {
+  "id": "ene-s-010",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조",
+  "vary": {
+   "stack.dir": [
+    "h",
+    "v"
+   ],
+   "stack.inLbl": [
+    "none",
+    "name",
+    "value",
+    "both"
+   ],
+   "stack.legend": [
+    "bottom",
+    "right",
+    "none"
+   ]
+  }
+ },
+ {
+  "id": "ene-s-011",
+  "app": "energy",
+  "q": "사우디아라비아, 아랍에미리트, 트리니다드 토바고, 남아프리카 공화국, 아시아·태평양, 중·남아메리카, 독립 국가 연합(CIS), 유럽 연합(EU), 뉴질랜드, 방글라데시의 1차 에너지 소비 구조",
+  "set": {
+   "stack.dir": "h",
+   "stack.inLbl": "both",
+   "stack.legend": "right"
+  }
+ },
+ {
+  "id": "ene-s-012",
+  "app": "energy",
+  "q": "미국, 중국, 인도, 일본, 한국, 독일, 프랑스, 영국의 1차 에너지 소비 구조",
+  "set": {
+   "stack.inLbl": "value"
+  },
+  "vary": {
+   "stack.norm": [
+    true,
+    false
+   ],
+   "stack.trans": [
+    false,
+    true
+   ],
+   "stack.connect": [
+    false,
+    true
+   ]
+  }
+ },
+ {
+  "id": "ene-s-013",
+  "app": "energy",
+  "q": "석유 생산 상위 8개국 막대",
+  "vary": {
+   "stack.inLbl": [
+    "name",
+    "both"
+   ],
+   "stack.legend": [
+    "none",
+    "bottom"
+   ]
+  }
+ },
+ {
+  "id": "ene-s-014",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조",
+  "set": {
+   "stack.inLbl": "both",
+   "stack.dir": "h",
+   "meta.title": "아주 긴 제목 시험 — 브라질·미국·중국의 1차 에너지 소비 구조를 비교하는 긴 제목으로 글자 상자가 겹치는지 확인하기 위한 사례이다",
+   "meta.notes": "첫째 줄 주석: 긴 주석이 막대 아래에서 다른 글자와 겹치는지 확인한다.\n둘째 줄 주석: 단위와 출처 표기가 길 때의 배치도 확인한다.\n셋째 줄 주석: 자료 출처는 EI 통계이며 이 문장은 가상으로 길게 늘린 것이다."
+  },
+  "vary": {
+   "stack.leader": [
+    false,
+    true
+   ]
+  }
+ },
+ {
+  "id": "ene-s-015",
+  "app": "energy",
+  "q": "독일, 프랑스, 이탈리아, 에스파냐, 폴란드의 1차 에너지 소비 구조, 국가는 (가)~(마)",
+  "vary": {
+   "stack.dir": [
+    "h",
+    "v"
+   ],
+   "stack.sortSeg": [
+    false,
+    true
+   ]
+  }
+ },
+ {
+  "id": "ene-s-016",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조 가로 막대, 석유·석탄·수력·천연가스는 A~D로 섞어서 (2024, 새 방식)"
+ },
+ {
+  "id": "ene-s-017",
+  "app": "energy",
+  "q": "독일, 프랑스, 폴란드의 석탄·수력·원자력 소비량 세로 막대, 에너지원별 국가 비율, 에너지원은 A~C",
+  "set": {
+   "stack.inLbl": "name"
+  }
+ },
+ {
+  "id": "ene-s-018",
+  "app": "energy",
+  "q": "석유 생산 상위 5개국 막대",
+  "set": {
+   "stack.norm": false,
+   "stack.inLbl": "value",
+   "stack.axis.auto": false,
+   "stack.axis.lo": -20,
+   "stack.axis.hi": 120,
+   "stack.axis.step": 10
+  }
+ },
+ {
+  "id": "ene-s-020",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 도넛",
+  "vary": {
+   "donut.inLbl": [
+    "none",
+    "name",
+    "value",
+    "both"
+   ],
+   "donut.legend": [
+    "none",
+    "bottom",
+    "right"
+   ],
+   "donut.center": [
+    "row",
+    "total"
+   ]
+  }
+ },
+ {
+  "id": "ene-s-021",
+  "app": "energy",
+  "q": "독일, 프랑스, 이탈리아, 에스파냐, 폴란드의 1차 에너지 소비 도넛, 모든 에너지원 표시",
+  "set": {
+   "donut.inLbl": "both",
+   "donut.paren": true
+  },
+  "vary": {
+   "donut.cols": [
+    0,
+    1,
+    2
+   ],
+   "donut.top": [
+    "none",
+    "lbl"
+   ],
+   "donut.pct": [
+    "all",
+    "first",
+    "none"
+   ]
+  }
+ },
+ {
+  "id": "ene-s-022",
+  "app": "energy",
+  "q": "사우디아라비아, 아랍에미리트, 트리니다드 토바고, 남아프리카 공화국, 아시아·태평양, 중·남아메리카, 독립 국가 연합(CIS), 유럽 연합(EU), 뉴질랜드, 방글라데시의 1차 에너지 소비 도넛",
+  "set": {
+   "donut.inLbl": "both",
+   "donut.leader": true,
+   "donut.legend": "right",
+   "donut.hole": 0,
+   "donut.size": 24
+  }
+ },
+ {
+  "id": "ene-s-023",
+  "app": "energy",
+  "q": "프랑스, 중국, 브라질의 발전량 도넛, 가운데 총발전량, 국가는 (가)~(다)",
+  "set": {
+   "donut.center": "total",
+   "donut.totalLabel": "총발전량합계아주긴이름"
+  }
+ },
+ {
+  "id": "ene-s-024",
+  "app": "energy",
+  "q": "미국, 중국의 1차 에너지 소비 도넛",
+  "set": {
+   "donut.hole": 0.8,
+   "donut.size": 90,
+   "donut.gap": 0,
+   "donut.inLbl": "both"
+  }
+ },
+ {
+  "id": "ene-s-025",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 도넛",
+  "set": {
+   "donut.center": "custom"
+  },
+  "patch": {
+   "data": {
+    "rows": [
+     {
+      "name": "브라질",
+      "ctext": "긴 가운데 글자\n둘째 줄"
+     },
+     {
+      "name": "미국",
+      "ctext": "합계\n1234567890"
+     },
+     {
+      "name": "중국",
+      "ctext": "아주 긴 가운데 설명 문구"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "id": "ene-s-030",
+  "app": "energy",
+  "q": "석탄, 석유, 천연가스 생산 상위 5개국 비율 정사각형, 자원은 (가)~(다) (2022)",
+  "vary": {
+   "tree.layout": [
+    "grid",
+    "rect"
+   ],
+   "tree.inLbl": [
+    "none",
+    "name",
+    "value",
+    "both"
+   ],
+   "tree.legend": [
+    "none",
+    "bottom",
+    "right"
+   ]
+  }
+ },
+ {
+  "id": "ene-s-031",
+  "app": "energy",
+  "q": "석유 생산 상위 10개국 비율 정사각형",
+  "set": {
+   "tree.layout": "rect",
+   "tree.inLbl": "both",
+   "tree.pct": "all",
+   "tree.paren": true
+  }
+ },
+ {
+  "id": "ene-s-032",
+  "app": "energy",
+  "q": "사우디아라비아, 아랍에미리트, 트리니다드 토바고, 남아프리카 공화국, 아시아·태평양, 중·남아메리카, 독립 국가 연합(CIS), 유럽 연합(EU)의 1차 에너지 소비 구조 면적 비율",
+  "set": {
+   "tree.layout": "grid",
+   "tree.inLbl": "name",
+   "tree.legend": "bottom",
+   "tree.size": 20
+  }
+ },
+ {
+  "id": "ene-s-033",
+  "app": "energy",
+  "q": "석유, 천연가스 생산 상위 2개국 비율 정사각형",
+  "set": {
+   "tree.top": "none",
+   "tree.inLbl": "both",
+   "tree.cols": 2
+  }
+ },
+ {
+  "id": "ene-s-040",
+  "app": "energy",
+  "q": "미국, 캐나다, 브라질, 러시아, 사우디아라비아, 중국, 인도, 일본의 석유 생산량과 소비량 묶은 막대 (2024)",
+  "vary": {
+   "group.legend": [
+    "in",
+    "bottom",
+    "right",
+    "none"
+   ],
+   "group.values": [
+    false,
+    true
+   ],
+   "group.grid": [
+    false,
+    true
+   ]
+  }
+ },
+ {
+  "id": "ene-s-041",
+  "app": "energy",
+  "q": "미국, 중국의 석유 생산량과 소비량 묶은 막대 (2024)",
+  "set": {
+   "group.values": true
+  },
+  "vary": {
+   "group.barW": [
+    0.5,
+    1.6,
+    4
+   ],
+   "group.inner": [
+    0,
+    1
+   ],
+   "group.frame": [
+    false,
+    true
+   ]
+  }
+ },
+ {
+  "id": "ene-s-042",
+  "app": "energy",
+  "q": "미국, 캐나다, 브라질, 러시아, 사우디아라비아, 중국, 인도, 일본, 독일, 영국의 석유 생산량과 소비량 묶은 막대 (2024)",
+  "set": {
+   "group.legend": "bottom",
+   "group.values": true,
+   "group.len": 20
+  }
+ },
+ {
+  "id": "ene-s-043",
+  "app": "energy",
+  "q": "미국, 중국, 인도의 석유 생산량과 소비량 묶은 막대 (2024)",
+  "set": {
+   "group.barLbl": true,
+   "group.legend": "none"
+  }
+ },
+ {
+  "id": "ene-s-044",
+  "app": "energy",
+  "q": "미국, 캐나다, 브라질, 러시아, 사우디아라비아의 석유 생산량과 소비량 묶은 막대 (2024)",
+  "set": {
+   "group.axis.auto": false,
+   "group.axis.lo": -50,
+   "group.axis.hi": 500,
+   "group.axis.step": 100,
+   "group.values": true
+  }
+ },
+ {
+  "id": "ene-s-050",
+  "app": "energy",
+  "q": "칠레, 오스트레일리아, 콩고 민주 공화국의 리튬·구리·코발트 생산량 상댓값, 국가는 (가)~(다) (2022)",
+  "vary": {
+   "small.rel": [
+    true,
+    false
+   ],
+   "small.grid": [
+    false,
+    true
+   ],
+   "small.dec": [
+    0,
+    1
+   ]
+  }
+ },
+ {
+  "id": "ene-s-051",
+  "app": "energy",
+  "q": "칠레, 오스트레일리아, 콩고 민주 공화국, 아르헨티나, 중국의 리튬·구리·코발트 생산량 상댓값 (2022)"
+ },
+ {
+  "id": "ene-s-052",
+  "app": "energy",
+  "q": "칠레, 콩고 민주 공화국의 리튬 생산량 상댓값 (2022)",
+  "set": {
+   "small.pw": 8,
+   "small.ph": 12
+  }
+ },
+ {
+  "id": "ene-s-053",
+  "app": "energy",
+  "q": "칠레, 오스트레일리아, 콩고 민주 공화국, 아르헨티나, 중국의 리튬·구리·코발트 생산량 상댓값 (2022)",
+  "set": {
+   "small.pw": 80,
+   "small.ph": 90,
+   "small.gap": 0.5,
+   "small.barW": 8
+  }
+ },
+ {
+  "id": "ene-s-060",
+  "app": "energy",
+  "q": "독일, 프랑스, 이탈리아, 에스파냐, 폴란드의 1차 에너지 소비 구조 표",
+  "vary": {
+   "tb.mode": [
+    "value",
+    "pct",
+    "rank"
+   ],
+   "tb.unitPos": [
+    "auto",
+    "head",
+    "top",
+    "bottom"
+   ],
+   "tb.comma": [
+    false,
+    true
+   ]
+  }
+ },
+ {
+  "id": "ene-s-061",
+  "app": "energy",
+  "q": "사우디아라비아, 아랍에미리트, 트리니다드 토바고, 남아프리카 공화국, 아시아·태평양, 중·남아메리카, 독립 국가 연합(CIS), 유럽 연합(EU), 뉴질랜드, 방글라데시의 1차 에너지 소비 구조 표",
+  "set": {
+   "tb.mode": "value",
+   "tb.unitStyle": "paren",
+   "tb.rowHead": "아주 긴 첫 칸 이름",
+   "meta.title": "긴 제목과 긴 행 이름이 표 칸 테두리를 넘는지 확인하는 사례"
+  }
+ },
+ {
+  "id": "ene-s-062",
+  "app": "energy",
+  "q": "유럽 국가의 풍력·태양광·수력 발전량 순위표",
+  "vary": {
+   "tb.rankN": [
+    2,
+    3,
+    5,
+    8
+   ],
+   "tb.dec": [
+    0,
+    1
+   ]
+  }
+ },
+ {
+  "id": "ene-s-063",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조 표",
+  "set": {
+   "tb.unitLine": false,
+   "tb.unitPos": "head",
+   "tb.unitStyle": "label",
+   "meta.notes": "첫째 줄: 표 주석이 길 때 칸 배치 확인.\n둘째 줄: 자료 출처 표기와 단위 줄 생략 설정을 함께 시험한다.\n셋째 줄: 이 주석은 가상으로 길게 늘린 것이다."
+  }
+ },
+ {
+  "id": "ene-s-070",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조",
+  "patch": {
+   "data": {
+    "unit": "EJ",
+    "rows": [
+     {
+      "name": "갑국"
+     },
+     {
+      "name": "을국"
+     },
+     {
+      "name": "병국"
+     }
+    ],
+    "cols": [
+     {
+      "name": "석유"
+     },
+     {
+      "name": "석탄"
+     },
+     {
+      "name": "수력"
+     },
+     {
+      "name": "천연가스"
+     }
+    ],
+    "v": [
+     [
+      -50,
+      0.0001,
+      999999,
+      12
+     ],
+     [
+      30,
+      25,
+      -0.0002,
+      0
+     ],
+     [
+      0.0001,
+      0.0002,
+      0.0003,
+      1000000000
+     ]
+    ]
+   }
+  },
+  "set": {
+   "stack.norm": false,
+   "stack.inLbl": "value",
+   "stack.legend": "bottom"
+  }
+ },
+ {
+  "id": "ene-s-071",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조",
+  "kind": "donut",
+  "patch": {
+   "data": {
+    "unit": "EJ",
+    "rows": [
+     {
+      "name": "갑국"
+     },
+     {
+      "name": "을국"
+     },
+     {
+      "name": "병국"
+     }
+    ],
+    "cols": [
+     {
+      "name": "석유"
+     },
+     {
+      "name": "석탄"
+     },
+     {
+      "name": "수력"
+     },
+     {
+      "name": "천연가스"
+     }
+    ],
+    "v": [
+     [
+      50.0001,
+      50.0002,
+      49.9999,
+      50
+     ],
+     [
+      50,
+      50,
+      50,
+      50.0001
+     ],
+     [
+      49.9998,
+      50.0001,
+      50.0002,
+      49.9999
+     ]
+    ]
+   }
+  },
+  "set": {
+   "donut.inLbl": "both",
+   "donut.pct": "all",
+   "donut.paren": true,
+   "donut.legend": "right"
+  }
+ },
+ {
+  "id": "ene-s-072",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조",
+  "kind": "tree",
+  "patch": {
+   "data": {
+    "unit": "EJ",
+    "rows": [
+     {
+      "name": "갑국"
+     },
+     {
+      "name": "을국"
+     }
+    ],
+    "cols": [
+     {
+      "name": "석유"
+     },
+     {
+      "name": "석탄"
+     },
+     {
+      "name": "수력"
+     },
+     {
+      "name": "천연가스"
+     }
+    ],
+    "v": [
+     [
+      1000000000000,
+      0.0001,
+      0.0002,
+      0.0003
+     ],
+     [
+      0.0001,
+      1000000000000,
+      0.0002,
+      0.0003
+     ]
+    ]
+   }
+  },
+  "set": {
+   "tree.layout": "rect",
+   "tree.inLbl": "value",
+   "tree.pct": "all"
+  }
+ },
+ {
+  "id": "ene-s-073",
+  "app": "energy",
+  "q": "미국, 중국의 석유 생산량과 소비량 묶은 막대 (2024)",
+  "patch": {
+   "data": {
+    "v": [
+     [
+      -120,
+      300
+     ],
+     [
+      500,
+      -0.001
+     ]
+    ]
+   }
+  },
+  "set": {
+   "group.values": true,
+   "group.legend": "in"
+  }
+ },
+ {
+  "id": "ene-s-074",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조",
+  "patch": {
+   "data": {
+    "rows": [
+     {
+      "name": "아주아주긴나라일이삼사오육칠팔구십영일이삼사오육칠팔구십"
+     },
+     {
+      "name": "콩고 민주 공화국보다 훨씬 긴 가상 국가 이름"
+     },
+     {
+      "name": "트리니다드 토바고와 사우디아라비아를 합친 이름"
+     }
+    ]
+   }
+  },
+  "set": {
+   "stack.inLbl": "name",
+   "stack.dir": "h",
+   "stack.legend": "right"
+  }
+ },
+ {
+  "id": "ene-s-075",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조",
+  "patch": {
+   "data": {
+    "cols": [
+     {
+      "name": "아주긴에너지원이름일이삼사오"
+     },
+     {
+      "name": "석탄과석유를합친긴이름"
+     },
+     {
+      "name": "수력자원긴이름"
+     },
+     {
+      "name": "천연가스액화긴이름"
+     },
+     {
+      "name": "원자력발전긴이름"
+     },
+     {
+      "name": "신재생에너지긴이름"
+     },
+     {
+      "name": "기타",
+      "other": true
+     }
+    ]
+   }
+  },
+  "set": {
+   "stack.trans": true,
+   "stack.inLbl": "name",
+   "stack.legend": "none"
+  }
+ },
+ {
+  "id": "ene-s-076",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조 표",
+  "set": {
+   "tb.mode": "value",
+   "meta.title": "이 제목은 표의 가로 폭을 넘길 만큼 일부러 아주 길게 늘린 가상 제목이다 — 브라질·미국·중국의 1차 에너지 소비 구조를 비교하며 제목 글자가 틀 밖으로 나가는지, 주석과 겹치는지 확인하기 위한 것이다",
+   "meta.notes": "첫째 줄 주석: 아주 긴 주석이 표 아래에서 다른 글자와 겹치거나 틀 밖으로 나가는지 확인하기 위해 길게 늘린 문장이다.\n둘째 줄 주석: 단위·출처·연도 표기가 서로 겹치는지도 함께 확인한다.\n셋째 줄 주석: 이 사례의 자료는 실제 EI 통계이지만 제목과 주석은 가상으로 늘린 것이다.",
+   "meta.src": "아주 긴 출처 문구 — Energy Institute Statistical Review of World Energy (2025)를 가상으로 길게 늘린 표기"
+  }
+ },
+ {
+  "id": "ene-s-077",
+  "app": "energy",
+  "q": "독일, 프랑스, 이탈리아, 에스파냐의 1차 에너지 소비 구조",
+  "patch": {
+   "data": {
+    "rows": [
+     {
+      "name": "독일",
+      "lbl": "㉠"
+     },
+     {
+      "name": "프랑스",
+      "lbl": "㉡"
+     },
+     {
+      "name": "이탈리아",
+      "lbl": "㉢"
+     },
+     {
+      "name": "에스파냐",
+      "lbl": "㉣"
+     }
+    ]
+   }
+  },
+  "set": {
+   "stack.inLbl": "name",
+   "stack.legend": "bottom",
+   "stack.dir": "h"
+  }
+ },
+ {
+  "id": "ene-s-019",
+  "app": "energy",
+  "q": "미국, 중국의 1차 에너지 소비 구조",
+  "set": {
+   "stack.inLbl": "both",
+   "stack.legend": "right"
+  }
+ },
+ {
+  "id": "ene-s-026",
+  "app": "energy",
+  "q": "미국, 중국, 인도, 일본, 한국, 독일, 프랑스, 영국의 1차 에너지 소비 도넛",
+  "set": {
+   "donut.inLbl": "both",
+   "donut.legend": "bottom"
+  }
+ },
+ {
+  "id": "ene-s-034",
+  "app": "energy",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조 면적 비율",
+  "set": {
+   "tree.inLbl": "both",
+   "tree.legend": "bottom"
+  }
+ },
+ {
+  "id": "ene-s-035",
+  "app": "energy",
+  "q": "독일, 프랑스, 이탈리아, 에스파냐, 폴란드의 1차 에너지 소비 구조 면적 비율",
+  "set": {
+   "tree.layout": "rect",
+   "tree.inLbl": "name"
+  }
+ },
+ {
+  "id": "ene-s-054",
+  "app": "energy",
+  "q": "칠레, 오스트레일리아, 콩고 민주 공화국의 리튬·구리·코발트 생산량 상댓값 (2022)",
+  "patch": {
+   "data": {
+    "rows": [
+     {
+      "name": "갑국"
+     },
+     {
+      "name": "을국"
+     },
+     {
+      "name": "병국"
+     },
+     {
+      "name": "정국"
+     },
+     {
+      "name": "무국"
+     },
+     {
+      "name": "기국"
+     },
+     {
+      "name": "경국"
+     },
+     {
+      "name": "신국"
+     }
+    ],
+    "v": [
+     [
+      10,
+      20,
+      30
+     ],
+     [
+      40,
+      50,
+      60
+     ],
+     [
+      70,
+      80,
+      90
+     ],
+     [
+      15,
+      25,
+      35
+     ],
+     [
+      45,
+      55,
+      65
+     ],
+     [
+      75,
+      85,
+      95
+     ],
+     [
+      12,
+      22,
+      32
+     ],
+     [
+      42,
+      52,
+      62
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "id": "ene-s-055",
+  "app": "energy",
+  "q": "칠레, 오스트레일리아, 콩고 민주 공화국의 리튬·구리·코발트 생산량 상댓값 (2022)",
+  "patch": {
+   "data": {
+    "rows": [
+     {
+      "name": "갑국"
+     },
+     {
+      "name": "을국"
+     },
+     {
+      "name": "병국"
+     },
+     {
+      "name": "정국"
+     },
+     {
+      "name": "무국"
+     },
+     {
+      "name": "기국"
+     },
+     {
+      "name": "경국"
+     },
+     {
+      "name": "신국"
+     },
+     {
+      "name": "임국"
+     },
+     {
+      "name": "계국"
+     }
+    ],
+    "v": [
+     [
+      10,
+      20,
+      30
+     ],
+     [
+      40,
+      50,
+      60
+     ],
+     [
+      70,
+      80,
+      90
+     ],
+     [
+      15,
+      25,
+      35
+     ],
+     [
+      45,
+      55,
+      65
+     ],
+     [
+      75,
+      85,
+      95
+     ],
+     [
+      12,
+      22,
+      32
+     ],
+     [
+      42,
+      52,
+      62
+     ],
+     [
+      11,
+      21,
+      31
+     ],
+     [
+      41,
+      51,
+      61
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "id": "ene-s-064",
+  "app": "energy",
+  "q": "미국, 중국의 1차 에너지 소비 구조 표",
+  "set": {
+   "tb.mode": "value"
+  }
+ },
+ {
+  "id": "ene-s-065",
+  "app": "energy",
+  "q": "미국, 중국, 인도, 일본, 한국, 독일, 프랑스, 영국의 1차 에너지 소비 구조 표",
+  "set": {
+   "tb.mode": "pct"
+  }
+ },
+ {
+  "id": "ene-s-078",
+  "app": "energy",
+  "kind": "tree",
+  "q": "브라질, 미국, 중국의 1차 에너지 소비 구조",
+  "patch": {
+   "data": {
+    "rows": [
+     {
+      "id": "layout-row-0",
+      "name": "가상 시험 지역 1",
+      "lbl": ""
+     },
+     {
+      "id": "layout-row-1",
+      "name": "가상 시험 지역 2",
+      "lbl": ""
+     },
+     {
+      "id": "layout-row-2",
+      "name": "가상 시험 지역 3",
+      "lbl": ""
+     },
+     {
+      "id": "layout-row-3",
+      "name": "가상 시험 지역 4",
+      "lbl": ""
+     },
+     {
+      "id": "layout-row-4",
+      "name": "가상 시험 지역 5",
+      "lbl": ""
+     },
+     {
+      "id": "layout-row-5",
+      "name": "가상 시험 지역 6",
+      "lbl": ""
+     },
+     {
+      "id": "layout-row-6",
+      "name": "가상 시험 지역 7",
+      "lbl": ""
+     },
+     {
+      "id": "layout-row-7",
+      "name": "가상 시험 지역 8",
+      "lbl": ""
+     },
+     {
+      "id": "layout-row-8",
+      "name": "가상 시험 지역 9",
+      "lbl": ""
+     },
+     {
+      "id": "layout-row-9",
+      "name": "가상 시험 지역 10",
+      "lbl": ""
+     }
+    ],
+    "cols": [
+     {
+      "id": "layout-c0",
+      "name": "석유",
+      "fill": "light"
+     },
+     {
+      "id": "layout-c1",
+      "name": "석탄",
+      "fill": "mid"
+     },
+     {
+      "id": "layout-c2",
+      "name": "천연가스",
+      "fill": "dark"
+     }
+    ],
+    "v": [
+     [
+      20,
+      50,
+      30
+     ],
+     [
+      21,
+      49,
+      30
+     ],
+     [
+      22,
+      48,
+      30
+     ],
+     [
+      23,
+      47,
+      30
+     ],
+     [
+      24,
+      46,
+      30
+     ],
+     [
+      25,
+      45,
+      30
+     ],
+     [
+      26,
+      44,
+      30
+     ],
+     [
+      27,
+      43,
+      30
+     ],
+     [
+      28,
+      42,
+      30
+     ],
+     [
+      29,
+      41,
+      30
+     ]
+    ]
+   }
+  },
+  "set": {
+   "tree.top": "lbl",
+   "tree.inLbl": "name",
+   "tree.size": 20,
+   "tree.cols": 5,
+   "tree.legend": "bottom"
+  }
+ }
+]

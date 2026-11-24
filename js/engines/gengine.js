@@ -726,7 +726,9 @@ function climoPanel(doc,s,ta,pa,many){
   let titleY=top+0.15;
   if(o.words&&diff){ ops.vtext('기온 차이',L.outer-2.2,h/2,'axis'); ops.vtext('강수량 차이',R.outer+2.2,h/2,'axis'); }
   else if(o.words){ const wy=top-(uL?uL.m.H:2.5)-0.6; ops.text('온도',(L.outer+0)/2,wy,'axis',{align:'center',scale:0.9}); ops.text('강수량',(R.outer+w)/2,wy,'axis',{align:'center',scale:0.9}); titleY=wy-metrics(fontOf(doc,'axis'),'가').H-1.2; }
-  if(diff){ const lg=legendOps(doc,[{text:'기온',line:{w:W(doc,0.24),mk:o.temp==='line'&&all?'fs':'none'}},{text:'강수량',fill:'light'}].map((it,k)=>k===0&&!(o.temp==='line'&&all)?{text:'기온',mark:'fs'}:it),'boxed'); const lb=lg.bounds(); ops.absorb(lg,w-1.4-lb.w-lb.x,h-1.4-lb.h-lb.y); }
+  if(diff){ const lg=legendOps(doc,[{text:'기온',line:{w:W(doc,0.24),mk:o.temp==='line'&&all?'fs':'none'}},{text:'강수량',fill:'light'}].map((it,k)=>k===0&&!(o.temp==='line'&&all)?{text:'기온',mark:'fs'}:it),'boxed'); const lb=lg.bounds();
+    if(doc._layoutFit){ const b=ops.bounds(); ops.absorb(lg,w/2-lb.x-lb.w/2,b.y+b.h+2-lb.y); }
+    else ops.absorb(lg,w-1.4-lb.w-lb.x,h-1.4-lb.h-lb.y); }
   if(s.lbl&&(!diff||many)) ops.text(s.lbl,w/2,titleY,'ptitle',{align:'center'});
   return {ops,plot:{x:0,y:0,w,h}};
 }
@@ -830,7 +832,7 @@ function composeLine(doc){
     const spot={tl:[pad,pad],tr:[w-pad-lb.w,pad],bl:[pad,h-pad-lb.h],br:[w-pad-lb.w,h-pad-lb.h]};
     const hits=k=>{ const [x,y]=spot[k]; return obs.filter(p=>p[0]>x-0.5&&p[0]<x+lb.w+0.5&&p[1]>y-0.5&&p[1]<y+lb.h+0.5).length; };
     let at=null;
-    if(spot[pos]) at=spot[pos];
+    if(spot[pos]&&(!doc._layoutFit||hits(pos)===0)) at=spot[pos];
     else if(pos==='auto'&&lb.w<w-2*pad&&lb.h<h-2*pad){ const pref=cum?['tl','br','tr','bl']:['tr','tl','br','bl']; let best=null;
       for(const k of pref){ const n=hits(k); if(n===0){ best=k; break; } if(!best||n<hits(best)) best=k; }
       if(hits(best)===0) at=spot[best]; }
@@ -897,7 +899,10 @@ function catPanel(doc,S,sers,V,axes,o2){
   ops.rect(0,0,w,h,{stroke:'#000000',sw:W(doc,0.15)});
   if(brk){ const yc=h-B*0.5, g=0.42, x0=-1.0, x1=w+1.0; const up=wave(x0,x1,yc-g,0.32,2.6), dn=wave(x0,x1,yc+g,0.32,2.6);
     ops.poly(up.concat(dn.slice().reverse()),'#ffffff'); ops.line(up,W(doc,0.12)); ops.line(dn,W(doc,0.12)); }
-  for(const t of vlabels){ const m=metrics(fontOf(doc,'value'),t.s); ops.text(t.s,t.x,t.left?t.y:(t.neg?t.y+0.5+m.A:t.y-0.55),'value',{align:t.left?'left':'center'}); }
+  for(const t of vlabels){ const m=metrics(fontOf(doc,'value'),t.s); const it=ops.text(t.s,t.x,t.left?t.y:(t.neg?t.y+0.5+m.A:t.y-0.55),'value',{align:t.left?'left':'center'});
+    if(doc._layoutFit){ let dx=0,dy=0; if(it.box.x<0) dx=-it.box.x+0.5; else if(it.box.x+it.box.w>w) dx=w-0.5-it.box.x-it.box.w;
+      if(it.box.y<0&&it.box.y+it.box.h>0) dy=-0.6-it.box.y-it.box.h; else if(it.box.y<h&&it.box.y+it.box.h>h) dy=h+0.6-it.box.y;
+      it.x+=dx;it.y+=dy;it.box.x+=dx;it.box.y+=dy; } }
   const LA=yAxis(ops,doc,AL,{x:0,h,side:'left',tick:'none',yf:yL,extra:brk?[0]:[],plus:o.plus});
   let RA=null; if(AR) RA=yAxis(ops,doc,AR,{x:w,h,side:'right',tick:'none',yf:yR,extra:brk?[0]:[],plus:o.plus});
   const cm=metrics(fontOf(doc,'cat'),'A'); const cw=Math.max(...S.map(s=>metrics(fontOf(doc,'cat'),s.lbl||s.name).W));
@@ -924,7 +929,8 @@ function legendOps(doc,items,mode,role){
   return tagGrp(ops,'legend');
 }
 /* 겹침 검사용 묶음 표식(그리기에는 쓰지 않음) */
-function tagGrp(ops,g){ for(const o of ops.list) o.grp=g; return ops; }
+let groupSeq=0;
+function tagGrp(ops,g){ const id=++groupSeq; for(const o of ops.list){ o.grp=g; o.grpId=id; } return ops; }
 function catUnitOf(doc,key){ return unitText(doc,METRICS[key]?METRICS[key].unit:'p'); }
 function composeCat(doc){
   const o=doc.cat, S=plotted(doc); if(!S.length) return null;
@@ -950,7 +956,7 @@ function composeCat(doc){
       const items=sers.map(se=>({text:se.title||metricLabel(se.m,se.alias,diff),fill:se.fill,mark:se.mark}));
       const lg=legendOps(doc,items,o.legend==='right'?'plain':o.legend==='bottom'?'row':'boxed'); const lb=lg.bounds(); const pb=out.bounds(); const P=p.plot;
       if(o.legend==='right') out.absorb(lg,pb.x+pb.w+3.2-lb.x,P.y+P.h/2-lb.h/2-lb.y);
-      else if(o.legend==='inside') out.absorb(lg,P.x+P.w-1.2-lb.w-lb.x,P.y+1.2-lb.y);
+      else if(o.legend==='inside'&&!doc._layoutFit) out.absorb(lg,P.x+P.w-1.2-lb.w-lb.x,P.y+1.2-lb.y);
       else out.absorb(lg,P.x+P.w/2-lb.w/2-lb.x,pb.y+pb.h+2.0-lb.y);
     }
   } else {
@@ -1087,8 +1093,11 @@ function composeScatter(doc){
   const r=0.65; for(const p of pts){ ops.mark(p.x,p.y,'fc',1.3,{sw:W(doc,0.15)}); obst.push({x:p.x-r-0.2,y:p.y-r-0.2,w:2*r+0.4,h:2*r+0.4}); }
   const tb=ops.list.filter(t=>t.t==='text').map(t=>t.box); obst.push(...tb);
   const font=fontOf(doc,'label'); const placed=[];
-  for(const p of pts){
-    const lab=p.s.lbl||p.s.name; const m=metrics(font,lab); const g=0.6;
+  const labels=[];
+  for(const p of pts){ const same=doc._layoutFit&&labels.find(q=>Math.abs(q.x-p.x)<1e-6&&Math.abs(q.y-p.y)<1e-6);
+    if(same) same.lab+=', '+(p.s.lbl||p.s.name); else labels.push(Object.assign({},p,{lab:p.s.lbl||p.s.name})); }
+  for(const p of labels){
+    const lab=p.lab; const m=metrics(font,lab); const g=0.6;
     const C=[
       {ax:p.x+r+g,ay:p.y+(m.A-m.D)/2,al:'left',pen:0},
       {ax:p.x,ay:p.y-r-g-m.D,al:'center',pen:0.5},
@@ -1102,6 +1111,19 @@ function composeScatter(doc){
       let sc=c.pen; for(const ob of obst.concat(placed)) sc+=overlap(box,ob,0.25)*40;
       if(box.x<-0.2||box.y<-0.2||box.x+box.w>w+0.2||box.y+box.h>h+0.2) sc+=cross?3:25;
       if(!best||sc<best.sc) best={sc,c,box}; }
+    if(doc._layoutFit){ let pick=null;
+      const lines=ops.list.filter(q=>q.t==='line'&&!q.dash&&q.pts);
+      for(const rad of [0,1.5,3,5,8,12,18,26,40,60]){ for(let k=0;k<24;k++){ const a=k*Math.PI/12, ux=Math.cos(a),uy=Math.sin(a), ext=Math.abs(ux)*m.W/2+Math.abs(uy)*m.H/2;
+          const cx=p.x+ux*(r+g+rad+ext),cy=p.y+uy*(r+g+rad+ext), box={x:cx-m.W/2,y:cy-m.H/2,w:m.W,h:m.H};
+          if(obst.concat(placed).some(b=>layoutOverlap(box,b))) continue;
+          if(!cross&&layoutOverlap(box,{x:0,y:0,w,h})&&!layoutContains({x:0,y:0,w,h},box)) continue;
+          if(lines.some(q=>q.pts.slice(1).some((b,j)=>layoutSeg(q.pts[j],b,box)))) continue;
+          const end=[clamp(p.x,box.x,box.x+box.w),clamp(p.y,box.y,box.y+box.h)], lead=rad>0?[p.x+ux*0.85,p.y+uy*0.85]:null;
+          if(lead&&ops.list.some(q=>q.t==='text'&&layoutSeg(lead,end,q.box))) continue;
+          pick={sc:0,c:{ax:cx,ay:cy+(m.A-m.D)/2,al:'center'},box,lead,end}; break;
+        } if(pick) break; }
+      if(pick){ best=pick; if(best.lead) ops.line([best.lead,best.end],W(doc,0.12)); }
+    }
     ops.text(lab,best.c.ax,best.c.ay,'label',{align:best.c.al}); placed.push(best.box);
   }
   return {ops,plots:[{x:0,y:0,w,h}]};
@@ -1178,13 +1200,62 @@ function noteLines(doc){
 
 /* ───────── 조립 ───────── */
 const EXT={};
+/* 자동 배치는 실제 교차가 있는 기후 그림에만 적용한다(검사기와 같은 0.05 mm 기준). */
+const layoutOverlap=(a,b)=>Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)>0.05&&Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)>0.05;
+const layoutContains=(a,b)=>b.x>=a.x-0.05&&b.y>=a.y-0.05&&b.x+b.w<=a.x+a.w+0.05&&b.y+b.h<=a.y+a.h+0.05;
+function layoutSeg(a,b,box){ const x0=box.x+0.05,y0=box.y+0.05,x1=box.x+box.w-0.05,y1=box.y+box.h-0.05; if(x1<=x0||y1<=y0) return false;
+  let lo=0,hi=1; const dx=b[0]-a[0],dy=b[1]-a[1];
+  for(const [p,q] of [[-dx,a[0]-x0],[dx,x1-a[0]],[-dy,a[1]-y0],[dy,y1-a[1]]]){ if(Math.abs(p)<1e-12){ if(q<0) return false; }else{ const t=q/p; if(p<0) lo=Math.max(lo,t); else hi=Math.min(hi,t); if(lo>hi) return false; } } return hi-lo>1e-6;
+}
+function climateBad(ops){ const all=ops.list, ts=all.filter(t=>t.t==='text'), box=o=>o.t==='text'?o.box:o.t==='mark'?{x:o.x-o.size/2,y:o.y-o.size/2,w:o.size,h:o.size}:o.t==='rect'?{x:o.x,y:o.y,w:o.w,h:o.h}:null;
+  const lines=all.filter(o=>o.t==='line'&&!o.dash&&o.pts&&(o.pts.length>2||Math.hypot(o.pts[1][0]-o.pts[0][0],o.pts[1][1]-o.pts[0][1])>1.5)); let n=0;
+  for(let i=0;i<ts.length;i++){ const t=ts[i]; for(let j=i+1;j<ts.length;j++) if(layoutOverlap(t.box,ts[j].box)) n++;
+    if(t.grp==='legend') continue;
+    for(const q of all){ if(q.grp==='legend') continue; const b=box(q);
+      if(q.t==='mark'&&layoutOverlap(t.box,b)) n++;
+      if(q.t==='rect'&&layoutOverlap(t.box,b)&&!layoutContains(b,t.box)&&(q.fill||q.pat||(q.stroke&&q.w>2&&q.h>2))) n++;
+    }
+    for(const q of lines) if(q.grp!=='legend'&&q.pts.slice(1).some((b,k)=>layoutSeg(q.pts[k],b,t.box))) n++;
+  }
+  for(const id of new Set(all.filter(o=>o.grp==='legend').map(o=>o.grpId))){ const group=all.filter(o=>o.grp==='legend'&&o.grpId===id), bs=group.map(box).filter(Boolean); if(!bs.length) continue;
+    const x=Math.min(...bs.map(b=>b.x)), y=Math.min(...bs.map(b=>b.y)), b={x,y,w:Math.max(...bs.map(b=>b.x+b.w))-x,h:Math.max(...bs.map(b=>b.y+b.h))-y};
+    for(const q of all){ if(q.grp==='legend') continue; const a=box(q); if(a&&(q.t==='text'||q.t==='mark'||q.fill||q.pat)&&layoutOverlap(a,b)) n++; }
+    for(const q of lines) if(q.grp!=='legend'&&q.pts.slice(1).some((p,k)=>layoutSeg(q.pts[k],p,b))) n++;
+  }
+  return n;
+}
+function settleClimateText(ops){
+  const ts=ops.list.filter(t=>t.t==='text'&&t.grp!=='legend');
+  /* 두 축 숫자와 월 단위가 모서리에서 만날 때만 간격을 확보한다. */
+  for(const a of ts) for(const b of ts){ if(a===b||!layoutOverlap(a.box,b.box)) continue;
+    if(a.role==='tick'&&b.role==='tick'&&a.y>b.y+0.2){ const dx=a.box.x-0.6-b.box.x-b.box.w; b.x+=dx; b.box.x+=dx; }
+    else if(a.role==='tick'&&b.role==='unit'&&b.s==='(월)'){ const dy=a.box.y+a.box.h+0.6-b.box.y; b.y+=dy;b.box.y+=dy; }
+  }
+  const hit=(t,b)=>ops.list.some(q=>{ if(q===t||q.grp==='legend') return false;
+    if(q.t==='text') return layoutOverlap(b,q.box);
+    if(q.t==='mark') return layoutOverlap(b,{x:q.x-q.size/2,y:q.y-q.size/2,w:q.size,h:q.size});
+    if(q.t==='rect') return layoutOverlap(b,q)&&!layoutContains(q,b);
+    if(q.t==='line'&&!q.dash&&q.pts) return q.pts.slice(1).some((p,k)=>Math.hypot(p[0]-q.pts[k][0],p[1]-q.pts[k][1])>1.5&&layoutSeg(q.pts[k],p,b)); return false; });
+  for(const t of ts.filter(t=>t.role==='value')){ if(!hit(t,t.box)) continue; let at=null;
+    for(const r of [0.3,0.6,1,1.5,2,3,5,8]){ for(let k=0;k<16;k++){ const a=-Math.PI/2+k*Math.PI/8,dx=r*Math.cos(a),dy=r*Math.sin(a),b={x:t.box.x+dx,y:t.box.y+dy,w:t.box.w,h:t.box.h}; if(!hit(t,b)){ at=[dx,dy]; break; } } if(at) break; }
+    if(at){ t.x+=at[0];t.y+=at[1];t.box.x+=at[0];t.box.y+=at[1]; }
+  }
+}
+function renderClimate(doc){ const r=doc.kind==='climo'?composeClimo(doc):doc.kind==='line'?composeLine(doc):doc.kind==='cat'?composeCat(doc):doc.kind==='rd'?composeRadar(doc):doc.kind==='tb'?composeTable(doc):composeScatter(doc); if(r&&doc._layoutFit) settleClimateText(r.ops); return r; }
+function fitClimate(doc){ const first=renderClimate(doc); if(!first||doc.kind==='tb'||doc.kind==='rd') return first; let score=climateBad(first.ops); if(!score) return first;
+  let best=first, chosen=null;
+  for(const scale of [1,1.25,1.5,2,3]){ const d=Object.assign({},doc,{_layoutFit:true}); const key=doc.kind==='sc'?'sc':doc.kind; d[key]=Object.assign({},doc[key]); d[key].pw*=scale; d[key].ph*=scale;
+    const r=renderClimate(d), bad=climateBad(r.ops); if(bad<score){ best=r; score=bad; chosen=d; } if(!score) break; }
+  /* LAST의 축 정보도 선택한 그림과 맞춘다. */
+  return chosen?renderClimate(chosen):renderClimate(doc);
+}
 /* 다른 도표 엔진이 그리는 종류: 문서의 app(energy, religion, population …)마다 따로 둔다(기후의 line·sc·tb와 겹치지 않게) */
 function register(kind,fn,app){ EXT[(app||'')+'|'+kind]=fn; }
 function compose(doc){
   for(const k of Object.keys(LAST)) delete LAST[k];
   const ext=doc.app?EXT[doc.app+'|'+doc.kind]:null;
   if(ext){ const r=ext(doc); if(!r) return null; const B=r.ops.bounds(); return {ops:r.ops,b:B,plots:r.plots,W:B.w,H:B.h}; }
-  const r=doc.kind==='climo'?composeClimo(doc):doc.kind==='line'?composeLine(doc):doc.kind==='cat'?composeCat(doc):doc.kind==='rd'?composeRadar(doc):doc.kind==='tb'?composeTable(doc):composeScatter(doc);
+  const r=fitClimate(doc);
   if(!r) return null;
   const ops=r.ops; const b=ops.bounds();
   const notes=noteLines(doc);

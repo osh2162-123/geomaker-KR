@@ -99,9 +99,25 @@ function triRange(o,rows,st){
 function triInfo(doc){ const o=doc.tri; const {R,C,M}=derive(doc); const cs=C.slice(0,3); if(cs.length<3) return null; const st=TRI_STEPS.includes(+o.step)?+o.step:20; const rows=[];
   R.forEach((r,i)=>{ const v=cs.map(c=>{ const x=M[i][C.indexOf(c)]; return fin(x)&&x>0?x:0; }); const t=sum(v); if(t>0) rows.push(v.map(x=>x/t*100)); });
   const {m,L}=triRange(o,rows,st); return {ranges:[0,1,2].map(k=>[m[k],m[k]+L])}; }
+/* 겹침 판정 도우미(검사기 scripts/layout/probe.js와 같은 기준: 가로·세로 0.05 mm 넘게 겹침) */
+const ovB=(a,c,pad)=>{ pad=pad||0; return Math.min(a.x+a.w,c.x+c.w)-Math.max(a.x,c.x)>0.05-pad&&Math.min(a.y+a.h,c.y+c.h)-Math.max(a.y,c.y)>0.05-pad; };
+function segBoxR(p,q,bx){ const x0=bx.x+0.05,y0=bx.y+0.05,x1=bx.x+bx.w-0.05,y1=bx.y+bx.h-0.05; if(x1<=x0||y1<=y0) return false; let t0=0,t1=1; const dx=q[0]-p[0], dy=q[1]-p[1];
+  for(const [P,Q] of [[-dx,p[0]-x0],[dx,x1-p[0]],[-dy,p[1]-y0],[dy,y1-p[1]]]){ if(Math.abs(P)<1e-12){ if(Q<0) return false; } else { const r=Q/P; if(P<0){ if(r>t1) return false; if(r>t0) t0=r; } else { if(r<t0) return false; if(r<t1) t1=r; } } } return t1-t0>1e-6; }
+function segSeg(a,b,c,d){ const cr=(p,q,r)=>(q[0]-p[0])*(r[1]-p[1])-(q[1]-p[1])*(r[0]-p[0]); const d1=cr(c,d,a), d2=cr(c,d,b), d3=cr(a,b,c), d4=cr(a,b,d); return d1*d2<-1e-9&&d3*d4<-1e-9; }
+/* 삼각 그래프: 원래 방식으로 그린 그림에 실제 겹침이 있을 때만 다시 그린다.
+   눈금 숫자가 겹치면 숫자만 2·4칸마다 적고(눈금선은 그대로), 점 이름이 겹치거나 변에 걸치면 더 넓게 자리를 찾아 지시선으로 잇는다. */
 function composeTri(doc){
+  const first=composeTri1(doc,{}); if(!first||(!first.tickBad&&!first.lblBad&&!first.pointBad)) return first;
+  let best=first, score=r=>(r.tickBad?1:0)+r.lblBad+(r.pointBad?1:0);
+  const tickPad=first.pointBad?(doc.tri.mks||1.3)/2+0.8:0.3;
+  for(const every of first.tickBad?[2,4]:[1]){ const t=composeTri1(doc,{every,smart:first.lblBad>0,tickPad}); if(t&&score(t)<score(best)) best=t; if(best!==first&&!score(best)) break; }
+  if(best.lblBad) for(const scale of [1.5,2,3]){ const t=composeTri1(doc,{every:first.tickBad?4:1,smart:true,size:doc.tri.size*scale,tickPad}); if(t&&score(t)<score(best)) best=t; if(!score(best)) break; }
+  if(best===first) return composeTri1(doc,{});   /* LAST.tri를 처음 그림 기준으로 */
+  return best;
+}
+function composeTri1(doc,opt){
   const o=doc.tri; const {R,C,M}=derive(doc); const cs=C.slice(0,3); if(!R.length||cs.length<3) return null;
-  const S=o.size, H=S*Math.sqrt(3)/2; const ops=new Ops(doc); const lw=W(doc,0.15), gw=W(doc,0.1);
+  const S=opt.size||o.size, H=S*Math.sqrt(3)/2; const ops=new Ops(doc); const lw=W(doc,0.15), gw=W(doc,0.1);
   const st=TRI_STEPS.includes(+o.step)?+o.step:20;
   /* 행마다 세 값을 합 100으로 */
   const rows=[], lost=[];
@@ -113,7 +129,7 @@ function composeTri(doc){
   const mult=(a,b)=>{ const out=[]; for(let t=Math.ceil(a/st-1e-9)*st;t<=b+1e-9;t+=st) out.push(Math.round(t*1e6)/1e6); return out; };
   if(o.grid) for(let k=0;k<3;k++){ const j=(k+1)%3, l=(k+2)%3;
     for(const v of mult(m[k],m[k]+L)){ if(v<=m[k]+1e-9||v>=m[k]+L-1e-9) continue; const a=at(k,v,j,m[j]), b=at(k,v,l,m[l]); ops.seg(a[0],a[1],b[0],b[1],gw,{dash:GRID_DASH}); } }
-  ops.line([POS.BL,POS.BR,POS.T],lw,{closed:true,join:'miter'});
+  const tri=[POS.BL,POS.BR,POS.T]; ops.line(tri,lw,{closed:true,join:'miter'});
   /* 변마다: 읽는 열 P, 그 변의 다른 꼭짓점 열 Q, 마주 보는 꼭짓점 열 Rk. 눈금은 P가 같은 격자선을 바깥으로 늘인 방향 */
   const tl=0.9, cen=[S/2,H*2/3]; const arrB=[]; const arrowB=(x0,y0,x1,y1)=>{ arrow(ops,doc,x0,y0,x1,y1); arrB.push({x:Math.min(x0,x1)-0.5,y:Math.min(y0,y1)-0.5,w:Math.abs(x1-x0)+1,h:Math.abs(y1-y0)+1}); };
   const sides=sd.map(Pk=>{ const others=[0,1,2].filter(k=>k!==Pk); const side=[[0,'T','BL'],[1,'T','BR'],[2,'BL','BR']][sd.indexOf(Pk)];
@@ -122,7 +138,8 @@ function composeTri(doc){
     return {Pk,Qk,Rk,dir,edge:v=>at(Pk,v,Rk,m[Rk])}; });
   const numBox={0:[],1:[],2:[]}, maxBox={};
   for(const sx of sides){ const ts=mult(m[sx.Pk],m[sx.Pk]+L); for(const t of ts){ const [x,y]=sx.edge(t); const ex=x+sx.dir[0]*tl, ey=y+sx.dir[1]*tl; ops.seg(x,y,ex,ey,lw);
-      if(o.nums){ const it=textBeyond(ops,doc,fmt(t,0),ex,ey,sx.dir[0],sx.dir[1],'tick',0.3); if(it){ numBox[sx.Pk].push(it.box); if(t===ts[ts.length-1]) maxBox[sx.Pk]=it.box; } }
+      const showNum=!(opt.every>1)||Math.abs(Math.round(t/(st*opt.every))*(st*opt.every)-t)<1e-6||t===ts[ts.length-1]||t===ts[0];
+      if(o.nums&&showNum){ const it=textBeyond(ops,doc,fmt(t,0),ex,ey,sx.dir[0],sx.dir[1],'tick',opt.tickPad||0.3); if(it){ numBox[sx.Pk].push(it.box); if(t===ts[ts.length-1]) maxBox[sx.Pk]=it.box; } }
       else if(t===ts[ts.length-1]) maxBox[sx.Pk]={x:ex-0.2,y:ey-0.2,w:0.4,h:0.4}; } }
   /* 단위: 꼭짓점(각 축 최댓값 옆)에 한 번씩 */
   const unit=String(o.unit==null?'':o.unit).trim(); const upos=o.unitPos||'title';
@@ -156,24 +173,76 @@ function composeTri(doc){
       for(const [dx,dy] of [[1,-1],[1,0],[-1,-1],[-1,0],[1,1],[-1,1],[0,-1],[0,1]]){ const len=Math.hypot(dx,dy); const ux=dx/len, uy=dy/len;
         const ext=Math.abs(ux)*m.W/2+Math.abs(uy)*m.H/2; const cx=p.x+ux*(r0+ext), cy=p.y+uy*(r0+ext); const box={x:cx-m.W/2,y:cy-m.H/2,w:m.W,h:m.H};
         const hit=placed.reduce((a,q)=>a+GG.overlap(q,box,0.15),0); if(best==null||hit<best.hit-1e-9){ best={hit,cx,cy,box}; } if(hit<=0) break; }
-      textAtCenter(ops,doc,s,best.cx,best.cy,role,{halo:'w'}); placed.push(best.box); } }
-  return {ops,plot:{x:0,y:0,w:S,h:H},legend:'none',items:[],notes:extraNotes(doc)};
+      if(!opt.smart){ const it=textAtCenter(ops,doc,s,best.cx,best.cy,role,{halo:'w'}); markLbl(ops,s); placed.push(best.box); void it; }
+      else p.fallback={best,s,role,m}; }
+    if(opt.smart) smartTriLabels(ops,doc,o,pts,placed,tri,r0); }
+  /* 실제 겹침 판정 */
+  const tickBoxes=[0,1,2].flatMap(k=>numBox[k]); let tickBad=false;
+  for(let a=0;a<tickBoxes.length&&!tickBad;a++) for(let b=a+1;b<tickBoxes.length;b++) if(ovB(tickBoxes[a],tickBoxes[b])){ tickBad=true; break; }
+  let lblBad=0; if(o.lbl!==false){ const T=ops.list.filter(t=>t.t==='text'); const lb=T.filter(t=>t.triLbl);
+    for(const t of lb){ const bad=T.some(u=>u!==t&&ovB(u.box,t.box))||pts.some(p=>ovB({x:p.x-(o.mks||1.3)/2,y:p.y-(o.mks||1.3)/2,w:o.mks||1.3,h:o.mks||1.3},t.box))||tri.some((q,k)=>segBoxR(q,tri[(k+1)%3],t.box)); if(bad) lblBad++; } }
+  const pointBad=ops.list.some(t=>t.t==='text'&&t.role==='tick'&&pts.some(p=>ovB({x:p.x-(o.mks||1.3)/2,y:p.y-(o.mks||1.3)/2,w:o.mks||1.3,h:o.mks||1.3},t.box)));
+  return {ops,plot:{x:0,y:0,w:S,h:H},legend:'none',items:[],notes:extraNotes(doc),tickBad,lblBad,pointBad};
+}
+
+function markLbl(ops,s){ for(let i=ops.list.length-1;i>=0;i--){ const t=ops.list[i]; if(t.t==='text'&&t.s===String(s)){ t.triLbl=true; break; } } }
+/* 점 이름 넓게 찾기: 반지름 7단계 × 24방향 후보 중 다른 글자·점·변·지시선과 겹치지 않는 가장 가까운 자리. 멀면 지시선으로 잇는다.
+   놓는 순서(붐비는 점부터·왼쪽부터·오른쪽부터·위부터·아래부터)를 모두 미리 계산해 자리를 못 찾은 이름이 가장 적은 순서를 쓴다 */
+function smartTriLabels(ops,doc,o,pts,placed,tri,r0){
+  const mk=o.mks||1.3; const lw=W(doc,0.12);
+  const dirs=[]; for(let k=0;k<24;k++){ const a=-Math.PI/4+k*Math.PI/12; dirs.push([Math.cos(a),Math.sin(a)]); }
+  const near=p=>pts.filter(q=>Math.hypot(q.x-p.x,q.y-p.y)<6).length;
+  const orders=[(a,b)=>near(b)-near(a),(a,b)=>a.x-b.x,(a,b)=>b.x-a.x,(a,b)=>a.y-b.y,(a,b)=>b.y-a.y];
+  const plan=(cmp,gap)=>{ const pl=placed.slice(), lines=tri.map((q,k)=>[q,tri[(k+1)%3]]); const out=[]; let fails=0;
+    for(const p of pts.slice().sort(cmp)){ const {m,best:fb}=p.fallback; let pick=null;
+      for(const rad of [r0,r0+1.3,r0+2.8,r0+4.5,r0+6.5,r0+9,r0+12,r0+18,r0+26,r0+38,r0+54]){ for(const [ux,uy] of dirs){
+          const ext=Math.abs(ux)*m.W/2+Math.abs(uy)*m.H/2; const cx=p.x+ux*(rad+ext), cy=p.y+uy*(rad+ext); const box={x:cx-m.W/2,y:cy-m.H/2,w:m.W,h:m.H};
+          if(pl.some(q=>ovB(q,box,gap))) continue;
+          if(lines.some(([a,c])=>segBoxR(a,c,box))) continue;
+          let lead=null; if(rad>r0+0.1){ const a=[p.x+ux*(mk/2+0.2),p.y+uy*(mk/2+0.2)]; const c=[clamp(p.x,box.x,box.x+box.w),clamp(p.y,box.y,box.y+box.h)]; const cc=[p.x+ux*(rad-0.2),p.y+uy*(rad-0.2)]; lead=[a,Math.hypot(c[0]-p.x,c[1]-p.y)<Math.hypot(cc[0]-p.x,cc[1]-p.y)?c:cc];
+            if(pl.some((q,qi)=>qi>=pts.length&&segBoxR(lead[0],lead[1],q))) continue; if(lines.slice(tri.length).some(([c1,d1])=>segSeg(lead[0],lead[1],c1,d1))) continue; }
+          pick={cx,cy,box,lead}; break; }
+        if(pick) break; }
+      if(!pick){ fails++; pick={cx:fb.cx,cy:fb.cy,box:fb.box,lead:null}; }
+      else if(pick.lead) lines.push(pick.lead);
+      pl.push(pick.box); out.push({p,pick}); }
+    return {out,fails}; };
+  /* 다른 글자와 0.15 mm 띄워 먼저 찾고, 안 되면 겹치지만 않게(0 mm) 다시 찾는다 */
+  let best=null; for(const gap of [0.15,0]){ for(const cmp of orders){ const r=plan(cmp,gap); if(!best||r.fails<best.fails) best=r; if(!best.fails) break; } if(!best.fails) break; }
+  for(const {p,pick} of best.out){ if(pick.lead) ops.seg(pick.lead[0][0],pick.lead[0][1],pick.lead[1][0],pick.lead[1][1],lw);
+    textAtCenter(ops,doc,p.fallback.s,pick.cx,pick.cy,p.fallback.role,{halo:'w'}); markLbl(ops,p.fallback.s); placed.push(pick.box); }
 }
 
 /* ───────── ② 종교별 막대(작은 가로 막대 여러 칸) ───────── */
 function composeBars(doc){
+  const first=composeBars1(doc,false); if(!first) return first;
+  const count=r=>{ const ts=r.ops.list.filter(x=>x.t==='text'&&x.box), rs=r.ops.list.filter(x=>x.t==='rect'&&!x.fill&&!x.pat&&x.w>2&&x.h>2); let n=0;
+    for(let i=0;i<ts.length;i++){ for(let j=i+1;j<ts.length;j++) if(ovB(ts[i].box,ts[j].box)) n++;
+      for(const rc of rs){ const a=ts[i].box, b={x:rc.x,y:rc.y,w:rc.w,h:rc.h}; if(ovB(a,b)&&!(a.x>=b.x-0.05&&a.y>=b.y-0.05&&a.x+a.w<=b.x+b.w+0.05&&a.y+a.h<=b.y+b.h+0.05)) n++; } }
+    return n; };
+  const bad=count(first); if(!bad) return first;
+  const fitted=composeBars1(doc,true); return fitted&&count(fitted)<bad?fitted:first;
+}
+function composeBars1(doc,smart){
   const o=doc.bars; const {R,C,M}=derive(doc); if(!R.length||!C.length) return null;
   const panels=o.by==='col'?C.map((c,j)=>({head:c,items:R.map((r,i)=>({it:r,v:M[i][j]}))})):R.map((r,i)=>({head:r,items:C.map((c,j)=>({it:c,v:M[i][j]}))}));
   const vals=panels.flatMap(p=>p.items.map(x=>x.v)).filter(fin);
   const ax=axisFrom(o.axis,[0,...vals],{zero:true,target:4}); LAST.bars=ax;
-  const L=o.len, bw=o.barW, g=o.gap, n=panels[0].items.length, m0=Math.max(1,g*0.7); const span=n*bw+(n-1)*g+2*m0;
+  let L=o.len; const bw=o.barW, n=panels[0].items.length;
+  const labelH=Math.max(metrics(fontOf(doc,'cat'),'가').H,metrics(fontOf(doc,'value'),'0').H);
+  const g=smart?Math.max(o.gap,labelH+0.6-bw):o.gap, m0=Math.max(1,g*0.7,smart?labelH/2+0.6:0); const span=n*bw+(n-1)*g+2*m0;
+  if(smart){ const ticks=GG.ticksOf(ax), dec=GG.decOf(ax.step); for(let i=1;i<ticks.length;i++){
+    const a=metrics(fontOf(doc,'tick'),fmt(ticks[i-1],dec)).W, b=metrics(fontOf(doc,'tick'),fmt(ticks[i],dec)).W;
+    L=Math.max(L,((a+b)/2+0.6)*(ax.hi-ax.lo)/(ticks[i]-ticks[i-1])); } }
   const lw=W(doc,0.15), tl=0.8; const pos=v=>(clamp(v,ax.lo,ax.hi)-ax.lo)/(ax.hi-ax.lo)*L; const dec=GG.decOf(ax.step);
   const per=o.cols>0?o.cols:panels.length; const catW=Math.max(...panels[0].items.map(x=>metrics(fontOf(doc,'cat'),lblOf(x.it)).W));
   const subs=panels.map((p,k)=>{ const sub=new Ops(doc); const first=k%per===0||!o.shareCat;
     if(o.grid) for(const t of GG.ticksOf(ax)){ if(t<=ax.lo+1e-9||t>=ax.hi-1e-9) continue; sub.seg(pos(t),0,pos(t),span,W(doc,0.1),{dash:GRID_DASH}); }
     p.items.forEach((x,i)=>{ const y=m0+i*(bw+g); const v=x.v; const f=o.fill==='item'?(x.it.fill||'dark'):(o.one||'dark');
       if(fin(v)&&v>0) sub.rect(0,y,pos(v),bw,fillOpts(doc,f));
-      if(o.values&&fin(v)){ sub.textMid(fmt(v,o.dec),pos(Math.max(v,0))+0.6,y+bw/2,'value'); }
+      if(o.values&&fin(v)){ const s=fmt(v,o.dec); let x=pos(Math.max(v,0))+0.6;
+        if(smart&&x<L&&x+metrics(fontOf(doc,'value'),s).W>L+0.05) x=L+0.6;
+        sub.textMid(s,x,y+bw/2,'value'); }
       if(first) sub.textMid(lblOf(x.it),-1.2,y+bw/2,'cat',{align:'right'}); });
     sub.rect(0,0,L,span,{stroke:'#000000',sw:lw});
     const T=GG.ticksOf(ax); const tm0=metrics(fontOf(doc,'tick'),'0'); let last=null;
