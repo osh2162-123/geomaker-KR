@@ -7,6 +7,20 @@ PLAN.md의 목표를 작은 작업으로 나눈다. 수행 담당은 위에서�
 
 ## 할 일
 
+### 배포 묶음 7 — 한국 통계 지도 새 탭 `kstat` (브랜치 `feat/kmap-thematic`, worktree ../g)
+기준: KMAP-STATS.md, PLAN 결정 기록 2026-11-25. 배포 단위는 K2 완료 시점(ver 1.6). main 병합 전 Codex(astra) 최종 검수.
+역할: 총괄·엔진·검토 Claude Opus / 중간 관리 Claude Sonnet(2c7d7b40) / 단순 수행 Qwen(76d1d22b, 지시는 입력·출력·알고리즘·자가 점검을 모두 적은 한 파일 단위로, 결과는 총괄이 값 대조로 검수).
+공통 규칙: 앱은 KOSIS에 요청하지 않는다. 키는 사용자 환경 변수에만. 기출 PDF·그림은 저장소 밖. kmap 코드·저장 형식 불변. 배포 파일을 고치면 `node scripts/stamp.mjs` 후 `--check` 0.
+
+- [x] K0 지표 표 찾기 — 담당 Opus, 커밋 2b6bcaa. `scripts/kosis/indicators.json` 21개(getMeta·시험 조회 확인). 남은 표 4종은 파일의 todo.
+- [ ] K1a 지역 코드 대응표 — 담당 Qwen(지시 Opus), 검수 Opus. `scripts/kosis/build-codemap.mjs` + `codemap.json`. 입력은 `reports/kosis-k0/raw`(저장소 밖, 키 불필요). 완료 기준: 통계청 시군구 228행 전부 매핑 또는 이유 있는 unmatched, 매핑 결과가 모두 kmdata ver a에 존재, 지정 표본 10개 일치, a2b(광주·전남 → 통합 코드) 포함.
+- [ ] K1b `scripts/kosis/fetch.ps1` — 담당 Sonnet. PS 5.1·UTF-8 BOM. 키는 `KOSIS_API_KEY`에서만, 출력·오류에 노출 금지(`apiKey=***`). `indicators.json`을 읽어 지역 분류 위치(objL의 'ALL' 칸, 응답 C1/C2)를 지표별로 처리하고, `code`(stat/mois/kpx/name)별로 codemap→이름 순으로 kmdata ver a 코드에 맞춘다. 일반구·'시부'는 시 단위로 합치되 비율 지표는 합치지 않고 경고. 결과 `data/kstat.js`(`GMDATA.kstat`, 지표마다 ko·unit·level·year·src·tbl·vals, 마지막 줄 GMVER). `-Only id,id`, `-Search 낱말` 지원. 완료 기준: 21개 중 받을 수 있는 지표 전부 생성, 지표별 못 맞춘 행 수 보고, 키 문자열이 어떤 출력·파일에도 없음(grep 확인).
+- [ ] K1c licenses.html·README 출처 — 담당 Sonnet. "통계청 KOSIS(공공누리 제1유형), 행정안전부, 한국전력거래소" 자료 출처 줄과 '밖으로 나가는 요청'에 변화 없음을 확인.
+- [ ] K1.5 새 탭 뼈대 — 담당 Sonnet, 검토 Opus. id `kstat`, 이름 "한국 통계 지도", 백지도 메뉴 `통계 지도` 탭 + 홈 카드, `index.html` `hub-tpl-kstat`, `js/shell.js` TOOLS `need:["topo","kmdata","kstat"]`, `js/tools/kstat.js`(KM으로 바탕만 그림, 저장/불러오기 `app:"kstat"`, localStorage `wgkstat-editor-v1`), `css/tools/kstat.css`. 완료 기준: 탭이 열리고 바탕 지도·PNG 저장 동작, 다른 탭 SVG 불변, 홈 첫 화면이 1366×768에서 스크롤 없이 들어옴, `--check` 0.
+- [ ] K2 통계 지도 엔진 `js/engines/sengine.js`(`SM`) — 담당 Opus. 패널 1~3장 배치·아랫줄(각주·연도·출처)·칠하기 4방식(상위·하위 N, 조건, 서열 단계, 구간 단계)·범례 2종(상자형, 높음↕낮음)·동점 경고·경계 기준 각주. 완료 기준: KMAP-STATS §4.0·4.1 완료 기준, 검사기 T·L·O 겹침 0.
+- [ ] K2-UI kstat 탭 설정 칸·문장 해석 — 담당 Sonnet(엔진 API 확정 후), 검토 Opus.
+- [ ] K3~K6 — KMAP-STATS §8 순서대로, K2 배포 뒤 쪼갠다.
+
 ### 배포 묶음 5 — 브랜치 `feat/ux-e-layout`
 기준: IMPROVE.md 묶음 E, PLAN 2026-11-24 두 번째 결정. 묶음 A는 사용자 승인으로 fdb16c1에 커밋되었고 커밋 후 stamp --check 0(Claude 보고). 이번 비교 기준은 fdb16c1로 고정한다. 현재 PLAN·IMPROVE 수정과 내부 보고 파일은 보존한다. 커밋·병합·배포하지 않는다.
 담당: Claude=E0·E4 중심·최종 검토, qwen=E1·E2·E4 반복 검사, Codex=배분·E3·짧은 1차 검토. 순서 E0 형식 확정 → E1 → E2 → E3 → E4 반복 → 그래프 완료 후 E5. TASKS.md는 Codex가 갱신하며 같은 파일을 동시에 수정하지 않는다.
