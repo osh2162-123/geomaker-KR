@@ -1,0 +1,38 @@
+/* 한국 통계 지도 탭(kstat): 바탕 지도 + 오른쪽 설정 칸. 한국지리 백지도(kmap) 스타일과 같은 변수를 쓰되 클래스는 따로 둔다 */
+.t-kstat button,.t-kstat input,.t-kstat select{font:inherit;color:inherit}
+.t-kstat .ksapp{height:100%;display:grid;grid-template-columns:minmax(0,1fr) 320px;grid-template-rows:auto minmax(0,1fr);gap:10px;padding:0 14px 14px}
+.t-kstat .top{grid-column:1/-1;display:flex;align-items:center;gap:14px;min-width:0;padding:10px 0 0;flex-wrap:wrap}
+.t-kstat .brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.t-kstat .brand h1{margin:0;font:700 18px/1.2 var(--font-exam);letter-spacing:-.01em;white-space:nowrap}
+.t-kstat .brand small{color:var(--muted);font-size:12px;white-space:nowrap}
+.t-kstat .top-actions{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.t-kstat .btn{border:1px solid var(--line-2);background:var(--pane);border-radius:var(--r);padding:6px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;line-height:1.2;text-decoration:none}
+.t-kstat .btn:hover{background:var(--pane-2)}
+.t-kstat .btn:disabled{opacity:.45;cursor:default}
+.t-kstat .btn.primary{background:var(--omr);border-color:var(--omr);color:var(--on-omr);font-weight:600}
+.t-kstat .btn.primary:hover{filter:brightness(1.05)}
+.t-kstat .filebtn input{display:none}
+.t-kstat .ksdesk{position:relative;background:var(--desk);border-radius:10px;overflow:hidden;min-height:0;min-width:0;display:flex;flex-direction:column}
+.t-kstat .ksstage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:14px}
+.t-kstat .ksstage>svg{width:100%;height:100%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.t-kstat .desk-empty{position:absolute;inset:0;display:grid;place-items:center;padding:24px;pointer-events:none}
+.t-kstat .desk-empty[hidden]{display:none}
+.t-kstat .desk-empty div{max-width:340px;text-align:center;color:var(--ink);background:color-mix(in srgb,var(--pane) 92%,transparent);border:1px solid var(--line);border-radius:10px;padding:16px 18px;font-size:13.5px;line-height:1.6}
+.t-kstat .desk-empty b{display:block;font:600 16px/1.4 var(--font-exam);margin-bottom:4px}
+.t-kstat .kstatus{display:flex;gap:14px;justify-content:space-between;padding:6px 12px;font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--pane) 82%,transparent);border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.t-kstat .kpanel{background:var(--pane);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:auto}
+.t-kstat .ksset{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.t-kstat .sec-title{margin:0;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted)}
+.t-kstat .ksrow{display:flex;align-items:center;gap:10px}
+.t-kstat .ksrow>span{flex:none;width:3.2em;color:var(--muted);font-size:12.5px}
+.t-kstat .ksrow select{flex:1;min-width:0;border:1px solid var(--line-2);background:var(--bg);border-radius:6px;padding:5px 6px}
+.t-kstat .ksck{gap:6px}
+.t-kstat .ksck>span{width:auto;color:var(--ink)}
+.t-kstat .note{margin:0;font-size:12.5px;line-height:1.5;color:var(--muted)}
+.t-kstat .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--pane);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:calc(100% - 32px);z-index:20}
+.t-kstat .toast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:900px){.t-kstat .ksapp{display:flex;flex-direction:column;height:auto;padding:0 16px 16px}
+  .t-kstat .ksdesk{order:2;height:60vh;min-height:320px}
+  .t-kstat .kpanel{order:3;overflow:visible}
+  .t-kstat .brand small{display:none}}
+@media (prefers-reduced-motion: reduce){.t-kstat .toast{transition:none}}
