@@ -226,6 +226,8 @@ function Fetch-Indicator($ind, [string]$yr = '') {
     if (& $Summable ([string]$ind['unit'])) { $direct[$p] = [Math]::Round($child[$p], 6); $merged++ }
     else { [void]$unm.Add(($p + ' ' + $UN[$p]['n'] + ' (일반구 비율 지표: 분자·분모를 따로 받아 다시 계산해야 해요)')) }
   }
+  # 세종특별자치시는 시·군·구 하위 행이 없어 시도 행의 값을 시·군·구 단위(36110)에도 그대로 쓴다(codemap.json notes)
+  if (-not $flow -and -not $parts -and $level -eq 'sgg' -and $direct.ContainsKey('36') -and -not $direct.ContainsKey('36110') -and $UN.ContainsKey('36110')) { $direct['36110'] = $direct['36'] }
   $vals = New-Object Collections.Specialized.OrderedDictionary
   foreach ($c in ($direct.Keys | Sort-Object)) { $vals[$c] = $direct[$c] }
   # 원그래프용 부분 항목: 상위 항목이 아닌 말단 발전원만 남긴다(합계·구성비·소계 제외). 이름이 겹치면 상위 이름을 앞에 붙인다.

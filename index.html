@@ -310,13 +310,34 @@
     <div class="kstatus"><span id="ksSize"></span></div>
   </main>
   <aside class="kpanel" aria-label="설정">
-    <section class="ksset">
-      <h2 class="sec-title">바탕 지도</h2>
+    <section class="ksset kssent" aria-labelledby="ks-askTitle">
+      <h2 class="sec-title" id="ks-askTitle">문장으로 만들기</h2>
+      <textarea id="ksQ" rows="2" placeholder="예: 경상남도 시군별 노령화 지수 상위 5개·하위 5개 지역"></textarea>
+      <div class="ksbtns"><button class="btn primary" id="ksGo" type="button">통계 지도 만들기</button><span class="kbd-hint">Ctrl + Enter</span></div>
+      <p class="note ksmsg" id="ksAskMsg" role="status" hidden></p>
+      <details class="help"><summary>이렇게 써 보세요</summary><div class="examples" id="ksEx"></div></details>
+    </section>
+    <section class="ksset" aria-labelledby="ks-panTitle">
+      <h2 class="sec-title" id="ks-panTitle">통계 지도</h2>
+      <div id="ksPanels"></div>
+      <button class="btn" id="ksAdd" type="button">+ 지도 한 장 더(최대 3장)</button>
+      <ul class="ksnotes" id="ksWarn" role="status" hidden></ul>
+    </section>
+    <section class="ksset" aria-labelledby="ks-baseTitle">
+      <h2 class="sec-title" id="ks-baseTitle">바탕 지도</h2>
       <label class="ksrow"><span>범위</span><select id="ksArea"></select></label>
       <label class="ksrow"><span>단위</span><select id="ksLevel"><option value="sido">시·도</option><option value="sgg">시·군·구</option></select></label>
       <label class="ksrow ksck"><input type="checkbox" id="ksScale"><span>축척 막대</span></label>
-      <p class="note">통계값으로 칠하는 기능은 준비 중이에요. 지금은 바탕 지도를 고르고 저장할 수 있어요. 이 브라우저에는 마지막 작업이 자동으로 남아요.</p>
     </section>
+    <section class="ksset" data-adv aria-labelledby="ks-footTitle">
+      <h2 class="sec-title" id="ks-footTitle">아랫줄(각주·연도·출처)</h2>
+      <label class="ksrow ksck"><input type="checkbox" id="ksFootShow"><span>아랫줄 표시</span></label>
+      <label class="ksrow ksck"><input type="checkbox" id="ksVerNote"><span>경계 기준 각주 넣기</span></label>
+      <label class="kscol"><span>각주(한 줄에 하나)</span><textarea id="ksNotes" rows="2" placeholder="* 각주를 적으세요"></textarea></label>
+      <label class="ksrow"><span>연도</span><input type="text" id="ksYear" placeholder="비우면 자동"></label>
+      <label class="ksrow"><span>출처</span><input type="text" id="ksSrc" placeholder="비우면 자동"></label>
+    </section>
+    <p class="note ksnote">통계값은 미리 받아 둔 자료(국가데이터처·행정안전부 등)입니다. 이 사이트는 통계 사이트에 요청하지 않아요. 이 브라우저에는 마지막 작업이 자동으로 남아요.</p>
   </aside>
   <div class="toast" id="ksToast" role="status" aria-live="polite"></div>
 </div>

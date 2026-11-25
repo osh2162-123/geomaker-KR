@@ -36,3 +36,47 @@
   .t-kstat .kpanel{order:3;overflow:visible}
   .t-kstat .brand small{display:none}}
 @media (prefers-reduced-motion: reduce){.t-kstat .toast{transition:none}}
+/* 통계 지도 설정 칸: 문장 · 지도 패널 · 바탕 · 아랫줄 */
+.t-kstat .ksset{border-bottom:1px solid var(--line)}
+.t-kstat .ksset:last-of-type{border-bottom:0}
+.t-kstat textarea,.t-kstat .ksset input[type=text],.t-kstat .ksset input[type=number]{width:100%;border:1px solid var(--line-2);border-radius:6px;background:var(--bg);padding:5px 8px;min-width:0}
+.t-kstat .kssent textarea{min-height:52px;resize:vertical;line-height:1.5;padding:8px 10px;border-radius:8px}
+.t-kstat .ksbtns{display:flex;align-items:center;gap:8px}
+.t-kstat .kbd-hint{margin-left:auto;color:var(--muted);font-size:11px;white-space:nowrap}
+.t-kstat .ksmsg{line-height:1.55;color:var(--ink)}
+.t-kstat .ksbtnrow{display:inline-flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.t-kstat .btn.small{padding:3px 9px;font-size:12px}
+.t-kstat .help{font-size:12.5px;color:var(--muted);line-height:1.6}
+.t-kstat .help summary{cursor:pointer;color:var(--ink);font-weight:500}
+.t-kstat .examples{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.t-kstat .ex{text-align:left;border:1px solid var(--line-2);background:var(--bg);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:12.5px;line-height:1.4}
+.t-kstat .ex:hover{background:var(--pane-2)}
+.t-kstat .kspanel{border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.t-kstat .kshead{display:flex;align-items:center;gap:8px}
+.t-kstat .kshead b{font-size:13px}
+.t-kstat .kshead .btn{margin-left:auto}
+.t-kstat .kstag{font-size:11px;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 7px}
+.t-kstat .ksseg{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line-2);border-radius:7px;overflow:hidden}
+.t-kstat .ksseg button{border:0;border-right:1px solid var(--line-2);background:var(--pane);padding:6px 2px;cursor:pointer;font-size:12.5px}
+.t-kstat .ksseg button:last-child{border-right:0}
+.t-kstat .ksseg button[aria-pressed="true"]{background:var(--omr-soft);color:var(--omr);font-weight:600}
+.t-kstat .kshelp{font-size:12px;line-height:1.45}
+.t-kstat .ksrow em{font-style:normal;color:var(--muted);font-size:12.5px;white-space:nowrap}
+.t-kstat .ksrk{width:auto!important;color:var(--muted);font-size:12.5px;flex:none}
+.t-kstat .ksrow input[type=number]{max-width:5.5em}
+.t-kstat .ksadv{display:flex;flex-direction:column;gap:8px}
+.t-kstat .kscol{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+.t-kstat .ksdata>summary{cursor:pointer;font-size:12.5px;color:var(--ink);font-weight:500}
+.t-kstat .ksvals{margin-top:6px;display:flex;flex-direction:column;gap:6px}
+.t-kstat .ksvwrap{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:6px}
+.t-kstat .ksvwrap table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.t-kstat .ksvwrap th{position:sticky;top:0;background:var(--pane-2);text-align:left;padding:4px 6px;font-weight:600}
+.t-kstat .ksvwrap td{padding:2px 6px;border-top:1px solid var(--line)}
+.t-kstat .ksvwrap td input{max-width:none;width:7em;padding:2px 5px}
+.t-kstat .ksvwrap td input.edited{border-color:var(--omr);background:var(--omr-soft)}
+.t-kstat .kssrc{font-size:11.5px}
+.t-kstat .ksnotes{margin:0;padding:8px 10px 8px 24px;font-size:12.5px;line-height:1.5;color:var(--warn);background:var(--warn-soft);border-radius:6px}
+.t-kstat .ksnotes[hidden]{display:none}
+.t-kstat .ksnote{padding:0 14px 14px}
+.t-kstat .ksrow>span{width:3.4em}
+.t-kstat .ksrow.ksck>span{width:auto}
