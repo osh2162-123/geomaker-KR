@@ -157,10 +157,33 @@ function Eval-Calc([string]$expr, [hashtable]$vars) {
 
 # ── 한 지표 받기 ──
 $Summable = { param($u) $u -notin '%', '', '세', '명/㎢', '천명당' }
-function Fetch-Indicator($ind) {
+# 표를 만든 기관 이름(KOSIS 표 검색 결과의 ORG_NM). 통계청은 2025년 국가데이터처로 바뀌었다. 못 찾으면 indicators.json의 src를 쓴다.
+$OrgCache = @{}
+function Get-OrgName($ind, [string]$tblNm) {
+  $ck = [string]$ind['orgId'] + '/' + [string]$ind['tblId']
+  if ($OrgCache.ContainsKey($ck)) { return $OrgCache[$ck] }
+  $nm = $null
+  try {
+    $u = 'https://kosis.kr/openapi/statisticsSearch.do?method=getList&apiKey=' + (Enc $key) + '&searchNm=' + (Enc ($tblNm -replace '<[^>]+>', '')) + '&sort=RANK&startCount=1&resultCount=50&format=json&jsonVD=Y'
+    foreach ($x in (Get-Kosis $u)) { if ([string]$x.TBL_ID -eq [string]$ind['tblId'] -and [string]$x.ORG_ID -eq [string]$ind['orgId']) { $nm = [string]$x.ORG_NM; break } }
+  } catch { Write-Host ('  (기관 이름 조회 실패: ' + (Mask ([string]$_)) + ')') }
+  if (-not $nm) { $nm = [string]$ind['src']; Write-Host ("  (기관 이름을 못 찾아 indicators.json의 src '{0}'를 씁니다: {1})" -f $nm, $ind['tblId']) }
+  $OrgCache[$ck] = $nm
+  return $nm
+}
+# 분류(예: 발전설비별)의 항목 목록과 상위 항목. 반환: 코드 → @{ nm; up }를 표시 순서대로(OrderedDictionary)
+function Get-PartMeta($ind, $codes) {
+  $u = 'https://kosis.kr/openapi/statisticsData.do?method=getMeta&apiKey=' + (Enc $key) + '&type=ITM&format=json&jsonVD=Y&orgId=' + $ind['orgId'] + '&tblId=' + $ind['tblId']
+  $by = @{}
+  foreach ($x in (Get-Kosis $u)) { if ($x.OBJ_ID -eq 'ITEM') { continue }; $o = [string]$x.OBJ_ID; if (-not $by.ContainsKey($o)) { $by[$o] = New-Object Collections.Specialized.OrderedDictionary }; $by[$o][[string]$x.ITM_ID] = @{ nm = [string]$x.ITM_NM; up = [string]$x.UP_ITM_ID } }
+  foreach ($o in $by.Keys) { $all = $true; foreach ($c in $codes) { if (-not $by[$o].Contains($c)) { $all = $false; break } }; if ($all) { return $by[$o] } }
+  return $null
+}
+function Fetch-Indicator($ind, [string]$yr = '') {
+  $per = if ($yr) { '&startPrdDe=' + $yr + '&endPrdDe=' + $yr } else { '&newEstPrdCnt=1' }
   $u = 'https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=' + (Enc $key) +
        '&orgId=' + $ind['orgId'] + '&tblId=' + $ind['tblId'] + '&itmId=' + (Enc ([string]$ind['itmId'])) +
-       '&format=json&jsonVD=Y&prdSe=' + $ind['prdSe'] + '&newEstPrdCnt=1'
+       '&format=json&jsonVD=Y&prdSe=' + $ind['prdSe'] + $per
   $n = 1; foreach ($o in $ind['objL']) { $u += '&objL' + $n + '=' + (Enc ([string]$o)); $n++ }
   $rows = Get-Kosis $u
   $kind = [string]$ind['code']; $level = [string]$ind['level']
@@ -189,8 +212,8 @@ function Fetch-Indicator($ind) {
     if ($m -and $m.c) {
       $via[$m.via] = 1 + [int]$via[$m.via]
       if ($parts) {
-        $pn = [string]$r.('C' + $partIdx + '_NM'); if (-not $partNames.Contains($pn)) { [void]$partNames.Add($pn) }
-        if (-not $direct.ContainsKey($m.c)) { $direct[$m.c] = @{} }; $direct[$m.c][$pn] = $d
+        $pc = [string]$r.('C' + $partIdx); if (-not $partNames.Contains($pc)) { [void]$partNames.Add($pc) }
+        if (-not $direct.ContainsKey($m.c)) { $direct[$m.c] = @{} }; $direct[$m.c][$pc] = $d
       } else { $direct[$m.c] = $d }
     } elseif ($m -and $m.parent) {
       if (-not $child.ContainsKey($m.parent)) { $child[$m.parent] = 0.0 }; $child[$m.parent] += $d
@@ -205,16 +228,26 @@ function Fetch-Indicator($ind) {
   }
   $vals = New-Object Collections.Specialized.OrderedDictionary
   foreach ($c in ($direct.Keys | Sort-Object)) { $vals[$c] = $direct[$c] }
-  return @{ ind = $ind; vals = $vals; year = $year; unm = $unm; skipped = $skipped; noval = $noval; merged = $merged; via = $via; parts = $partNames; rows = $rows.Count }
+  # 원그래프용 부분 항목: 상위 항목이 아닌 말단 발전원만 남긴다(합계·구성비·소계 제외). 이름이 겹치면 상위 이름을 앞에 붙인다.
+  $partKeys = @(); $partLabels = @()
+  if ($parts -and $partNames.Count) {
+    $meta = Get-PartMeta $ind @($partNames)
+    if (-not $meta) { throw ('분류 메타를 읽지 못했어요: ' + $ind['tblId']) }
+    $hasKid = @{}; foreach ($k in $meta.Keys) { $up = [string]$meta[$k].up; if ($up) { $hasKid[$up] = $true } }
+    $leaf = @(); foreach ($k in $meta.Keys) { if ($partNames.Contains($k) -and -not $hasKid.ContainsKey($k) -and $meta[$k].nm -notmatch '^(합계|구성비|소계|계)$') { $leaf += $k } }
+    # 이름이 겹치는지는 이번에 값이 있는 항목만이 아니라 분류 전체의 말단 기준으로 본다(기력 LNG와 집단에너지 LNG를 헷갈리지 않게)
+    $cnt = @{}; foreach ($k in $meta.Keys) { if (-not $hasKid.ContainsKey($k) -and $meta[$k].nm -notmatch '^(합계|구성비|소계|계)$') { $cnt[$meta[$k].nm] = 1 + [int]$cnt[$meta[$k].nm] } }
+    foreach ($k in $leaf) { $lb = $meta[$k].nm; if ($cnt[$lb] -gt 1 -and $meta[$k].up -and $meta.Contains($meta[$k].up)) { $lb = $meta[$meta[$k].up].nm + ' ' + $lb }; $partKeys += $k; $partLabels += $lb }
+  }
+  $orgNm = Get-OrgName $ind ([string]$rows[0].TBL_NM)
+  return @{ ind = $ind; vals = $vals; year = $year; unm = $unm; skipped = $skipped; noval = $noval; merged = $merged; via = $via; parts = $partLabels; partKeys = $partKeys; org = $orgNm; rows = $rows.Count }
 }
 
 # ── 실행 ──
 $want = @(); foreach ($i in $Inds) { if (-not $Only -or $Only -contains $i['id']) { $want += $i['id'] } }
 if (-not $want.Count) { Write-Host '받을 지표가 없습니다. -Only 이름을 indicators.json의 id와 맞춰 주세요.'; exit 1 }
 $byId = @{}; foreach ($i in $Inds) { $byId[$i['id']] = $i }
-$need = New-Object Collections.ArrayList     # 계산식이 쓰는 다른 지표도 받는다
-foreach ($id in $want) { if (-not $need.Contains($id)) { [void]$need.Add($id) } }
-foreach ($id in @($need)) { $ex = [string]$byId[$id]['calc']; if ($ex) { foreach ($m in [regex]::Matches($ex, '[A-Za-z_][A-Za-z0-9_]*')) { if ($m.Value -ne 'a' -and $byId.ContainsKey($m.Value) -and -not $need.Contains($m.Value)) { [void]$need.Add($m.Value) } } } }
+$need = $want
 $got = @{}; $fail = @()
 foreach ($id in $need) {
   $ind = $byId[$id]
@@ -225,9 +258,14 @@ foreach ($id in $need) {
 foreach ($id in $want) {
   $g = $got[$id]; if (-not $g) { continue }; $ex = [string]$g.ind['calc']; if (-not $ex) { continue }
   $nv = New-Object Collections.Specialized.OrderedDictionary; $drop = 0
+  # 분모처럼 다른 지표를 쓰는 식은 자기 표와 같은 연도의 값으로 계산한다(최신 연도가 다르면 그 연도로 다시 받는다)
+  $dep = @{}
+  foreach ($m in [regex]::Matches($ex, '[A-Za-z_][A-Za-z0-9_]*')) { $v = $m.Value; if ($v -eq 'a' -or $dep.ContainsKey($v) -or -not $byId.ContainsKey($v)) { continue }
+    if ($got[$v] -and $got[$v].year -eq $g.year) { $dep[$v] = $got[$v].vals }
+    else { try { $dg = Fetch-Indicator $byId[$v] $g.year; $dep[$v] = $dg.vals; Write-Host ("받음  {0,-20} {1}행  {2} (계산용, {3} 같은 연도)" -f $v, $dg.rows, $dg.year, $id) } catch { $dep[$v] = @{}; $fail += $id; Write-Host ("실패  {0} {1}년 {2}" -f $v, $g.year, (Mask ([string]$_))) } } }
   foreach ($c in $g.vals.Keys) {
     $vars = @{ a = [double]$g.vals[$c] }; $ok = $true
-    foreach ($m in [regex]::Matches($ex, '[A-Za-z_][A-Za-z0-9_]*')) { $v = $m.Value; if ($v -eq 'a') { continue }; if ($got[$v] -and $got[$v].vals.Contains($c)) { $vars[$v] = [double]$got[$v].vals[$c] } else { $ok = $false } }
+    foreach ($m in [regex]::Matches($ex, '[A-Za-z_][A-Za-z0-9_]*')) { $v = $m.Value; if ($v -eq 'a') { continue }; if ($dep[$v] -and $dep[$v].Contains($c)) { $vars[$v] = [double]$dep[$v][$c] } else { $ok = $false } }
     $r = if ($ok) { Eval-Calc $ex $vars } else { $null }
     if ($null -eq $r) { $drop++; [void]$g.unm.Add(($c + ' ' + $UN[$c]['n'] + ' (계산에 쓸 값이 없어요)')) } else { $nv[$c] = [Math]::Round([double]$r, 4) }
   }
@@ -261,10 +299,10 @@ foreach ($id in $want) {
   $e = New-Object Collections.Specialized.OrderedDictionary
   $e['ko'] = $i['ko']; $e['unit'] = $i['unit']; $e['level'] = $i['level']; $e['year'] = $g.year
   if ($i.ContainsKey('alias')) { $e['alias'] = @($i['alias']) }
-  $e['src'] = [string]$i['src'] + ' KOSIS'; $e['tbl'] = [string]$i['tblId']; $e['itm'] = [string]$i['itmId']; $e['got'] = $today
+  $e['src'] = $g.org; $e['tbl'] = [string]$i['tblId']; $e['itm'] = [string]$i['itmId']; $e['got'] = $today
   if ($i.ContainsKey('note')) { $e['note'] = $i['note'] }
   if ($g.parts.Count) { $e['parts'] = @($g.parts); $pv = New-Object Collections.Specialized.OrderedDictionary
-    foreach ($c in $g.vals.Keys) { $pv[$c] = @($g.parts | ForEach-Object { if ($g.vals[$c].ContainsKey($_)) { $g.vals[$c][$_] } else { $null } }) }
+    foreach ($c in $g.vals.Keys) { $pv[$c] = @($g.partKeys | ForEach-Object { if ($g.vals[$c].ContainsKey($_)) { $g.vals[$c][$_] } else { $null } }) }
     $e['vals'] = $pv } else { $e['vals'] = $g.vals }
   if ($i.ContainsKey('flow') -and $i['flow']) { $e['flow'] = $true }
   $ks[$id] = $e
