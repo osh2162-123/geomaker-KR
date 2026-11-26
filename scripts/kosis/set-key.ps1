@@ -23,7 +23,7 @@ if (-not $TestOnly) {
   if (-not $key) { Write-Host '입력이 비었습니다. 저장하지 않았습니다.'; exit 1 }
   [Environment]::SetEnvironmentVariable($Name, $key, 'User')   # 새 창에서도 유지
   Set-Item "Env:$Name" $key                                    # 지금 창에서도 바로 사용
-  Write-Host ("저장했습니다(끝 4자리 …{0})." -f $key.Substring([Math]::Max(0, $key.Length - 4)))
+  Write-Host ("저장했습니다({0}자). 키 값은 화면에 보이지 않습니다." -f $key.Length)
 } else {
   $key = [Environment]::GetEnvironmentVariable($Name, 'User')
   if (-not $key) { Write-Host '저장된 키가 없습니다. -TestOnly 없이 먼저 실행하세요.'; exit 1 }
