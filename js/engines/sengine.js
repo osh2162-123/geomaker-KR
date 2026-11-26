@@ -160,17 +160,18 @@ function autoItems(doc,B){
   /* 제목 (가)(나)(다) */
   for(const p of B.parts){ const P=doc.panels&&doc.panels[p.i]||{}; const t=P.title!=null?P.title:(many?PANEL_KO[p.i]:'');
     if(t){ items.push({t:'text',x:p.x+p.w/2,y:0.3,text:t,size:T_PT,fam:'serif',align:'center',box:'none',km:'kstat'}); } }
+  let sbBot=0;
   /* 축척(패널마다) */
   for(const p of B.parts){ if(p.map.scale===false) continue; const sb=KM.scaleBarItems(p.L);
     for(const s of sb){ const o=Object.assign({},s,{km:'kstat'}); if(o.t==='line'){ o.x1+=p.x; o.x2+=p.x; o.y1+=p.y; o.y2+=p.y; } else { o.x+=p.x; o.y+=p.y; } items.push(o); }
     const xs=sb.flatMap(s=>s.t==='line'?[s.x1,s.x2]:[s.x,s.x+2.5]), ys=sb.flatMap(s=>s.t==='line'?[s.y1,s.y2]:[s.y,s.y+3]);
-    occ.push({x:p.x+Math.min(...xs)-0.5,y:p.y+Math.min(...ys)-0.5,w:Math.max(...xs)-Math.min(...xs)+1,h:Math.max(...ys)-Math.min(...ys)+1});
+    occ.push({x:p.x+Math.min(...xs)-0.5,y:p.y+Math.min(...ys)-0.5,w:Math.max(...xs)-Math.min(...xs)+1,h:Math.max(...ys)-Math.min(...ys)+1}); sbBot=Math.max(sbBot,p.y+Math.max(...ys)+0.6);
     if(p.L.ubox) occ.push(Object.assign({},KM.boxOf(p.L,p.L.ubox),{x:KM.boxOf(p.L,p.L.ubox).x+p.x,y:KM.boxOf(p.L,p.L.ubox).y+p.y}));
     if(p.L.dbox){ const b=KM.boxOf(p.L,p.L.dbox); occ.push({x:b.x+p.x,y:b.y+p.y,w:b.w,h:b.h}); } }
   /* 범례: 모든 패널의 범례 꼴이 같으면 하나, 다르면 패널마다 */
   const lgs=B.parts.map(p=>p.C.legend);
   const same=lgs.every(l=>l&&lgs[0]&&l.sig===lgs[0].sig);
-  let W=B.w, H=B.h; let below=0;
+  let W=B.w, H=Math.max(B.h,sbBot); let below=0;   /* 축척이 지도 아래로 나간 경우까지 포함 */
   const place=(lg,cands)=>{ const z=legendSize(lg);
     for(const c of cands){ const r={x:c.x,y:c.y,w:z.w,h:z.h}; const part=c.part; if(part&&landIn(part,r)>0.02) continue; if(occ.some(o=>ovl(o,r))) continue; occ.push(r); return r; }
     return null; };
@@ -196,6 +197,8 @@ function autoItems(doc,B){
     for(const n of notes.filter(Boolean)){ items.push({t:'text',x:0,y,text:n,size:fpt,fam:'gothic',align:'left',box:'none',km:'kstat'}); y+=lh; }
     const last=y;
     if(year) items.push({t:'text',x:0,y:last,text:`(${year})`,size:fpt,fam:'serif',align:'left',box:'none',km:'kstat'});
+    /* 오른쪽 끝: 지도·범례·각주 중 가장 넓은 곳에 맞춘다 */
+    W=Math.max(W,...items.filter(it=>it.t==='rect').map(it=>it.x+it.w),...notes.filter(Boolean).map(n=>tw(n,fpt,'gothic')));
     if(src){ const s=`(${src})`; items.push({t:'text',x:W-tw(s,fpt,'gothic')+0.3,y:last,text:s,size:fpt,fam:'gothic',align:'left',box:'none',km:'kstat'}); }
     if(year||src) y+=lh;
     H=y+0.4; }
