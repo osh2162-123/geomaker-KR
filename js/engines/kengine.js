@@ -261,7 +261,7 @@ function render(map){
     out.push(`<clipPath id="kmSkClip"><rect x="0" y="0" width="${f2(W)}" height="${f2(H)}"/></clipPath>`,`<path d="${sd}" fill="#fff" stroke="none" clip-path="url(#kmSkClip)"/>`); }
   /* 색칠: 시군구 단위(코드) · 시도 단위(s:코드) */
   const sh=map.shade||{};
-  for(const [code,tone] of Object.entries(sh)){ const T=TONES[tone]; if(!T) continue; let d='';
+  for(const [code,tone] of Object.entries(sh)){ const T=TONES[tone]||(/^#[0-9a-fA-F]{6}$/.test(tone)?{fill:tone}:null); if(!T) continue;   /* 통계 지도(SM)는 회색 값을 바로 준다 */ let d='';
     if(code.startsWith('s:')){ const sc=code.slice(2); const gs=obj.geometries.filter(o=>o.p.s===sc&&inc(o.p)&&!isUl(o.p)); if(gs.length) d+=geomPath(L,topojson.merge(t,gs),false);
       const ug=obj.geometries.filter(o=>o.p.s===sc&&inc(o.p)&&isUl(o.p)); if(ug.length) d+=geomPath(L,topojson.merge(t,ug),L.ul==='box'); }
     else if(code==='g:12'){ const gs=obj.geometries.filter(o=>o.p.s==='12'&&/구$/.test(o.p.n||'')&&inc(o.p)); if(gs.length) d+=geomPath(L,topojson.merge(t,gs),false); }

@@ -28,7 +28,7 @@ function freshDoc(app){
 }
 function normalizeDoc(d){
   d=GG.clean(d);   /* 밖에서 들어온 값 정리(보안): gengine.js clean() */
-  if(!d||typeof d!=='object'||!['landform','kmap'].includes(d.app)) return freshDoc(); const f=freshDoc(d.app);
+  if(!d||typeof d!=='object'||!['landform','kmap','kstat'].includes(d.app)) return freshDoc(); const f=freshDoc(d.app);
   const out=Object.assign({},f,d); out.page=Object.assign({},f.page,d.page||{}); out.style=Object.assign({},f.style,d.style||{});
   out.seq=Object.assign({},f.seq,d.seq||{}); out.meta=Object.assign({},f.meta,d.meta||{});
   out.items=Array.isArray(d.items)?d.items.filter(it=>it&&ITEM[it.t]).map(it=>{ const o=Object.assign({id:uid()},ITEM[it.t](),it); if(typeof o.id!=='string'||!/^[A-Za-z0-9_-]{1,40}$/.test(o.id)) o.id=uid(); return o; }):[];
@@ -171,6 +171,8 @@ function anchorPos(doc,a){ const B=doc.base; if(!B) return null;
 
 /* ───────── SVG로 그리기 ───────── */
 const f3=v=>(Math.round(v*1000)/1000).toString();
+/* 사각형 채움: white·gray·none, 통계 지도 범례는 '#rrggbb' 회색을 바로 쓴다 */
+const rectFill=f=>f==='white'?'#fff':f==='gray'?'#d9d9d9':/^#[0-9a-fA-F]{6}$/.test(f||'')?f:'none';
 function itemSVG(doc,it){
   const lw=LW(doc,it); const da=a=>a?` stroke-dasharray="${a.map(f3).join(' ')}"`:'';
   const textSVG=(x,y,txt,b,anchor)=>{ const fs=b.fs; const lines=b.lines; const top=y-b.h/2; let s='';
@@ -188,7 +190,7 @@ function itemSVG(doc,it){
     case 'line': return `<line x1="${f3(it.x1)}" y1="${f3(it.y1)}" x2="${f3(it.x2)}" y2="${f3(it.y2)}" stroke="#000" stroke-width="${f3(lw)}"${da(dashOf(it.dash,lw))}/>`;
     case 'arrow': { const ends=arrowEnds(it,lw); let s=`<path d="${ends.d}" fill="none" stroke="#000" stroke-width="${f3(lw)}"${da(dashOf(it.dash,lw))}/>`;
       for(const H of ends.heads) s+=`<path d="M${H.map(p=>f3(p[0])+' '+f3(p[1])).join(' L')} Z" fill="#000"/>`; return s; }
-    case 'rect': { const b=bboxOf(doc,it); const st=it.stroke==='none'?'none':'#000'; return `<rect x="${f3(b.x)}" y="${f3(b.y)}" width="${f3(b.w)}" height="${f3(b.h)}" fill="${it.fill==='white'?'#fff':it.fill==='gray'?'#d9d9d9':'none'}" stroke="${st}" stroke-width="${f3(lw)}"${da(it.stroke==='dash'?dashOf('dash',lw):null)}/>`; }
+    case 'rect': { const b=bboxOf(doc,it); const st=it.stroke==='none'?'none':'#000'; return `<rect x="${f3(b.x)}" y="${f3(b.y)}" width="${f3(b.w)}" height="${f3(b.h)}" fill="${rectFill(it.fill)}" stroke="${st}" stroke-width="${f3(lw)}"${da(it.stroke==='dash'?dashOf('dash',lw):null)}/>`; }
     case 'text': { const b=labelBox(doc,it); const x=it.align==='left'?it.x:it.x; const cy=it.y+b.h/2; const bx=bboxOf(doc,it); let s='';
       if(it.box!=='none') s+=`<rect x="${f3(bx.x)}" y="${f3(bx.y)}" width="${f3(bx.w)}" height="${f3(bx.h)}" fill="#fff" stroke="${it.box==='frame'?'#000':'none'}" stroke-width="${f3(lw)}"/>`;
       return s+`<g fill="#000">${textSVG(x,cy,it.text,b,it.align==='left'?'start':'middle')}</g>`; }
@@ -234,7 +236,7 @@ function drawItems(ctx,doc,k){
       case 'line': ctx.lineWidth=lw; setDash(dashOf(it.dash,LW(doc,it))); ctx.beginPath(); ctx.moveTo(it.x1*k,it.y1*k); ctx.lineTo(it.x2*k,it.y2*k); ctx.stroke(); break;
       case 'arrow': { const E=arrowEnds(it,LW(doc,it)); ctx.lineWidth=lw; setDash(dashOf(it.dash,LW(doc,it))); ctx.stroke(new Path2D(scalePath(E.d,k))); setDash(null);
         for(const H of E.heads){ ctx.beginPath(); H.forEach((p,i)=>i?ctx.lineTo(p[0]*k,p[1]*k):ctx.moveTo(p[0]*k,p[1]*k)); ctx.closePath(); ctx.fill(); } break; }
-      case 'rect': { const b=bboxOf(doc,it); if(it.fill!=='none'){ ctx.fillStyle=it.fill==='white'?'#fff':'#d9d9d9'; ctx.fillRect(b.x*k,b.y*k,b.w*k,b.h*k); }
+      case 'rect': { const b=bboxOf(doc,it); if(rectFill(it.fill)!=='none'){ ctx.fillStyle=rectFill(it.fill); ctx.fillRect(b.x*k,b.y*k,b.w*k,b.h*k); }
         if(it.stroke!=='none'){ ctx.lineWidth=lw; setDash(it.stroke==='dash'?dashOf('dash',LW(doc,it)):null); ctx.strokeRect(b.x*k,b.y*k,b.w*k,b.h*k); } break; }
       case 'text': { const b=labelBox(doc,it); const bx=bboxOf(doc,it);
         if(it.box!=='none'){ ctx.fillStyle='#fff'; ctx.fillRect(bx.x*k,bx.y*k,bx.w*k,bx.h*k); if(it.box==='frame'){ ctx.lineWidth=lw; ctx.strokeRect(bx.x*k,bx.y*k,bx.w*k,bx.h*k); } }

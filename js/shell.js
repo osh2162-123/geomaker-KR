@@ -2,7 +2,7 @@
 const HUB=(function(){
 'use strict';
 const MODE="web";            /* artifact: 자료 파일을 그때그때 받아 옴 · standalone: 모두 들어 있음 */
-const TOOLS=[{"id": "home", "name": "홈", "need": [], "wait": ""}, {"id": "mapquick", "name": "백지도 자동 생성기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "mapedit", "name": "백지도 편집기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "kmap", "name": "한국지리 백지도", "need": ["topo", "kmdata"], "wait": "우리나라 경계 자료를 불러오는 중…"}, {"id": "landform", "name": "지형 모식도 편집기", "need": ["ldata"], "wait": "모식도 자료를 불러오는 중…"}, {"id": "climate", "name": "기후 그래프 편집기", "need": ["stations"], "wait": "기후 지점 자료를 불러오는 중…"}, {"id": "energy", "name": "에너지 그래프 편집기", "need": ["edata"], "wait": "에너지 자료를 불러오는 중…"}, {"id": "religion", "name": "종교 그래프 편집기", "need": ["rdata"], "wait": "종교 자료를 불러오는 중…"}, {"id": "population", "name": "인구 그래프 편집기", "need": ["pdata"], "wait": "인구 자료(약 8 MB)를 불러오는 중…"}, {"id": "agriculture", "name": "농업 그래프 편집기", "need": ["adata"], "wait": "농업 자료(약 4.5 MB)를 불러오는 중…"}, {"id": "item", "name": "문항 설계", "need": ["idata"], "wait": "성취기준·기출 자료를 불러오는 중…"}];
+const TOOLS=[{"id": "home", "name": "홈", "need": [], "wait": ""}, {"id": "mapquick", "name": "백지도 자동 생성기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "mapedit", "name": "백지도 편집기", "need": ["d3"], "wait": "지도 라이브러리를 불러오는 중…"}, {"id": "kmap", "name": "한국지리 백지도", "need": ["topo", "kmdata"], "wait": "우리나라 경계 자료를 불러오는 중…"}, {"id": "kstat", "name": "한국 통계 지도", "need": ["topo", "kmdata", "kstat"], "wait": "우리나라 경계·통계 자료를 불러오는 중…"}, {"id": "landform", "name": "지형 모식도 편집기", "need": ["ldata"], "wait": "모식도 자료를 불러오는 중…"}, {"id": "climate", "name": "기후 그래프 편집기", "need": ["stations"], "wait": "기후 지점 자료를 불러오는 중…"}, {"id": "energy", "name": "에너지 그래프 편집기", "need": ["edata"], "wait": "에너지 자료를 불러오는 중…"}, {"id": "religion", "name": "종교 그래프 편집기", "need": ["rdata"], "wait": "종교 자료를 불러오는 중…"}, {"id": "population", "name": "인구 그래프 편집기", "need": ["pdata"], "wait": "인구 자료(약 8 MB)를 불러오는 중…"}, {"id": "agriculture", "name": "농업 그래프 편집기", "need": ["adata"], "wait": "농업 자료(약 4.5 MB)를 불러오는 중…"}, {"id": "item", "name": "문항 설계", "need": ["idata"], "wait": "성취기준·기출 자료를 불러오는 중…"}];
 const LIBS=['lib/d3.min.js','lib/d3-geo-projection.min.js','lib/topojson-client.min.js'];
 const DATA={
   stations:['data/stations.json',d=>GG.setStationDict(d)],
@@ -13,6 +13,7 @@ const DATA={
   ldata:['data/ldata.json',d=>LG.setData(d)],
   kdata:['data/kdata.json',d=>LG.setKice(d)],
   kmdata:['data/kmdata.json',d=>KM.setData(d)],
+  kstat:['data/kstat.json',()=>{}],
   idata:['data/idata.json',d=>IT.setData(d)],
   ikice:['data/ikice.json',d=>IT.setKice(d)],
 };
@@ -50,7 +51,7 @@ function getJSON(path){
   return loadScript(js).then(()=>{ if(!box[key]) throw new Error(js); checkVer(key,js); return box[key]; },()=>{ throw new Error(js); });
 }
 /* 자료 파일이 이 화면과 같은 빌드인지: 다르면(예: 새 파일을 data 폴더가 아닌 맨 위에 올림) 어느 파일인지 알린다 */
-const DATAVER={"adata":"818c40ef93","edata":"7da04bce8e","hi":"eb8477bc35","idata":"ea3235e23b","kmdata":"1a5d280150","koppen":"52246e79e5","ldata":"90dd025ac2","lo":"64da9548ec","pdata":"e7173c9e06","places":"6e3a317164","plates":"f1e72bd1e9","rdata":"d69ae9c7a9","relief":"27762a32c0","stations":"f139be33e4","xlo":"9b80e47a95"}; const oldFiles=[];
+const DATAVER={"adata":"818c40ef93","edata":"7da04bce8e","hi":"eb8477bc35","idata":"ea3235e23b","kmdata":"1a5d280150","koppen":"52246e79e5","kstat":"98c2a572bd","ldata":"90dd025ac2","lo":"64da9548ec","pdata":"e7173c9e06","places":"6e3a317164","plates":"f1e72bd1e9","rdata":"d69ae9c7a9","relief":"27762a32c0","stations":"f139be33e4","xlo":"9b80e47a95"}; const oldFiles=[];
 function checkVer(key,js){ const want=DATAVER[key]; if(!want) return; const have=(window.GMVER||{})[key]; if(have===want) return;
   oldFiles.push(short(js)); console.warn('옛 자료 파일:',short(js),have,'≠',want);
   let b=document.getElementById('hubOld'); if(!b){ b=document.createElement('div'); b.id='hubOld'; b.className='hub-bar'; b.setAttribute('role','alert'); document.body.append(b); }
@@ -186,6 +187,7 @@ function kindOf(d){
   if(d.app==='agriculture') return 'agriculture';
   if(d.app==='landform') return 'landform';
   if(d.app==='kmap') return 'kmap';
+  if(d.app==='kstat') return 'kstat';
   if(d.app==='item') return 'item';
   if(Array.isArray(d.stations)) return 'climate';
   const m=d.doc||d; if(m&&m.view&&m.frame&&Array.isArray(m.items)) return 'mapedit';

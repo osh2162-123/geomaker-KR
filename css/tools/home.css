@@ -69,3 +69,5 @@
 .t-home .bc .ic{width:60px;height:60px;min-height:60px;flex:none;padding:9px;border-radius:18px;margin-bottom:6px}
 .t-home .home-foot{margin-top:12px}
 @media (max-width:760px){.t-home .bento{grid-auto-rows:minmax(140px,auto)}}
+/* 카드가 7개가 되어도 두 줄에 들어오게, 넓은 화면에서는 한 줄에 4개(통계 지도 추가) */
+@media (min-width:761px){.t-home .bento{grid-template-columns:repeat(4,minmax(0,1fr))}}
