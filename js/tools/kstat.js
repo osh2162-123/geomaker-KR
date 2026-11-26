@@ -217,33 +217,60 @@ function findInds(seg){
   hits.sort((a,b)=>a.i-b.i); const ids=[]; for(const x of hits) if(!ids.includes(x.id)) ids.push(x.id);
   return {ids,rest:rest.replace(/\u0000+/g,' ')};
 }
-/* 방식 낱말: 지표 이름을 지운 문장에서 본다('65세 이상' 같은 이름과 헷갈리지 않게) */
+/* 시도 이름: 정식·약칭을 모두 받는다(충남·충청남도·충청남, 경북·경상북도·경상북 …). 긴 이름부터 찾고, 앞이 한글이면(다른 낱말의 일부) 건너뛴다 */
+const SIDO_EXTRA={'43':['충청북','충북도'],'44':['충청남','충남도'],'47':['경상북','경북도'],'48':['경상남','경남도'],'52':['전라북','전북도','전북특별자치도'],'46':['전라남','전남도'],'51':['강원도','강원특별자치도'],'50':['제주도','제주특별자치도'],'41':['경기도'],'36':['세종특별자치시'],'12':['전남광주통합특별시','전남광주']};
+function sidoTable(){ const rows=[]; const W=KM.SIDO_WORDS||{}; const codes=new Set([...Object.keys(W),...Object.keys(SIDO_EXTRA)]);
+  for(const c of codes) for(const w of new Set([...(W[c]||[]),...(SIDO_EXTRA[c]||[])])) rows.push([c,w]);
+  return rows.sort((x,y)=>y[1].length-x[1].length); }
+function findSidos(text){
+  const used=new Array(text.length).fill(false); const hits=[];
+  for(const [c,w] of sidoTable()){ let from=0; for(;;){ const i=text.indexOf(w,from); if(i<0) break; from=i+1;
+    if(used.slice(i,i+w.length).some(Boolean)) continue; if(i>0&&/[가-힣]/.test(text[i-1])) continue;
+    for(let k=i;k<i+w.length;k++) used[k]=true; hits.push([i,c]); } }
+  hits.sort((x,y)=>x[0]-y[0]); return [...new Set(hits.map(x=>x[1]))];
+}
+/* 방식 낱말: 지표 이름을 지운 문장에서 본다('65세 이상' 같은 이름과 헷갈리지 않게). 'N% 이상인 곳'은 값 조건, 'N위까지·상위 N곳'만 순위 */
+const OPS={'이상':'>=','초과':'>','이하':'<=','미만':'<'};
+const OPS_KO={'>=':'이상','>':'초과','<=':'이하','<':'미만'};
+const josa=(w,a,b)=>{ const c=String(w).charCodeAt(String(w).length-1)-0xAC00; return c>=0&&c%28?a:b; };
 function modeOf(txt){
-  const P={mode:'topbottom'}; const n=(re)=>{ const m=txt.match(re); return m?+m[1]:null; };
-  const cls=n(/(\d)\s*단계/);
-  if(/구간|미만|이상\s*~|이상.*미만/.test(txt)) { P.mode='interval'; P.classes=cls&&cls>=2&&cls<=5?cls:3; }
+  const P={mode:'topbottom'}; const num=re=>{ const m=txt.match(re); return m?+m[1]:null; };
+  const cls=num(/(\d)\s*단계/); const hasLo=/미만|이하/.test(txt), hasHi=/이상|초과/.test(txt);
+  const cond=txt.match(/(-?\d+(?:\.\d+)?)\s*(?:%|퍼센트|명|세|배|원|ha|kW)?\s*(이상|초과|이하|미만)/);
+  const rank=txt.match(/(\d+)\s*위\s*까지/)||txt.match(/상위\s*(\d+)\s*(?:곳|지역|시군)/);
+  if(/구간/.test(txt)||(hasHi&&hasLo&&!cond)||(hasHi&&hasLo&&/~|부터/.test(txt))){ P.mode='interval'; P.classes=cls&&cls>=2&&cls<=5?cls:3; }
   else if(cls||/서열|높고\s*낮|높음/.test(txt)){ P.mode='ordinal'; P.classes=cls&&cls>=2&&cls<=5?cls:5; }
-  else if(/위\s*까지|이상인|초과인|이하인|\d+\s*위/.test(txt)&&!/상위\s*\d+\s*개|하위/.test(txt)){ P.mode='cond'; const r=n(/(\d+)\s*위/); P.rank=r?Math.min(r,300):5; }
-  else { const t=n(/상위\s*(\d+)/), b=n(/하위\s*(\d+)/); const v=t||b||n(/(\d+)\s*개/); P.n=v?Math.min(Math.max(v,1),10):5; }
+  else if(cond&&!/상위\s*\d|하위\s*\d/.test(txt)){ P.mode='cond'; P.v=+cond[1]; P.op=OPS[cond[2]]; P.rank=null; }
+  else if(rank&&!/하위/.test(txt)){ P.mode='cond'; P.rank=Math.min(+rank[1],300); }
+  else { const t=num(/상위\s*(\d+)/), b=num(/하위\s*(\d+)/); const v=t||b||num(/(\d+)\s*개/); P.n=v?Math.min(Math.max(v,1),10):5; }
   return P;
 }
+/* 지도 범위·단위는 문장마다 새로 정한다(이전 문장의 값을 이어받지 않는다). 시도 이름 > 권역 낱말 > 전국 */
 function parseSentence(q){
   const text=String(q||'').trim(); if(!text) return {err:'문장을 입력해 주세요.'};
-  /* 지도 범위·단위·경계 기준은 한국지리 백지도의 해석기를 그대로 쓴다 */
-  const sp=KM.parse(text,doc.map); const map=sp.map; if(!(map.verPick)){ map.ver='a'; map.verPick=true; }
-  if(map.metro==='auto') map.metro='split';
-  if(!sp.areaSet){ map.area=doc.map.area; map.sido=(doc.map.sido||[]).slice(); map.level=/시\s*·?\s*도|시도/.test(text)&&!/시군/.test(text)?'sido':doc.map.level; }
-  /* 패널 나누기: (가)(나)(다) 표시가 있으면 그 자리에서, 없으면 찾은 지표마다 한 장 */
+  const base=Object.assign(KM.freshMap(),{ver:'a',verPick:true,level:'sgg',metro:'split'});
+  const sp=KM.parse(text,base); const map=sp.map; if(!map.verPick){ map.ver='a'; map.verPick=true; }
+  const sidos=findSidos(text);
+  if(sidos.length){ map.area='sido'; map.sido=sidos.slice(0,17); }
+  else if(sp.areaSet&&map.area!=='sido'){ map.sido=[]; }
+  else { map.area='sk'; map.sido=[]; }
+  map.metro=map.metro==='merge'?'merge':'split';
+  const wantSgg=/구별|구\s*단위|시\s*·?\s*군|시군|군\s*·?\s*구|자치구/.test(text); const wantSido=/시\s*·?\s*도|시도/.test(text);
+  /* 패널 나누기: 지역은 전체 문장에서 이미 정했다. (가)(나)(다) 표시가 있으면 그 자리에서, 없으면 찾은 지표마다 한 장 */
   const marks=[...text.matchAll(/\(\s*(가|나|다)\s*\)/g)];
-  let segs=[]; if(marks.length>=2){ marks.forEach((m,k)=>segs.push(text.slice(m.index+m[0].length,k+1<marks.length?marks[k+1].index:undefined))); }
-  const common=findInds(text);
-  const panels=[]; const unknown=[];
-  if(segs.length){ for(const sg of segs.slice(0,3)){ const f=findInds(sg); const id=f.ids[0]||common.ids[segs.indexOf(sg)]||null; if(!id){ unknown.push(sg.trim()); continue; }
-      const mp=modeOf(f.rest+' '+(/상위|하위|단계|구간|미만|이상|위\s*까지/.test(f.rest)?'':common.rest)); panels.push(Object.assign(SM.freshPanel(id),mp)); } }
+  const segs=[]; if(marks.length>=2) marks.forEach((m,k)=>segs.push(text.slice(m.index+m[0].length,k+1<marks.length?marks[k+1].index:undefined)));
+  const common=findInds(text); const panels=[]; const unknown=[];
+  if(segs.length){ segs.slice(0,3).forEach((sg,k)=>{ const f=findInds(sg); const id=f.ids[0]||common.ids[k]||null; if(!id){ unknown.push(sg.trim()); return; }
+      const own=/상위|하위|단계|구간|미만|이상|이하|초과|위\s*까지/.test(f.rest); panels.push(Object.assign(SM.freshPanel(id),modeOf(own?f.rest:common.rest))); }); }
   else if(common.ids.length){ const mp=modeOf(common.rest); for(const id of common.ids.slice(0,3)) panels.push(Object.assign(SM.freshPanel(id),mp));
     const cnt=text.match(/([2-3])\s*장|(두|세)\s*장/); if(panels.length===1&&cnt){ const k=cnt[1]?+cnt[1]:(cnt[2]==='두'?2:3); for(let j=1;j<k;j++) panels.push(Object.assign({},panels[0])); } }
-  if(!panels.length||unknown.length) return {err:'어떤 통계인지 알아듣지 못했어요.',suggest:suggest(text)};
-  const lv=IND[panels[0].key]&&IND[panels[0].key].level; if(lv==='sido'&&!/시\s*·?\s*군/.test(text)) map.level='sido';
+  if(!panels.length||unknown.length){ map.level=wantSgg?'sgg':wantSido?'sido':'sgg'; return {err:'어떤 통계인지 알아듣지 못했어요.',suggest:suggest(text),map}; }
+  const sidoOnly=panels.map(P=>IND[P.key]).filter(e=>e&&e.level==='sido');
+  const level=wantSgg?'sgg':wantSido?'sido':(sidoOnly.length?'sido':(sidos.length?'sgg':'sgg'));
+  /* 시·도 단위 자료뿐인 지표로 시·군·구 지도를 요구하면 조용히 바꾸지 않고 알려 준다 */
+  map.level=level;
+  if(wantSgg&&sidoOnly.length){ const alt=Object.assign({},{map:Object.assign({},map,{area:'sk',sido:[],level:'sido'}),panels:panels.map(cleanPanel)});
+    return {err:`${sidoOnly[0].ko}${josa(sidoOnly[0].ko,'은','는')} 시·도 단위 자료만 있어서 시·군·구(구) 단위 지도는 만들 수 없어요.`,suggest:suggest(text).filter(i=>i.level==='sgg'),alt,map}; }
   return {map,panels:panels.map(cleanPanel)};
 }
 /* 비슷한 지표 3개(글자가 겹치는 정도) */
@@ -252,10 +279,14 @@ function suggest(text){
   return LIST.map(i=>({i,s:score(i)})).sort((a,b)=>b.s-a.s).slice(0,3).map(x=>x.i);
 }
 function say(msg,btns){ const p=$('#ksAskMsg'); p.hidden=!msg; p.textContent=msg||''; if(btns&&btns.length){ const row=h('span',{class:'ksbtnrow'}); btns.forEach(b=>row.append(b)); p.append(h('br'),row); } }
-function describe(P){ const e=IND[P.key]; const m={topbottom:`상위·하위 ${P.n}개`,cond:P.rank?`상위 ${P.rank}위까지`:'조건 칠하기',ordinal:`${P.classes}단계(높음↕낮음)`,interval:`${P.classes}단계 구간`}[P.mode]; return `${e?e.ko:P.key} ${m}`; }
+const fmtV=v=>(+v).toLocaleString('en-US');
+function describe(P){ const e=IND[P.key]; const m={topbottom:`상위·하위 ${P.n}개`,cond:P.rank?`상위 ${P.rank}위까지`:(P.v!=null?`${fmtV(P.v)} ${OPS_KO[P.op||'>=']}인 곳`:'조건 칠하기'),ordinal:`${P.classes}단계(높음↕낮음)`,interval:`${P.classes}단계 구간`}[P.mode]; return `${e?e.ko:P.key} ${m}`; }
 function runAsk(){
   const q=$('#ksQ').value; const r=parseSentence(q);
-  if(r.err){ say(r.err+(r.suggest&&r.suggest.length?' 이 중에 있나요?':''),(r.suggest||[]).map(i=>h('button',{class:'btn small',type:'button',onclick:()=>{ doc.panels=[SM.freshPanel(i.id)]; if(i.level==='sido') doc.map.level='sido'; changed(); renderPanels(); syncForm(); say(`${i.ko}(으)로 만들었어요. 방식은 오른쪽에서 바꿀 수 있어요.`); }},i.ko))); return; }
+  if(r.err){
+    const btns=(r.suggest||[]).map(i=>h('button',{class:'btn small',type:'button',onclick:()=>{ doc.map=Object.assign(KM.normalizeMap(r.map||doc.map),{verPick:true,level:i.level==='sido'?'sido':((r.map&&r.map.level)||'sgg')}); doc.panels=[SM.freshPanel(i.id)]; changed(); renderPanels(); syncForm(); say(`${i.ko}(으)로 만들었어요. 방식은 오른쪽에서 바꿀 수 있어요.`); }},i.ko));
+    if(r.alt) btns.push(h('button',{class:'btn small',type:'button',onclick:()=>{ doc.map=Object.assign(KM.normalizeMap(r.alt.map),{verPick:true}); doc.panels=r.alt.panels; changed(); renderPanels(); syncForm(); say('전국 시·도 단위 지도로 만들었어요.'); }},'전국 시·도 단위로 만들기'));
+    say(r.err+(btns.length?(r.alt?' 이렇게 해 볼까요?':' 이 중에 있나요?'):''),btns); return; }
   doc.map=Object.assign(KM.normalizeMap(r.map),{verPick:true}); doc.panels=r.panels; changed(); renderPanels(); syncForm();
   say(`${r.panels.length}장으로 만들었어요: ${r.panels.map((P,i)=>(r.panels.length>1?SM.PANEL_KO[i]+' ':'')+describe(P)).join(' / ')}. 방식과 값은 오른쪽에서 바꿀 수 있어요.`);
 }
