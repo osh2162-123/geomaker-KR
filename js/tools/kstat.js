@@ -218,7 +218,7 @@ function findInds(seg){
   return {ids,rest:rest.replace(/\u0000+/g,' ')};
 }
 /* 시도 이름: 정식·약칭을 모두 받는다(충남·충청남도·충청남, 경북·경상북도·경상북 …). 긴 이름부터 찾고, 앞이 한글이면(다른 낱말의 일부) 건너뛴다 */
-const SIDO_EXTRA={'43':['충청북','충북도'],'44':['충청남','충남도'],'47':['경상북','경북도'],'48':['경상남','경남도'],'52':['전라북','전북도','전북특별자치도'],'46':['전라남','전남도'],'51':['강원도','강원특별자치도'],'50':['제주도','제주특별자치도'],'41':['경기도'],'36':['세종특별자치시'],'12':['전남광주통합특별시','전남광주']};
+const SIDO_EXTRA={'43':['충청북','충북도'],'44':['충청남','충남도'],'47':['경상북','경북도'],'48':['경상남','경남도'],'52':['전라북','전북도','전북특별자치도'],'29':['광주'],'46':['전라남','전남도'],'51':['강원도','강원특별자치도'],'50':['제주도','제주특별자치도'],'41':['경기도'],'36':['세종특별자치시'],'12':['전남광주통합특별시','전남광주']};
 function sidoTable(){ const rows=[]; const W=KM.SIDO_WORDS||{}; const codes=new Set([...Object.keys(W),...Object.keys(SIDO_EXTRA)]);
   for(const c of codes) for(const w of new Set([...(W[c]||[]),...(SIDO_EXTRA[c]||[])])) rows.push([c,w]);
   return rows.sort((x,y)=>y[1].length-x[1].length); }
@@ -226,6 +226,7 @@ function findSidos(text){
   const used=new Array(text.length).fill(false); const hits=[];
   for(const [c,w] of sidoTable()){ let from=0; for(;;){ const i=text.indexOf(w,from); if(i<0) break; from=i+1;
     if(used.slice(i,i+w.length).some(Boolean)) continue; if(i>0&&/[가-힣]/.test(text[i-1])) continue;
+    if(c==='29'&&w==='광주'&&text[i+2]==='시') continue;   /* '광주시'는 경기도 광주시(41610)이므로 광주광역시로 보지 않는다 */
     for(let k=i;k<i+w.length;k++) used[k]=true; hits.push([i,c]); } }
   hits.sort((x,y)=>x[0]-y[0]); return [...new Set(hits.map(x=>x[1]))];
 }
@@ -251,7 +252,10 @@ function parseSentence(q){
   const base=Object.assign(KM.freshMap(),{ver:'a',verPick:true,level:'sgg',metro:'split'});
   const sp=KM.parse(text,base); const map=sp.map; if(!map.verPick){ map.ver='a'; map.verPick=true; }
   const sidos=findSidos(text);
-  if(sidos.length){ map.area='sido'; map.sido=sidos.slice(0,17); }
+  let note=null;
+  if(sidos.length){ map.area='sido'; map.sido=sidos.slice(0,17);
+    /* 7월 기준(통합) 지도에는 광주만 따로 고르는 범위가 없어 전남광주 전체를 보여 준다 */
+    if(map.ver==='b'&&map.sido.includes('29')){ map.sido=[...new Set(map.sido.map(c=>c==='29'?'12':c))]; note='7월 기준 지도에서는 광주만 따로 고를 수 없어 전남광주 전체를 보여 줘요. 광주 구만 보려면 4월 기준으로 바꿔 보세요.'; } }
   else if(sp.areaSet&&map.area!=='sido'){ map.sido=[]; }
   else { map.area='sk'; map.sido=[]; }
   map.metro=map.metro==='merge'?'merge':'split';
@@ -271,7 +275,7 @@ function parseSentence(q){
   map.level=level;
   if(wantSgg&&sidoOnly.length){ const alt=Object.assign({},{map:Object.assign({},map,{area:'sk',sido:[],level:'sido'}),panels:panels.map(cleanPanel)});
     return {err:`${sidoOnly[0].ko}${josa(sidoOnly[0].ko,'은','는')} 시·도 단위 자료만 있어서 시·군·구(구) 단위 지도는 만들 수 없어요.`,suggest:suggest(text).filter(i=>i.level==='sgg'),alt,map}; }
-  return {map,panels:panels.map(cleanPanel)};
+  return {map,panels:panels.map(cleanPanel),note};
 }
 /* 비슷한 지표 3개(글자가 겹치는 정도) */
 function suggest(text){
@@ -288,7 +292,7 @@ function runAsk(){
     if(r.alt) btns.push(h('button',{class:'btn small',type:'button',onclick:()=>{ doc.map=Object.assign(KM.normalizeMap(r.alt.map),{verPick:true}); doc.panels=r.alt.panels; changed(); renderPanels(); syncForm(); say('전국 시·도 단위 지도로 만들었어요.'); }},'전국 시·도 단위로 만들기'));
     say(r.err+(btns.length?(r.alt?' 이렇게 해 볼까요?':' 이 중에 있나요?'):''),btns); return; }
   doc.map=Object.assign(KM.normalizeMap(r.map),{verPick:true}); doc.panels=r.panels; changed(); renderPanels(); syncForm();
-  say(`${r.panels.length}장으로 만들었어요: ${r.panels.map((P,i)=>(r.panels.length>1?SM.PANEL_KO[i]+' ':'')+describe(P)).join(' / ')}. 방식과 값은 오른쪽에서 바꿀 수 있어요.`);
+  say(`${r.panels.length}장으로 만들었어요: ${r.panels.map((P,i)=>(r.panels.length>1?SM.PANEL_KO[i]+' ':'')+describe(P)).join(' / ')}. 방식과 값은 오른쪽에서 바꿀 수 있어요.`+(r.note?' '+r.note:''));
 }
 const EX=['경상남도 시군별 노령화 지수 상위 5개·하위 5개 지역','강원도 시군 고령 인구 비율 상위 3개 하위 3개','전국 시도별 합계 출산율 5단계 높음 낮음','경기도 시군 1인 가구 비율 3단계 구간',
   '(가) 노령화 지수, (나) 외국인 주민 비율, 경상남도 시군 상위 5개 하위 5개','충청남도 시군 인구 상위 5위까지 칠하기'];
